@@ -1,4 +1,19 @@
-.dark-outine{
+.form-sections {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
 
-    border: 2px solid black;
+.left-section, .right-section {
+    width: 48%;
+}
+
+.password-center {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.password-center .form-control {
+    width: 50%; /* Adjust width as needed */
+    margin: 0 auto;
 }

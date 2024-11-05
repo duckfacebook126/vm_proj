@@ -1,23 +1,27 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import './Login.css';
 import { Link } from 'react-router-dom';
 import LoginValidation from './LoginValidation';
 
 function Login() {
 
-const [values,Setvalues]= useState({
+const [login_values,setLoginValues]= useState({
         username: '',
         password: ''
     
 });
 
 const handleInput=(event)=>{
-Setvalues(prev=>({...prev,[event.target.name]:[event.target.value]}));
+setLoginValues(prev=>({...prev,[event.target.name]:[event.target.value]}));
 }
+
+
+const [error,setErrors]=useState({});
+
 const handleSubmit=(event)=>
 {
 event.preventDefault();
-Setvalues(LoginValidation(values))
+setErrors(LoginValidation(login_values))
 
 }
 
@@ -30,10 +34,12 @@ Setvalues(LoginValidation(values))
                     <div className="form-group">
                         <label htmlFor="username"><strong>Username</strong></label>
                         <input type="text" onChange={handleInput} className="form-control mb-3 dark-outline" id="username" placeholder="Enter Username" name="username" />
+                        {error.username && <span className="text-danger">{error.username}</span>}
                     </div>
                     <div className="form-group mb-3">
                         <label htmlFor="password"><strong>Password</strong></label>
                         <input type="password" onChange={handleInput} className="form-control" id="password" placeholder="Enter Password" name="password" />
+                        {error.password && <span className="text-danger">{error.password}</span>}
                     </div>
                     <button type="submit" className="btn btn-primary btn-block mb-3 w-100">Login</button>
                     <Link to="/signup" className="text-center mb-3">Don't have an account? Register</Link>
