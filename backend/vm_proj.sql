@@ -24,7 +24,7 @@ CREATE TABLE disk_flavor (
 );
 
 
-
+ 
 CREATE TABLE operating_system(
 
 id INT UNIQUE,

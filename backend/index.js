@@ -1,9 +1,11 @@
 const express = require('express');
-const cors=require('cors')
+const cors = require('cors'); // Corrected the typo here
 const app = express();
-app.use(cors());
+
 const taskRouter = require('./routes/taskRouter'); // Importing directly, no destructuring here
-app.use(express.json());
+
+app.use(cors()); // Use CORS middleware
+app.use(express.json()); // Middleware to parse JSON bodies
 
 app.get('/', (req, res) => {
     res.send('PONGGED');
