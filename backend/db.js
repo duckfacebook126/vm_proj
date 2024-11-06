@@ -7,7 +7,7 @@ class Database {
                 host: 'localhost',   // Ensure host, user, password, and database are correct
                 user: 'root',
                 password: '',         // Your MySQL password here
-                database: 'vm_proj',
+                database: 'taks_api',
                 
                 
             });

@@ -19,18 +19,20 @@ const createtask = async (req, res) => {
 };
 
 const fetchAlltasks = async (req, res) => {
-    let conn;
-    try {
-        conn = await db.getConnection();
-        const query = 'SELECT * FROM tasks';
-        const [rows] = await conn.execute(query);
-        res.status(200).json({ data: rows });
-    } catch (error) {
-        console.log('Failed to fetch task:', error);
-        res.status(500).json({ error: 'Failed to fetch tasks' });
-    } finally {
-        if (conn) conn.release(); // Only release if conn is defined
-    }  
+    // let conn;
+    // try {
+    //     conn = await db.getConnection();
+    //     const query = 'SELECT * FROM tasks';
+    //     const [rows] = await conn.execute(query);
+    //     res.status(200).json({ data: rows });
+    // } catch (error) {
+    //     console.log('Failed to fetch task:', error);
+    //     res.status(500).json({ error: 'Failed to fetch tasks' });
+    // } finally {
+    //     if (conn) conn.release(); // Only release if conn is defined
+    // }  
+
+    res.send('alltasks fetched');
 };
 
 
