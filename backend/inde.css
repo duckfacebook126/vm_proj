@@ -1,0 +1,14 @@
+
+
+
+
+
+
+.header-container {
+    color: red; /* Sets the font color to red */
+    font-size: 20px; /* Sets the font size to 20px */
+    display: flex; /* Use flexbox to center the content */
+    justify-content: center; /* Horizontally centers the content */
+    align-items: center; /* Vertically centers the content */
+    height: 100vh; /* Ensures the header container takes full viewport height (optional, adjust as needed) */
+}

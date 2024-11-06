@@ -7,9 +7,7 @@ class Database {
                 host: 'localhost',   // Ensure host, user, password, and database are correct
                 user: 'root',
                 password: '',         // Your MySQL password here
-                database: 'taks_api',
-                
-                
+                database: 'taks_api'
             });
             Database.instance = this;
         }

@@ -1,0 +1,36 @@
+Core JavaScript Fundamentals:
+
+Variables and Data Types
+Operators
+Control Flow
+Functions
+Objects
+Arrays
+Regular Expressions
+Modern JavaScript Features (ES6+):
+
+Arrow Functions
+Destructuring Assignment
+Template Literals
+Classes
+Modules
+Promises
+Async/Await
+Spread Operator
+Rest Parameters
+Generators
+Iterators
+DOM Manipulation:
+
+Selecting Elements
+Creating and Modifying Elements
+Event Handling
+Working with Styles and Attributes
+Traversing the DOM
+Asynchronous Programming:
+
+Callbacks
+Promises
+Async/Await
+Fetch API
+AJAX Requests

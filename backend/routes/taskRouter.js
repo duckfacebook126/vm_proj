@@ -1,23 +1,13 @@
-const express =require('express');
-const router= express.Router();
-const{fetchAlltasks, fetchTaskById, createtask, updateTaskById, deleteTaskById} = require('../controller/taskController');
-//get request
-//get all tasks
-router.get('/tasks',fetchAlltasks);
-///get task by id
-router.get('/:id',fetchTaskById);
-// create task
-router.get('/test', (req, res) => {
-    res.send('Hello from taskRouter!');
-});
+// taskRouter.js
+const express = require('express');
+const router = express.Router();
+const { fetchAlltasks, fetchTaskById, signup, updateTaskById, deleteTaskById } = require('../controller/taskController');
 
-router.post('/create',createtask);
-//update byid
+// Routes
+router.get('/tasks', fetchAlltasks);              // Fetch all tasks
+router.get('/tasks/:id', fetchTaskById);          // Fetch a task by ID
+router.post('/signup', signup);               // Create a new task
+router.put('/tasks/:id', updateTaskById);         // Update a task by ID
+router.delete('/tasks/:id', deleteTaskById);      // Delete a task by ID
 
-router.put('/:id',updateTaskById);
-
-//delete taks by id
-
-router.delete('/:id',deleteTaskById);
-
-module.exports=router;
+module.exports = router;
