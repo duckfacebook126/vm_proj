@@ -1,0 +1,137 @@
+/* File: AddVMForm.css */
+
+.add-vm-form-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px 25px;
+    width: 400px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.add-vm-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.add-vm-form h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-group input[type="text"],
+.form-group select,
+.form-group input[type="range"] {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus,
+.form-group input[type="range"]:focus {
+    border-color: #007bff;
+    outline: none;
+    background-color: #ffffff;
+}
+
+.form-group input[type="range"] {
+    -webkit-appearance: none;
+    height: 8px;
+    border-radius: 5px;
+    background: #e0e0e0;
+    margin-top: 5px;
+}
+
+.form-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+}
+
+.form-group input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+}
+
+/* Button Styles */
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+}
+
+.form-buttons button {
+    width: 48%;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-buttons button[type="button"] {
+    background-color: #6c757d;
+    color: #ffffff;
+}
+
+.form-buttons button[type="button"]:hover {
+    background-color: #5a6268;
+}
+
+.form-buttons button[type="submit"] {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+.form-buttons button[type="submit"]:hover {
+    background-color: #0069d9;
+}
+
+/* Close Button in Top Right Corner */
+.add-vm-form-container::before {
+    content: "×";
+    font-size: 1.5rem;
+    color: #333;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.add-vm-form-container::before:hover {
+    color: #ff4d4d;
+}
