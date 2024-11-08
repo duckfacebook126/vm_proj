@@ -66,57 +66,9 @@ function AddVMForm({ onSubmit, onClose }) {
                     {vmError.name && <span className="error">{vmError.name}</span>}
                 </div>
 
-                {/* Operating System */}
-                <div className="form-group">
-                    <label>Operating System</label>
-                    <select value={vmValues.os} onChange={handleInput} name="os">
-                        <option value="windows">Windows</option>
-                        <option value="linux">Linux</option>
-                    </select>
-                </div>
-
-                {/* Flavor and RAM Slider */}
-                <div className="form-group">
-                    <label>Disk Flavor</label>
-                    <select value={vmValues.flavor} onChange={(e) => {
-                        handleInput(e);
-                        const flavor = e.target.value;
-                        setVmValues(prev => ({
-                            ...prev,
-                            ram: flavor === 'light' ? 4 : flavor === 'medium' ? 8 : 16
-                        }));
-                    }} name="flavor">
-                        <option value="light">Light</option>
-                        <option value="medium">Medium</option>
-                        <option value="heavy">Heavy</option>
-                    </select>
-                    <label>RAM: {vmValues.ram} GB</label>
-                    <input
-                        type="range"
-                        min={vmValues.flavor === 'light' ? 4 : vmValues.flavor === 'medium' ? 8 : 16}
-                        max={vmValues.flavor === 'light' ? 8 : vmValues.flavor === 'medium' ? 16 : 32}
-                        value={vmValues.ram}
-                        name="ram"
-                        onChange={(e) => setVmValues(prev => ({ ...prev, ram: Number(e.target.value) }))}
-                    />
-                </div>
-
-                {/* Disk Size Slider */}
-                <div className="form-group">
-                    <label>Disk Size: {vmValues.disk} GB</label>
-                    <input
-                        type="range"
-                        min={50}
-                        max={500}
-                        value={vmValues.disk}
-                        name="disk"
-                        onChange={(e) => setVmValues(prev => ({ ...prev, disk: Number(e.target.value) }))}
-                    />
-                </div>
-
                 <div className="form-buttons">
                     <button type="button" onClick={onClose}>Cancel</button>
-                    <button type="submit">Submit</button>
+                    <button type="submit" onSubmit={onSubmit}>Submit</button>
                 </div>
             </form>
         </div>
