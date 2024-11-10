@@ -14,7 +14,7 @@
 }
 
 /* Add VM Button */
-.btn-add-vm {
+.btn-add-vm, .btn-logout {
     background-color: #ffffff;
     color: #007bff;
     border: none;
@@ -22,7 +22,7 @@
     border-radius: 5px;
     transition: 0.3s;
 }
-.btn-add-vm:hover {
+.btn-add-vm:hover, .btn-logout:hover {
     background-color: #e2e6ea;
     color: #0056b3;
 }

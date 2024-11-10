@@ -1,4 +1,3 @@
-// File: Login.js
 import React, { useState } from 'react';
 import './Login.css';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +11,6 @@ function Login() {
     const [loginError, setLoginError] = useState({});
     const navigate = useNavigate();
 
-    // Handle input change
     const handleInput = (event) => {
         const { name, value } = event.target;
         setLoginValues((prev) => ({
@@ -20,31 +18,35 @@ function Login() {
             [name]: value
         }));
     };
-
-    // Handle form submission
     const handleSubmit = (event) => {
         event.preventDefault();
-
-        // Perform validation (e.g., check for empty fields)
+    
         const errors = {};
         if (!loginValues.username) errors.username = "Username is required";
         if (!loginValues.password) errors.password = "Password is required";
-
+    
         setLoginError(errors);
-
-        // Proceed if there are no validation errors
+    
         if (Object.keys(errors).length === 0) {
-            axios.post('http://localhost:8080/api/login', loginValues)
+            console.log('Login Values:', loginValues); // Log the login values
+            axios.post('http://localhost:8080/api/login', loginValues, { withCredentials: true })
                 .then(res => {
-                    // Handle successful login, e.g., save token and redirect
                     navigate('/dashboard'); // Redirect on successful login
                 })
                 .catch(err => {
                     console.error(err);
-                    setLoginError({ auth: "Invalid username or password" });
+                    const errorResponse = err.response.data;
+    
+                    // Set specific error messages from the server response
+                    setLoginError({
+                        username: errorResponse.username_error,
+                        password: errorResponse.password_error,
+                        auth: errorResponse.error // Catch-all error message
+                    });
                 });
         }
     };
+    
 
     return (
         <div className='login-container d-flex justify-content-center align-items-center'>

@@ -1,17 +1,20 @@
 // File: routes/taskRouter.js
 const express = require('express');
 const router = express.Router();
-const { signup, login, add_vm,createTask, fetchAllTasks, fetchTaskById, updateTaskById, deleteTaskById } = require('../controller/taskController');
-
+const { signup, login, logout,createVM } = require('../controller/taskController');
+const checkAuth = require('../controller/Auth'); // Import the auth middleware
 // User routes
 router.post('/signup', signup);
 router.post('/login', login);
-router.post('/create_vm',add_vm);
+router.post('/logout', logout);
+router.get('/dashboard', checkAuth, (req, res) => {  res.send('Welcome to the Dashboard!');
+
+ });
+
+ router.post('/create_vm',createVM);
+
+// router.post('/create_vm',add_vm);
 // Task routes
-router.get('/tasks', fetchAllTasks);
-router.get('/tasks/:id', fetchTaskById);
-router.post('/tasks', createTask);
-router.put('/tasks/:id', updateTaskById);
-router.delete('/tasks/:id', deleteTaskById);
+
 
 module.exports = router;

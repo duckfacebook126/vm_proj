@@ -1,22 +1,39 @@
-// File: controller/taskController.js
 const db = require('../db');
+const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
-// Signup user Function
+
+// Signup Function
 const signup = async (req, res) => {
     let conn;
     try {
         conn = await db.getConnection();
-        const {   cnic,
-            firstName,
-            lastName,
-            phoneNumber,
-            username,
-            email,
-            password} = req.body;
+        const { cnic, firstName, lastName, phoneNumber, username, email, password } = req.body;
+
+        // Check for duplicate CNIC or username
+        const checkQuery = 'SELECT * FROM users WHERE CNIC = ? OR userName = ?';
+        const [rows] = await conn.execute(checkQuery, [cnic, username]);
+
+        if (rows.length > 0) {
+            // Determine the type of duplicate error
+            let errorMsg = '';
+            if (rows.some(row => row.CNIC === cnic)) {
+                errorMsg = 'CNIC is already in use';
+            }
+            if (rows.some(row => row.userName === username)) {
+                errorMsg = errorMsg ? `${errorMsg} and username is already in use` : 'Username is already in use';
+            }
+            return res.status(400).json({ error: errorMsg });
+        }
+
+        // Generate a unique user ID
         const id = uuidv4();
-        const query = 'INSERT INTO users (cnic, firstName, lastName, phoneNumber, username, email, password ) VALUES (?, ?, ?, ?, ?, ?, ?)';
-        await conn.execute(query,         [cnic, firstName,lastName,phoneNumber,username,email,password ]);
-        
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const query = 'INSERT INTO users (id, firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+        await conn.execute(query, [id, firstName, lastName, phoneNumber, cnic, email, username, hashedPassword]);
+
         res.status(201).json({ message: 'User created successfully' });
     } catch (error) {
         console.error('Failed to create user:', error);
@@ -25,59 +42,6 @@ const signup = async (req, res) => {
         if (conn) conn.release();
     }
 };
-///creating a VM
-const add_vm = async (req, res) => {
-    let conn;
-    try {
-        conn = await db.getConnection();
-        await conn.beginTransaction();  // Start transaction
-
-        const { 
-            osName,
-            vmName,
-            cpuCores,
-            cpuCount,
-            diskFlavor,
-            ram,
-            diskSize,
-            diskName
-        } = req.body;
-
-        const user_id = null;
-        const os_id = null;
-        const vm_id = null;
-        const disk_id = null;
-        const disk_flavor_id = null;
-
-        // Insert into operating_system table
-        const query1 = 'INSERT INTO operating_system (id, name) VALUES (?, ?)';
-        await conn.execute(query1, [os_id, osName]);
-
-        // Insert into virtual_machine table
-        const query2 = 'INSERT INTO virtual_machine (id, name, ram, cpu, cores, osId, userId) VALUES (?, ?, ?, ?, ?, ?, ?)';
-        await conn.execute(query2, [vm_id, vmName, ram, cpuCount, cpuCores, os_id, ]);
-
-        // Insert into disk_flavor table
-        const query3 = 'INSERT INTO disk_flavor (id, diskFlavor) VALUES (?, ?)';
-        await conn.execute(query3, [disk_flavor_id, diskFlavor]);
-
-        // Insert into disk table
-        const query4 = 'INSERT INTO disk (id, name, size, virtual_machine_id, flavor) VALUES (?, ?, ?, ?, ?)';
-        await conn.execute(query4, [disk_id, diskName, diskSize, vm_id, disk_flavor_id]);
-
-        await conn.commit();  // Commit transaction
-        res.status(201).json({ message: 'VM created successfully' });
-    } catch (error) {
-        if (conn) await conn.rollback();  // Rollback transaction on error
-        console.error('Failed to create VM:', error);
-        res.status(500).json({ error: 'Failed to create VM' });
-    } finally {
-        if (conn) conn.release();
-    }
-};
-
-
-
 
 // Login Function
 const login = async (req, res) => {
@@ -85,14 +49,41 @@ const login = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { username, password } = req.body;
-        const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
-        const [rows] = await conn.execute(query, [username, password]);
 
+        // Log the received values
+        console.log('Received Username:', username);
+        console.log('Received Password:', password);
+
+        // Query to find the user by username
+        const query = 'SELECT * FROM users WHERE userName = ?';
+        const [rows] = await conn.execute(query, [username]);
+
+        // Check if user exists
         if (rows.length === 0) {
-            return res.status(401).json({ error: "Invalid username or password" });
+            return res.status(200).json({ login: false, loginError: "Username is incorrect" });
         }
 
-        res.status(200).json({ message: "Login successful" });
+        const user = rows[0];
+
+        // Log the user object
+        console.log('User Object:', user);
+
+        // Log the values of password and hashed password
+        console.log('Stored Hashed Password:', user.password);
+
+        // Compare the submitted password with the stored hashed password
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        console.log('Password comparison result:', passwordMatch);
+
+        if (!passwordMatch) {
+            return res.status(200).json({ login: false, loginError: "Wrong password" });
+        }
+
+        // Set the session variable if password matches
+        req.session.username = user.userName;
+        console.log(`Session username set to: ${req.session.username}`);
+
+        res.status(200).json({ message: "Login successful", login: true, username: req.session.username });
     } catch (error) {
         console.error('Login failed:', error);
         res.status(500).json({ error: 'Login failed' });
@@ -101,20 +92,79 @@ const login = async (req, res) => {
     }
 };
 
-// Task Functions (existing functions remain unchanged)
-const createTask = async (req, res) => { /* Function code remains the same */ };
-const fetchAllTasks = async (req, res) => { /* Function code remains the same */ };
-const fetchTaskById = async (req, res) => { /* Function code remains the same */ };
-const deleteTaskById = async (req, res) => { /* Function code remains the same */ };
-const updateTaskById = async (req, res) => { /* Function code remains the same */ };
+// Logout Function
+const logout = (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Failed to destroy session:', err);
+            return res.status(500).json({ error: 'Failed to logout' });
+        }
+        // Clear the session cookie and destroy the session
+        res.clearCookie('connect.sid', { path: '/' });
+        res.status(200).json({ message: 'Logout successful', login: false });
+    });
+};
+
+// Create VM Function
+const createVM = async (req, res) => {
+    let conn;
+    try {
+        conn = await db.getConnection();
+        const { osName, vmName, cpuCores, cpuCount, diskFlavor, ram, diskSize, diskName } = req.body;
+        const username = req.session.username;
+
+        // Ensure all required fields are provided
+        if (!osName || !vmName || !cpuCores || !cpuCount || !diskFlavor || !ram || !diskSize || !diskName) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+
+        // Fetch user ID from session username
+        const userQuery = 'SELECT id FROM users WHERE userName = ?';
+        const [userRows] = await conn.execute(userQuery, [username]);
+        if (userRows.length === 0) {
+            return res.status(400).json({ error: 'User not found' });
+        }
+        const userId = userRows[0].id;
+
+        // Insert into operating_system table if not exists
+        const osQuery = 'INSERT IGNORE INTO operating_system (NAME) VALUES (?)';
+        await conn.execute(osQuery, [osName]);
+
+        // Get osId
+        const osIdQuery = 'SELECT id FROM operating_system WHERE NAME = ?';
+        const [osRows] = await conn.execute(osIdQuery, [osName]);
+        const osId = osRows[0].id;
+
+        // Insert into disk_flavor table if not exists
+        const flavorQuery = 'INSERT IGNORE INTO disk_flavor (NAME, size) VALUES (?, ?)';
+        await conn.execute(flavorQuery, [diskFlavor, diskSize]);
+
+        // Get flavorId
+        const flavorIdQuery = 'SELECT id FROM disk_flavor WHERE NAME = ?';
+        const [flavorRows] = await conn.execute(flavorIdQuery, [diskFlavor]);
+        const flavorId = flavorRows[0].id;
+
+        // Insert into virtual_machine table
+        const vmQuery = 'INSERT INTO virtual_machine (NAME, ram, CPU, cores, osId, userId, flavorId, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+        const [vmResult] = await conn.execute(vmQuery, [vmName, ram, cpuCount, cpuCores, osId, userId, flavorId, diskSize]);
+        const vmId = vmResult.insertId;
+
+        // Insert into disk table
+        const diskQuery = 'INSERT INTO DISK (NAME, size, flavorId, userId, vmId) VALUES (?, ?, ?, ?, ?)';
+        await conn.execute(diskQuery, [diskName, diskSize, flavorId, userId, vmId]);
+
+        res.status(201).json({ message: 'VM created successfully' });
+    } catch (error) {
+        console.error('Failed to create VM:', error);
+        res.status(500).json({ error: 'Failed to create VM' });
+    } finally {
+        if (conn) conn.release();
+    }
+};
 
 module.exports = {
     signup,
     login,
-    createTask,
-    fetchAllTasks,
-    fetchTaskById,
-    deleteTaskById,
-    updateTaskById,
-    add_vm
+    logout,
+    createVM // Export the createVM function
 };

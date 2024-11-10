@@ -1,12 +1,27 @@
-// Signup.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Signup.css';
 import SignUpValidation from './SignUpValidation';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function Signup() {
-    const [signup_values, setSignupValues] = useState({
+
+    useEffect(() => {
+        axios.get('http://localhost:8080', { withCredentials: true })
+            .then(res => {
+                if(res.data.login)
+                {
+                    console.log(res.data.login);
+
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                navigate('/login'); // Redirect to login page if request fails
+            });
+    }, []);
+
+    const [signupValues, setSignupValues] = useState({
         cnic: '',
         firstName: '',
         lastName: '',
@@ -16,7 +31,7 @@ function Signup() {
         password: ''
     });
     const navigate = useNavigate();
-    const [signup_error, setSignupError] = useState({});
+    const [signupError, setSignupError] = useState({});
 
     // Handle input change
     const handleInput = (event) => {
@@ -32,17 +47,34 @@ function Signup() {
         event.preventDefault();
 
         // Validate and set errors
-        const errors = SignUpValidation(signup_values);
+        const errors = {}
+        if (!signupValues.cnic) errors.cnic = "CNIC is required";
+        if (!signupValues.firstName) errors.firstName = "First name is required";
+        if (!signupValues.lastName) errors.lastName = "Last name is required";
+        if (!signupValues.phoneNumber) errors.phoneNumber = "Phone number is required";
+        if (!signupValues.username) errors.username = "Username is required";
+        if (!signupValues.email) errors.email = "Email is required";
+        if (!signupValues.password) errors.password = "Password is required";
+        const validationErrors = SignUpValidation(signupValues);
+        if (validationErrors) {
+            Object.keys(validationErrors).forEach((key) => {
+                errors[key] = validationErrors[key];
+            });
+        }
         setSignupError(errors);
 
         // Check if there are no validation errors
         const noErrors = Object.keys(errors).length === 0;
         if (noErrors) {
-            axios.post('http://localhost:8080/api/signup', signup_values)
+            axios.post('http://localhost:8080/api/signup', signupValues)
                 .then(res => {
-                    navigate('/'); // Navigate on login page in case of successful signup
+                    navigate('/'); // Navigate to the home page on successful signup
                 })
-                .catch(err => console.log(err));
+                .catch(err => {
+                    console.error(err);
+                    // Assuming the error message is in err.response.data.error
+                    setSignupError({ serverError: err.response.data.error });
+                });
         }
     };
 
@@ -64,7 +96,7 @@ function Signup() {
                                     name="firstName"
                                     onChange={handleInput}
                                 />
-                                {signup_error.firstName && <p className="text-danger">{signup_error.firstName}</p>}
+                                {signupError.firstName && <p className="text-danger">{signupError.firstName}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="lastName"><strong>Last Name</strong></label>
@@ -76,7 +108,7 @@ function Signup() {
                                     name="lastName"
                                     onChange={handleInput}
                                 />
-                                {signup_error.lastName && <p className="text-danger">{signup_error.lastName}</p>}
+                                {signupError.lastName && <p className="text-danger">{signupError.lastName}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="phoneNumber"><strong>Phone Number</strong></label>
@@ -88,7 +120,7 @@ function Signup() {
                                     name="phoneNumber"
                                     onChange={handleInput}
                                 />
-                                {signup_error.phoneNumber && <p className="text-danger">{signup_error.phoneNumber}</p>}
+                                {signupError.phoneNumber && <p className="text-danger">{signupError.phoneNumber}</p>}
                             </div>
                         </div>
 
@@ -104,7 +136,7 @@ function Signup() {
                                     name="cnic"
                                     onChange={handleInput}
                                 />
-                                {signup_error.cnic && <p className="text-danger">{signup_error.cnic}</p>}
+                                {signupError.cnic && <p className="text-danger">{signupError.cnic}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="email"><strong>Email</strong></label>
@@ -116,7 +148,7 @@ function Signup() {
                                     name="email"
                                     onChange={handleInput}
                                 />
-                                {signup_error.email && <p className="text-danger">{signup_error.email}</p>}
+                                {signupError.email && <p className="text-danger">{signupError.email}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="username"><strong>Username</strong></label>
@@ -128,7 +160,7 @@ function Signup() {
                                     name="username"
                                     onChange={handleInput}
                                 />
-                                {signup_error.username && <p className="text-danger">{signup_error.username}</p>}
+                                {signupError.username && <p className="text-danger">{signupError.username}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="password"><strong>Password</strong></label>
@@ -140,10 +172,12 @@ function Signup() {
                                     name="password"
                                     onChange={handleInput}
                                 />
-                                {signup_error.password && <p className="text-danger">{signup_error.password}</p>}
+                                {signupError.password && <p className="text-danger">{signupError.password}</p>}
                             </div>
                         </div>
                     </div>
+                    {/* Display server error */}
+                    {signupError.serverError && <p className="text-danger text-center">{signupError.serverError}</p>}
                     <button type="submit" className="btn btn-primary btn-block w-100">Register</button>
                 </form>
             </div>
