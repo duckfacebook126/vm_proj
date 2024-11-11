@@ -190,7 +190,24 @@ const createVM = async (req, res) => {
     }
 };
 
+const dashboard_data=async (req,res)=>{
 
+
+            let conn;
+            try{
+
+                const user_id= req.session.uId;
+                const get_vm_by_user_id='SELECT * FROM virtual_machine WHERE'
+                const vm_name=
+                    conn=await  db.getConnection();
+            }
+            catch(err)
+            {
+                res.status(404).json({error:" THThe data has not been found"})
+            }
+
+
+}
 
 module.exports = {
     signup,
