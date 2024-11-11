@@ -8,7 +8,7 @@ const signup = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { cnic, firstName, lastName, phoneNumber, username, email, password } = req.body;
-
+                
         // Check for duplicate CNIC or username
         const checkQuery = 'SELECT * FROM users WHERE CNIC = ? OR userName = ?';
         const [rows] = await conn.execute(checkQuery, [cnic, username]);
@@ -50,40 +50,38 @@ const login = async (req, res) => {
         conn = await db.getConnection();
         const { username, password } = req.body;
 
-        // Log the received values
-        console.log('Received Username:', username);
-        console.log('Received Password:', password);
-
         // Query to find the user by username
         const query = 'SELECT * FROM users WHERE userName = ?';
         const [rows] = await conn.execute(query, [username]);
 
         // Check if user exists
         if (rows.length === 0) {
-            return res.status(200).json({ login: false, loginError: "Username is incorrect" });
+            return res.status(404).json({ login: false, username_error: "Username does not exist" });
         }
 
         const user = rows[0];
 
-        // Log the user object
-        console.log('User Object:', user);
-
-        // Log the values of password and hashed password
-        console.log('Stored Hashed Password:', user.password);
-
         // Compare the submitted password with the stored hashed password
         const passwordMatch = await bcrypt.compare(password, user.password);
-        console.log('Password comparison result:', passwordMatch);
 
         if (!passwordMatch) {
-            return res.status(200).json({ login: false, loginError: "Wrong password" });
+            return res.status(404).json({ login: false, password_error: "Wrong password" });
         }
 
-        // Set the session variable if password matches
+        // Set the session variables if password matches
         req.session.username = user.userName;
-        console.log(`Session username set to: ${req.session.username}`);
+        req.session.uId = user.id;
+        
+        // Save the session
+        req.session.save(err => {
+            if (err) {
+                console.error('Session save error:', err);
+                return res.status(500).json({ error: 'Failed to save session' });
+            }
+            console.log(`Session saved. Username: ${req.session.username}, uId: ${req.session.uId}`);
+            res.status(200).json({ message: "Login successful", login: true, username: req.session.username });
+        });
 
-        res.status(200).json({ message: "Login successful", login: true, username: req.session.username });
     } catch (error) {
         console.error('Login failed:', error);
         res.status(500).json({ error: 'Login failed' });
@@ -91,6 +89,7 @@ const login = async (req, res) => {
         if (conn) conn.release();
     }
 };
+
 
 // Logout Function
 const logout = (req, res) => {
@@ -110,57 +109,88 @@ const createVM = async (req, res) => {
     let conn;
     try {
         conn = await db.getConnection();
-        const { osName, vmName, cpuCores, cpuCount, diskFlavor, ram, diskSize, diskName } = req.body;
-        const username = req.session.username;
 
-        // Ensure all required fields are provided
-        if (!osName || !vmName || !cpuCores || !cpuCount || !diskFlavor || !ram || !diskSize || !diskName) {
-            return res.status(400).json({ error: 'All fields are required' });
+        // Destructure values from req.body, using nullish coalescing to preserve falsy values
+        const {
+            osName,
+            vmName,
+            cpuCores,
+            cpuCount,
+            diskFlavor,
+            ram,
+            diskSize,
+            diskName
+        } = req.body;
+
+        // Get user ID from session
+        const userId = req.session.uId;
+
+        if (!userId) {
+            return res.status(401).json({ error: "User not authenticated" });
         }
 
-        // Fetch user ID from session username
-        const userQuery = 'SELECT id FROM users WHERE userName = ?';
-        const [userRows] = await conn.execute(userQuery, [username]);
-        if (userRows.length === 0) {
-            return res.status(400).json({ error: 'User not found' });
+        // Validate required fields
+        if (!osName || !vmName || !diskName) {
+            return res.status(400).json({ error: "Missing required fields" });
         }
-        const userId = userRows[0].id;
 
-        // Insert into operating_system table if not exists
-        const osQuery = 'INSERT IGNORE INTO operating_system (NAME) VALUES (?)';
-        await conn.execute(osQuery, [osName]);
+        // Start a transaction
+        await conn.beginTransaction();
 
-        // Get osId
-        const osIdQuery = 'SELECT id FROM operating_system WHERE NAME = ?';
-        const [osRows] = await conn.execute(osIdQuery, [osName]);
-        const osId = osRows[0].id;
+        // 1. Insert or get OS ID
+        let [osRows] = await conn.execute('SELECT id FROM operating_system WHERE NAME = ?', [osName]);
+        let osId;
+        if (osRows.length === 0) {
+            const [osResult] = await conn.execute('INSERT INTO operating_system (NAME) VALUES (?)', [osName]);
+            osId = osResult.insertId;
+        } else {
+            osId = osRows[0].id;
+        }
 
-        // Insert into disk_flavor table if not exists
-        const flavorQuery = 'INSERT IGNORE INTO disk_flavor (NAME, size) VALUES (?, ?)';
-        await conn.execute(flavorQuery, [diskFlavor, diskSize]);
+        // 2. Insert or get disk flavor ID
+        let [flavorRows] = await conn.execute('SELECT id FROM disk_flavor WHERE NAME = ?', [diskFlavor]);
+        let flavorId;
+        if (flavorRows.length === 0) {
+            const [flavorResult] = await conn.execute('INSERT INTO disk_flavor (NAME, size) VALUES (?, ?)', [diskFlavor, ram]);
+            flavorId = flavorResult.insertId;
+        } else {
+            flavorId = flavorRows[0].id;
+        }
 
-        // Get flavorId
-        const flavorIdQuery = 'SELECT id FROM disk_flavor WHERE NAME = ?';
-        const [flavorRows] = await conn.execute(flavorIdQuery, [diskFlavor]);
-        const flavorId = flavorRows[0].id;
-
-        // Insert into virtual_machine table
-        const vmQuery = 'INSERT INTO virtual_machine (NAME, ram, CPU, cores, osId, userId, flavorId, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-        const [vmResult] = await conn.execute(vmQuery, [vmName, ram, cpuCount, cpuCores, osId, userId, flavorId, diskSize]);
+        // 3. Insert into virtual_machine table
+        const [vmResult] = await conn.execute(
+            'INSERT INTO virtual_machine (NAME, ram, CPU, cores, osId, userId, flavorId, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [vmName, ram, cpuCount, cpuCores, osId, userId, flavorId, diskSize]
+        );
         const vmId = vmResult.insertId;
 
-        // Insert into disk table
-        const diskQuery = 'INSERT INTO DISK (NAME, size, flavorId, userId, vmId) VALUES (?, ?, ?, ?, ?)';
-        await conn.execute(diskQuery, [diskName, diskSize, flavorId, userId, vmId]);
+        // 4. Insert into DISK table
+        const [diskResult] = await conn.execute(
+            'INSERT INTO DISK (NAME, size, flavorId, userId, vmId) VALUES (?, ?, ?, ?, ?)',
+            [diskName, diskSize, flavorId, userId, vmId]
+        );
+        const diskId = diskResult.insertId;
 
-        res.status(201).json({ message: 'VM created successfully' });
+        // Commit the transaction
+        await conn.commit();
+
+        res.status(201).json({ 
+            message: 'VM created successfully', 
+            vmId, 
+            diskId,
+            osId,
+            flavorId
+        });
     } catch (error) {
+        if (conn) await conn.rollback();
         console.error('Failed to create VM:', error);
-        res.status(500).json({ error: 'Failed to create VM' });
+        res.status(500).json({ error: error.message });
     } finally {
         if (conn) conn.release();
     }
 };
+
+
 
 module.exports = {
     signup,

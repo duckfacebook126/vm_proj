@@ -18,27 +18,32 @@ function Login() {
             [name]: value
         }));
     };
+
     const handleSubmit = (event) => {
         event.preventDefault();
-    
+
         const errors = {};
         if (!loginValues.username) errors.username = "Username is required";
         if (!loginValues.password) errors.password = "Password is required";
-    
+
         setLoginError(errors);
-    
+
         if (Object.keys(errors).length === 0) {
             console.log('Login Values:', loginValues); // Log the login values
             axios.post('http://localhost:8080/api/login', loginValues, { withCredentials: true })
                 .then(res => {
-                    navigate('/dashboard'); // Redirect on successful login
+                    if(res.data.login===true)
+                    {
+                    navigate('/dashboard');
+                    } // Redirect on successful login
                 })
                 .catch(err => {
                     console.error(err);
                     const errorResponse = err.response.data;
-    
+
                     // Set specific error messages from the server response
                     setLoginError({
+                        
                         username: errorResponse.username_error,
                         password: errorResponse.password_error,
                         auth: errorResponse.error // Catch-all error message
@@ -46,7 +51,6 @@ function Login() {
                 });
         }
     };
-    
 
     return (
         <div className='login-container d-flex justify-content-center align-items-center'>

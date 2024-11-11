@@ -69,13 +69,46 @@
 }
 
 /* AddVMForm styling */
-.add-vm-form {
+.add-vm-form-container {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
+
+.add-vm-form {
+    width: 100%;
+    max-width: 800px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-sections {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-left, .form-right {
+    width: 48%; /* Adjust width as needed */
+}
+
 .form-group {
     margin-bottom: 15px;
 }
+
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.error {
+    color: red;
+    font-size: 0.875em;
+}
+
 label {
     font-weight: bold;
 }
