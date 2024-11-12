@@ -13,6 +13,9 @@ function Dashboard() {
     useEffect(() => {
         fetchDashboardData();
     }, []);
+    useEffect(()=>{
+        handle_login_change();
+    },[])
 
     const fetchDashboardData = () => {
         axios.get('http://localhost:8080/api/dashboard_data', { withCredentials: true })
@@ -27,6 +30,10 @@ function Dashboard() {
             });
     };
 
+    const handle_login_change=async()=>{
+        const res=await axios.get('http://localhost:8080/',{withCredentials:true})
+        console.log(res.data);
+    }
     const renderVMCards = () => {
         return dashboardData.vms.map(vm => (
             <div key={vm.id} className="vm-card">

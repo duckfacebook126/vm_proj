@@ -7,6 +7,11 @@
     justify-content: center;
 }
 
+.dashboard-check {
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: bold;
+}
 .login-form, .signup-form {
     background: var(--bg-secondary);
     border: 1px solid var(--border-primary);
@@ -55,4 +60,11 @@ label {
     font-size: 0.875rem;
     margin-top: 4px;
 }
+
+.dark-outline {
+    border: 3px solid black;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
   

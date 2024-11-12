@@ -75,8 +75,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.75);
-    display: flex;
+    background-color: transparent;
+        display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
@@ -84,10 +84,11 @@
 
 .add-vm-form {
     background: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: 6px;
+    border: 5px solid black ;
+    border-radius: 3px;
     padding: 24px;
     width: 100%;
+    background-color: white;
     max-width: 800px;
     color: var(--text-primary);
 }
@@ -186,4 +187,9 @@ button[type="submit"] {
 
 .form-buttons button[type="button"]:hover {
     background: var(--button-secondary-hover);
+}
+
+.dark-outline {
+    border: 5px solid black;
+    border-radius: 10px;
 }

@@ -92,7 +92,7 @@ function AddVMForm({ onClose }) {
                 <div className="form-sections">
                     <div className="form-left">
                     
-                        <div className="form-group">
+                        <div className="form-group dark-outline">
                             <label htmlFor="osName">OS Name</label>
                             <input
                                 type="text"
@@ -102,9 +102,9 @@ function AddVMForm({ onClose }) {
                                 onChange={handleInput}
                                 required
                             />
-                            {vmError.osName && <span className="error">{vmError.osName}</span>}
+                            {vmError.osName && <span className="error ">{vmError.osName}</span>}
                         </div>
-                        <div className="form-group">
+                        <div className="form-group dark-outline">
                             <label htmlFor="vmName">VM Name</label>
                             <input
                                 type="text"
@@ -116,7 +116,7 @@ function AddVMForm({ onClose }) {
                             />
                             {vmError.vmName && <span className="error">{vmError.vmName}</span>}
                         </div>
-                        <div className="form-group">
+                        <div className="form-group dark-outline">
                             <label htmlFor="cpuCores">CPU Cores: {formData.cpuCores}</label>
                             <input
                                 type="range"
@@ -128,7 +128,7 @@ function AddVMForm({ onClose }) {
                                 onChange={handleSliderChange}
                             />
                         </div>
-                        <div className="form-group">
+                        <div className="form-group dark-outline">
                             <label htmlFor="cpuCount">CPU Count: {formData.cpuCount}</label>
                             <input
                                 type="range"
@@ -142,7 +142,7 @@ function AddVMForm({ onClose }) {
                         </div>
                     </div>
                     <div className="form-right">
-                        <div className="form-group">
+                        <div className="form-group dark-outline">
                             <label htmlFor="diskFlavor">Disk Flavor</label>
                             <select
                                 id="diskFlavor"
@@ -155,7 +155,7 @@ function AddVMForm({ onClose }) {
                                 <option value="Heavy">Heavy</option>
                             </select>
                         </div>
-                        <div className="form-group">
+                        <div className="form-group dark-outline">
                             <label htmlFor="ram">RAM Size: {formData.ram} GB</label>
                             <input
                                 type="range"
@@ -167,7 +167,7 @@ function AddVMForm({ onClose }) {
                                 onChange={handleSliderChange}
                             />
                         </div>
-                        <div className="form-group">
+                        <div className="form-group dark-outline">
                             <label htmlFor="diskName">Disk Name</label>
                             <input
                                 type="text"
@@ -179,7 +179,7 @@ function AddVMForm({ onClose }) {
                             />
                             {vmError.diskName && <span className="error">{vmError.diskName}</span>}
                         </div>
-                        <div className="form-group">
+                        <div className="form-group dark-outline ">
                             <label htmlFor="diskSize">Disk Size: {formData.diskSize} GB</label>
                             <input
                                 type="range"
@@ -195,8 +195,8 @@ function AddVMForm({ onClose }) {
                     </div>
                 </div>
                 <div className="form-buttons">
-                    <button type="button" onClick={onClose}>Close</button>
-                    <button type="submit">Submit</button>
+                    <button type="button" className='btn btn-success' onClick={onClose}>Close</button>
+                    <button type="submit" className='btn btn-success'>Submit</button>
                 </div>
             </form>
             {vmError.submit && <div className="error">{vmError.submit}</div>}

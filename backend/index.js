@@ -30,11 +30,12 @@ app.use('/api', taskRouter);
 app.get('/', (req, res) => {
     console.log(`Session username: ${req.session.username}`);
     if (req.session.username) {
-        res.json({ login: true, username: req.session.username });
+        res.status(200).json({ login: true, username: req.session.username });
     } else {
-        res.json({ login: false });
+        res.status(404).json({ login: false });
     }
 });
 
 const port = 8080;
 app.listen(port, () => console.log(`Listening on port ${port}`));
+ 
