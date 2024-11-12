@@ -1,0 +1,32 @@
+:root {
+  /* Modern Color Palette */
+  --gradient-primary: linear-gradient(135deg, #1e1e2e, #302b63, #24243e);
+  --gradient-accent: linear-gradient(135deg, #4776E6, #8E54E9);
+  
+  /* Background Colors */
+  --bg-primary: #1e1e2e;
+  --bg-secondary: #252538;
+  --bg-tertiary: #2d2d44;
+  --bg-card: rgba(255, 255, 255, 0.05);
+  
+  /* Accent Colors */
+  --accent-primary: #8E54E9;
+  --accent-secondary: #4776E6;
+  --accent-success: #00b894;
+  --accent-danger: #ff7675;
+  
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.8);
+  --text-tertiary: rgba(255, 255, 255, 0.6);
+  
+  /* Border Colors */
+  --border-primary: rgba(255, 255, 255, 0.1);
+  --border-secondary: rgba(255, 255, 255, 0.05);
+  
+  /* Button Colors */
+  --button-primary: #8E54E9;
+  --button-hover: #9b6ff0;
+  --button-secondary: rgba(255, 255, 255, 0.1);
+  --button-secondary-hover: rgba(255, 255, 255, 0.15);
+} 

@@ -126,7 +126,7 @@ const createVM = async (req, res) => {
         const userId = req.session.uId;
 
         if (!userId) {
-            return res.status(401).json({ error: "User not authenticated" });
+            return res.status(401).json({ error: "User not authenticated please login first" });
         }
 
         // Validate required fields
@@ -136,6 +136,7 @@ const createVM = async (req, res) => {
 
         // Start a transaction
         await conn.beginTransaction();
+
 
         // 1. Insert or get OS ID
         let [osRows] = await conn.execute('SELECT id FROM operating_system WHERE NAME = ?', [osName]);
@@ -190,28 +191,52 @@ const createVM = async (req, res) => {
     }
 };
 
-const dashboard_data=async (req,res)=>{
+const dashboard_data = async (req, res) => {
+    let conn;
+    try {
+        const userId = req.session.uId;
+        if (!userId) {
+            return res.status(401).json({ error: "User not authenticated" });
+        }
 
+        conn = await db.getConnection();
+        
+        // Get all VMs for the user with OS and flavor details
+        const vmQuery = `
+            SELECT vm.*, os.name as osName, df.name as flavorName 
+            FROM virtual_machine vm
+            JOIN operating_system os ON vm.osId = os.id
+            JOIN disk_flavor df ON vm.flavorId = df.id
+            WHERE vm.userId = ?
+        `;
+        const [vms] = await conn.execute(vmQuery, [userId]);
 
-            let conn;
-            try{
+        // Get all disks for the user with flavor details
+        const diskQuery = `
+            SELECT d.*, df.name as flavorName, vm.name as vmName
+            FROM disk d
+            JOIN disk_flavor df ON d.flavorId = df.id
+            LEFT JOIN virtual_machine vm ON d.vmId = vm.id
+            WHERE d.userId = ?
+        `;
+        const [disks] = await conn.execute(diskQuery, [userId]);
 
-                const user_id= req.session.uId;
-                const get_vm_by_user_id='SELECT * FROM virtual_machine WHERE'
-                const vm_name=
-                    conn=await  db.getConnection();
-            }
-            catch(err)
-            {
-                res.status(404).json({error:" THThe data has not been found"})
-            }
-
-
-}
+        res.status(200).json({
+            vms,
+            disks
+        });
+    } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+        res.status(500).json({ error: "Failed to fetch dashboard data" });
+    } finally {
+        if (conn) conn.release();
+    }
+};
 
 module.exports = {
     signup,
     login,
     logout,
-    createVM // Export the createVM function
+    createVM,
+    dashboard_data
 };

@@ -68,6 +68,7 @@ function Signup() {
         if (noErrors) {
             axios.post('http://localhost:8080/api/signup', signupValues)
                 .then(res => {
+                    
                     navigate('/login'); // Navigate to the home page on successful signup
                 })
                 .catch(err => {

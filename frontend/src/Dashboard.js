@@ -6,21 +6,50 @@ import axios from 'axios';
 
 function Dashboard() {
     const [showForm, setShowForm] = useState(false);
+    const [activeTab, setActiveTab] = useState('vms');
+    const [dashboardData, setDashboardData] = useState({ vms: [], disks: [] });
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/dashboard', { withCredentials: true })
-            .then(res => {
-                console.log('Dashboard data:', res.data);
-            })
-            .catch(err => {
-                console.error('Unauthorized access:', err);
-                navigate('/login'); // Redirect to login page if unauthorized
-            });
+        fetchDashboardData();
     }, []);
 
-    const handleAddVM = () => setShowForm(true);
-    const handleFormClose = () => setShowForm(false);
+    const fetchDashboardData = () => {
+        axios.get('http://localhost:8080/api/dashboard_data', { withCredentials: true })
+            .then(res => {
+                setDashboardData(res.data);
+            })
+            .catch(err => {
+                console.error('Failed to fetch dashboard data:', err);
+                if (err.response?.status === 401) {
+                    navigate('/login');
+                }
+            });
+    };
+
+    const renderVMCards = () => {
+        return dashboardData.vms.map(vm => (
+            <div key={vm.id} className="vm-card">
+                <h5>{vm.name}</h5>
+                <p>OS: {vm.osName}</p>
+                <p>CPU: {vm.cpu} x {vm.cores} cores</p>
+                <p>RAM: {vm.ram} GB</p>
+                <p>Disk Size: {vm.size} GB</p>
+                <p>Flavor: {vm.flavorName}</p>
+            </div>
+        ));
+    };
+
+    const renderDiskCards = () => {
+        return dashboardData.disks.map(disk => (
+            <div key={disk.id} className="disk-card">
+                <h5>{disk.name}</h5>
+                <p>Size: {disk.size} GB</p>
+                <p>Flavor: {disk.flavorName}</p>
+                <p>Attached to VM: {disk.vmName || 'None'}</p>
+            </div>
+        ));
+    };
 
     const handleLogout = () => {
         axios.post('http://localhost:8080/api/logout', {}, { withCredentials: true })
@@ -35,35 +64,65 @@ function Dashboard() {
 
     return (
         <div className="dashboard-container">
-            {/* Navbar */}
-            <header className="navbar bg-primary text-white p-3">
-                <h1 className="navbar-brand mb-0">VM Dashboard</h1>
-                <div>
-                    <button className="btn btn-light btn-add-vm" onClick={handleAddVM}>Add VM</button>
-                    <button className="btn btn-light btn-logout" onClick={handleLogout}>Logout</button>
+            <div className="sidebar">
+                <div className="sidebar-header">
+                    <h3>Dashboard</h3>
                 </div>
-            </header>
+                <div className="sidebar-menu">
+                    <button 
+                        className={`sidebar-item ${activeTab === 'vms' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('vms')}
+                    >
+                        VMs
+                    </button>
+                    <button 
+                        className={`sidebar-item ${activeTab === 'disks' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('disks')}
+                    >
+                        Disks
+                    </button>
+                    <button 
+                        className={`sidebar-item ${activeTab === 'analytics' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('analytics')}
+                    >
+                        Analytics
+                    </button>
+                </div>
+            </div>
 
-            {/* Main Content */}
             <div className="main-content">
-                <h2>Your Virtual Machines</h2>
-                {/* List of VM Cards (example card shown) */}
-                <div className="vm-cards">
-                    <div className="vm-card">
-                        <h5>VM Name</h5>
-                        <p>OS: Linux</p>
-                        <p>CPU Cores: 4</p>
-                        <p>RAM: 8 GB</p>
-                        <p>Disk Size: 100 GB</p>
+                <header className="navbar">
+                    <h1>{activeTab.toUpperCase()}</h1>
+                    <div>
+                        <button className="btn-add-vm" onClick={() => setShowForm(true)}>Add VM</button>
+                        <button className="btn-logout" onClick={handleLogout}>Logout</button>
                     </div>
+                </header>
+
+                <div className="content-area">
+                    {activeTab === 'vms' && (
+                        <div className="vm-cards">
+                            {renderVMCards()}
+                        </div>
+                    )}
+                    {activeTab === 'disks' && (
+                        <div className="disk-cards">
+                            {renderDiskCards()}
+                        </div>
+                    )}
+                    {activeTab === 'analytics' && (
+                        <div className="analytics">
+                            <h2>Analytics Coming Soon</h2>
+                        </div>
+                    )}
                 </div>
 
-                {/* Conditionally render Add VM Form */}
                 {showForm && (
                     <div className="overlay">
-                        <div className="overlay-content">
-                            <AddVMForm onClose={handleFormClose} />
-                        </div>
+                        <AddVMForm onClose={() => {
+                            setShowForm(false);
+                            fetchDashboardData();
+                        }} />
                     </div>
                 )}
             </div>

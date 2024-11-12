@@ -70,19 +70,26 @@
 
 /* AddVMForm styling */
 .add-vm-form-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
     display: flex;
-    justify-content: center;
     align-items: center;
-    width: 100%;
+    justify-content: center;
+    padding: 24px;
 }
 
 .add-vm-form {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    padding: 24px;
     width: 100%;
     max-width: 800px;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: var(--text-primary);
 }
 
 .form-sections {
@@ -95,18 +102,20 @@
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 16px;
 }
 
 .form-buttons {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 12px;
+    margin-top: 24px;
 }
 
 .error {
-    color: red;
-    font-size: 0.875em;
+    color: var(--accent-danger);
+    font-size: 0.875rem;
+    margin-top: 4px;
 }
 
 label {
@@ -132,4 +141,49 @@ button[type="button"] {
 button[type="submit"] {
     background-color: #4CAF50;
     color: white;
+}
+
+.form-group label {
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 8px 12px;
+}
+
+.form-group input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent-primary);
+}
+
+.form-buttons button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border-primary);
+}
+
+.form-buttons button[type="submit"] {
+    background: var(--button-bg);
+    color: var(--text-primary);
+}
+
+.form-buttons button[type="submit"]:hover {
+    background: var(--button-hover);
+}
+
+.form-buttons button[type="button"] {
+    background: var(--button-secondary-bg);
+    color: var(--text-primary);
+}
+
+.form-buttons button[type="button"]:hover {
+    background: var(--button-secondary-hover);
 }

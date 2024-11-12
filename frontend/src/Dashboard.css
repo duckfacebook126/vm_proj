@@ -1,8 +1,73 @@
 /* Dashboard layout */
 .dashboard-container {
+    display: flex;
     min-height: 100vh;
-    background-color: #f0f2f5;
-    color: #333;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+}
+
+.sidebar-header {
+    padding: 20px 0;
+    border-bottom: 1px solid #34495e;
+}
+
+.sidebar-menu {
+    margin-top: 20px;
+}
+
+.sidebar-item {
+    width: 100%;
+    padding: 15px;
+    margin: 5px 0;
+    background: none;
+    border: none;
+    color: white;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.sidebar-item:hover, .sidebar-item.active {
+    background-color: #34495e;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #f5f6fa;
+}
+
+.content-area {
+    margin-top: 20px;
+}
+
+.vm-cards, .disk-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.vm-card, .disk-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.vm-card h5, .disk-card h5 {
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.vm-card p, .disk-card p {
+    color: var(--text-secondary);
+    margin: 8px 0;
 }
 
 /* Navbar */
@@ -11,20 +76,26 @@
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: var(--bg-secondary);
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border-primary);
+    margin-bottom: 24px;
 }
 
 /* Add VM Button */
 .btn-add-vm, .btn-logout {
-    background-color: #ffffff;
-    color: #007bff;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
+    background-color: var(--button-bg);
+    color: var(--text-primary);
+    border: 1px solid rgba(240, 246, 252, 0.1);
+    padding: 8px 16px;
+    border-radius: 6px;
     transition: 0.3s;
+    margin-left: 12px;
 }
 .btn-add-vm:hover, .btn-logout:hover {
-    background-color: #e2e6ea;
-    color: #0056b3;
+    background-color: var(--button-hover);
+    transform: translateY(-2px);
 }
 
 /* VM Cards */

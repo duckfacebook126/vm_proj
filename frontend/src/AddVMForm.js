@@ -54,7 +54,6 @@ function AddVMForm({ onClose }) {
             ram: minRAM
         }));
     };
-
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -92,6 +91,7 @@ function AddVMForm({ onClose }) {
                 <h2>Add New VM</h2>
                 <div className="form-sections">
                     <div className="form-left">
+                    
                         <div className="form-group">
                             <label htmlFor="osName">OS Name</label>
                             <input
