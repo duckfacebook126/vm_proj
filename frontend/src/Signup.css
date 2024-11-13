@@ -17,3 +17,14 @@
     width: 50%; /* Adjust width as needed */
     margin: 0 auto;
 }
+
+input.danger{
+    border-color:  red;
+}
+
+p.danger{
+    color: red;
+    button:disabled{
+        opacity: 0.35;
+    }
+}

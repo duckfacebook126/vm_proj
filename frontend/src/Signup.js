@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import './Signup.css';
-import SignUpValidation from './SignUpValidation';
+import SignUpValidation, { SignUpSchema } from './SignUpValidation';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useFormik } from 'formik';
 
+const onSubmit=()=>{
+
+    console.log('submitted')
+}
 function Signup() {
 
     useEffect(() => {
@@ -12,77 +17,81 @@ function Signup() {
                 if(res.data.login)
                 {
                     console.log(res.data.login);
+                    navigate('/login'); // Redirect to login page if request fails
 
                 }
             })
             .catch(err => {
                 console.log(err);
-                navigate('/login'); // Redirect to login page if request fails
             });
     }, []);
-
-    const [signupValues, setSignupValues] = useState({
-        cnic: '',
-        firstName: '',
-        lastName: '',
-        phoneNumber: '',
-        username: '',
-        email: '',
+    const formik= useFormik({
+        initialValues: {
+            cnic: '',
+            firstName: '',
+            lastName: '',
+            phoneNumber: '',
+            username: '',
+            email: '',
         password: ''
-    });
+        },
+        validationSchema: SignUpSchema,
+        onSubmit
+        
+        
+
+    }
+    )
+    console.log(formik);
+
+    console.log(formik.errors);
+    
     const navigate = useNavigate();
-    const [signupError, setSignupError] = useState({});
 
     // Handle input change
-    const handleInput = (event) => {
-        const { name, value } = event.target;
-        setSignupValues((prev) => ({
-            ...prev,
-            [name]: value
-        }));
-    };
+ 
 
-    // Handle form submission
-    const handleSubmit = (event) => {
-        event.preventDefault();
+    // // Handle form submission
+    // const handleSubmit = (event) => {
+    //     event.preventDefault();
 
-        // Validate and set errors
-        const errors = {}
-        if (!signupValues.cnic) errors.cnic = "CNIC is required";
-        if (!signupValues.firstName) errors.firstName = "First name is required";
-        if (!signupValues.lastName) errors.lastName = "Last name is required";
-        if (!signupValues.phoneNumber) errors.phoneNumber = "Phone number is required";
-        if (!signupValues.username) errors.username = "Username is required";
-        if (!signupValues.email) errors.email = "Email is required";
-        if (!signupValues.password) errors.password = "Password is required";
-        const validationErrors = SignUpValidation(signupValues);
-        if (validationErrors) {
-            Object.keys(validationErrors).forEach((key) => {
-                errors[key] = validationErrors[key];
-            });
-        }
-        setSignupError(errors);
+    //     // Validate and set errors
+    //     const errors = {}
+    //     if (!signupValues.cnic) errors.cnic = "CNIC is required";
+    //     if (!signupValues.firstName) errors.firstName = "First name is required";
+    //     if (!signupValues.lastName) errors.lastName = "Last name is required";
+    //     if (!signupValues.phoneNumber) errors.phoneNumber = "Phone number is required";
+    //     if (!signupValues.username) errors.username = "Username is required";
+    //     if (!signupValues.email) errors.email = "Email is required";
+    //     if (!signupValues.password) errors.password = "Password is required";
+    //     const validationErrors = SignUpValidation(signupValues);
+    //     if (validationErrors) {
+    //         Object.keys(validationErrors).forEach((key) => {
+    //             errors[key] = validationErrors[key];
+    //         });
+    //     }
+    //     setSignupError(errors);
 
-        // Check if there are no validation errors
-        const noErrors = Object.keys(errors).length === 0;
-        if (noErrors) {
-            axios.post('http://localhost:8080/api/signup', signupValues)
-                .then(res => {
+    //     // Check if there are no validation errors
+    //     const noErrors = Object.keys(errors).length === 0;
+    //     if (noErrors) {
+    //         axios.post('http://localhost:8080/api/signup', signupValues)
+    //             .then(res => {
                     
-                    navigate('/login'); // Navigate to the home page on successful signup
-                })
-                .catch(err => {
-                    console.error(err);
-                    // Assuming the error message is in err.response.data.error
-                    setSignupError({ serverError: err.response.data.error });
-                });
-        }
-    };
+    //                 navigate('/login'); // Navigate to the home page on successful signup
+    //             })
+    //             .catch(err => {
+    //                 console.error(err);
+    //                 // Assuming the error message is in err.response.data.error
+    //                 setSignupError({ serverError: err.response.data.error });
+    //             });
+    //     }
+    // };
 
     return (
         <div className='signup-container d-flex justify-content-center align-items-center'>
             <div className="signup-form bg-white p-3 rounded dark-outline">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={formik.handleSubmit}>
                     <h1 className='text-center'>Register</h1>
                     <div className="form-sections d-flex">
                         {/* Left Section */}
@@ -95,9 +104,11 @@ function Signup() {
                                     id="firstName"
                                     placeholder="Enter First Name"
                                     name="firstName"
-                                    onChange={handleInput}
+                                    onChange={formik.handleChange}
+                                    value={formik.values.firstName}
+                                    onBlur={formik.handleBlur}
                                 />
-                                {signupError.firstName && <p className="text-danger">{signupError.firstName}</p>}
+                                <p className='danger'>{formik.errors.firstName}</p>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="lastName"><strong>Last Name</strong></label>
@@ -107,21 +118,26 @@ function Signup() {
                                     id="lastName"
                                     placeholder="Enter Last Name"
                                     name="lastName"
-                                    onChange={handleInput}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    value={formik.values.lastName}
                                 />
-                                {signupError.lastName && <p className="text-danger">{signupError.lastName}</p>}
+                                <p className='danger'>{formik.errors.lastName}</p>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="phoneNumber"><strong>Phone Number</strong></label>
                                 <input
                                     type="tel"
-                                    className="form-control mb-3 dark-outline"
+                                    className={formik.touched.phoneNumber && formik.errors.phoneNumber ? 'danger':""}
                                     id="phoneNumber"
                                     placeholder="Enter Phone Number"
                                     name="phoneNumber"
-                                    onChange={handleInput}
+                                    onChange={formik.handleChange}
+                                    value={formik.values.phoneNumber}
+                                    onBlur={formik.handleBlur}
+                                    
                                 />
-                                {signupError.phoneNumber && <p className="text-danger">{signupError.phoneNumber}</p>}
+                                <p className='danger'>{formik.errors.phoneNumber}</p>
                             </div>
                         </div>
 
@@ -131,54 +147,61 @@ function Signup() {
                                 <label htmlFor="cnic"><strong>CNIC</strong></label>
                                 <input
                                     type="text"
-                                    className="form-control mb-3 dark-outline"
+                                    className={formik.touched.cnic && formik.errors.cnic ? 'danger':""}
                                     id="cnic"
                                     placeholder="Enter CNIC"
                                     name="cnic"
-                                    onChange={handleInput}
+                                    onChange={formik.handleChange}
+                                    value={formik.values.cnic}
+                                    onBlur={formik.handleBlur}
                                 />
-                                {signupError.cnic && <p className="text-danger">{signupError.cnic}</p>}
+                                <p className='danger'>{formik.errors.cnic}</p>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="email"><strong>Email</strong></label>
                                 <input
                                     type="email"
-                                    className="form-control mb-3 dark-outline"
+                                    className={formik.touched.email && formik.errors.email ? 'danger':""}
                                     id="email"
                                     placeholder="Enter Email"
                                     name="email"
-                                    onChange={handleInput}
+                                    onChange={formik.handleChange}
+                                    value={formik.values.email}
+                                    onBlur={formik.handleBlur}
                                 />
-                                {signupError.email && <p className="text-danger">{signupError.email}</p>}
+                                <p className='danger'>{formik.errors.email}</p>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="username"><strong>Username</strong></label>
                                 <input
                                     type="text"
-                                    className="form-control mb-3 dark-outline"
+                                    className={formik.touched.username && formik.errors.username ? 'danger':""}
                                     id="username"
                                     placeholder="Enter Username"
                                     name="username"
-                                    onChange={handleInput}
+                                    onChange={formik.handleChange}
+                                    value={formik.values.username}
+                                    onBlur={formik.handleBlur}
                                 />
-                                {signupError.username && <p className="text-danger">{signupError.username}</p>}
+                                <p className='danger'>{formik.errors.username}</p>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="password"><strong>Password</strong></label>
                                 <input
                                     type="password"
-                                    className="form-control mb-3 dark-outline"
+                                    className={formik.touched.password && formik.errors.password ? 'danger':""}
                                     id="password"
                                     placeholder="Enter Password"
                                     name="password"
-                                    onChange={handleInput}
+                                    onChange={formik.handleChange}
+                                    value={formik.values.password}
+                                    onBlur={formik.handleBlur}
                                 />
-                                {signupError.password && <p className="text-danger">{signupError.password}</p>}
+                                <p className='danger'>{formik.errors.password}</p>
                             </div>
                         </div>
                     </div>
                     {/* Display server error */}
-                    {signupError.serverError && <p className="text-danger text-center">{signupError.serverError}</p>}
                     <button type="submit" className="btn btn-primary btn-block w-100">Register</button>
                 </form>
             </div>
