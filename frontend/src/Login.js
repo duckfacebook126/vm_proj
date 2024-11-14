@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import './Login.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useFormik } from 'formik';
+import { LoginValidaitonSchema } from './LoginValidation';
+import Swal from 'sweetalert2';
 
 function Login() {
-
-    const [loginValues, setLoginValues] = useState({
-        username: '',
-        password: ''
-    });
-    const [loginError, setLoginError] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -17,8 +14,9 @@ function Login() {
         axios.get('http://localhost:8080', { withCredentials: true })
             .then(res => {
                 if (res.data.login) {
-                    setLoginError({ auth: "You are already logged in. Please logout first." });
-                    navigate('/dashboard');
+                    
+                        navigate('/dashboard');
+                    
                 }
             })
             .catch(err => {
@@ -26,50 +24,39 @@ function Login() {
             });
     }, [navigate]);
 
-    const handleInput = (event) => {
-        const { name, value } = event.target;
-        setLoginValues((prev) => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-
-        if (loginError.auth === "You are already logged in. Please logout first.") {
-            return;
-        }
-
-        const errors = {};
-        if (!loginValues.username) errors.username = "Username is required";
-        if (!loginValues.password) errors.password = "Password is required";
-
-        setLoginError(errors);
-
-        if (Object.keys(errors).length === 0) {
-            axios.post('http://localhost:8080/api/login', loginValues, { withCredentials: true })
-                .then(res => {
-                    if (res.data.login === true) {
+    const formik = useFormik({
+        initialValues: {
+            username: '',
+            password: ''
+        },
+        
+        onSubmit: (values, { setErrors, setSubmitting }) => {
+            setSubmitting(true);
+            axios.post('http://localhost:8080/api/login',values, { withCredentials: true })
+                .then((res) => {
+                    setSubmitting(false);
+                    if (res.data.login) {
                         navigate('/dashboard');
                     }
                 })
-                .catch(err => {
-                    const errorResponse = err.response.data;
-                    setLoginError({
-                        username: errorResponse.username_error,
-                        password: errorResponse.password_error,
-                        auth: false
-                    });
+                .catch(error => {
+                    if (error.response) {
+                        const backendError = error.response.data.error;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: backendError,
+                        });
+                    }
+                    setSubmitting(false);
                 });
         }
-    };
+    });
 
     return (
-        
-        <div className='login-container d-flex justify-content-center align-items-center'>
+        <div className='login-container bg-white d-flex justify-content-center align-items-center'>
             <div className="login-form bg-white p-3 rounded dark-outline">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={formik.handleSubmit}>
                     <h1 className='text-center'>Login</h1>
                     <div className="form-group">
                         <label htmlFor="username"><strong>Username</strong></label>
@@ -79,9 +66,11 @@ function Login() {
                             id="username"
                             placeholder="Enter Username"
                             name="username"
-                            onChange={handleInput}
+                            onChange={formik.handleChange}
+                            value={formik.values.username}
+                            onBlur={formik.handleBlur}
                         />
-                        {loginError.username && <p className="text-danger">{loginError.username}</p>}
+                        {formik.touched.username && formik.errors.username && <p className='danger'>{formik.errors.username}</p>}
                     </div>
                     <div className="form-group">
                         <label htmlFor="password"><strong>Password</strong></label>
@@ -91,12 +80,15 @@ function Login() {
                             id="password"
                             placeholder="Enter Password"
                             name="password"
-                            onChange={handleInput}
+                            onChange={formik.handleChange}
+                            value={formik.values.password}
+                            onBlur={formik.handleBlur}
                         />
-                        {loginError.password && <p className="text-danger">{loginError.password}</p>}
+                        {formik.touched.password && formik.errors.password && <p className='danger'>{formik.errors.password}</p>}
                     </div>
-                    {loginError.auth && <p className="text-danger">{loginError.auth}</p>}
-                    <button type="submit" className="btn btn-primary btn-block w-100">Login</button>
+                    <button type="submit" className="btn btn-primary btn-block w-100" disabled={formik.isSubmitting}>
+                        {formik.isSubmitting ? 'Logging in...' : 'Login'}
+                    </button>
                 </form>
             </div>
         </div>

@@ -1,7 +1,7 @@
 /* Dashboard layout */
 .dashboard-container {
     min-height: 100vh;
-    background-color: #f0f2f5;
+    background-color: #ffffff;
     color: #333;
 }
 
@@ -88,7 +88,7 @@
     border-radius: 3px;
     padding: 24px;
     width: 100%;
-    background-color: white;
+    background-color: rgb(255, 255, 255);
     max-width: 800px;
     color: var(--text-primary);
 }

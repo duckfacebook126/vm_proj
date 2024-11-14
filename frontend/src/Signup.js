@@ -4,11 +4,9 @@ import SignUpValidation, { SignUpSchema } from './SignUpValidation';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useFormik } from 'formik';
+import Swal from 'sweetalert2'
 
-const onSubmit=()=>{
 
-    console.log('submitted')
-}
 function Signup() {
 
     useEffect(() => {
@@ -33,60 +31,46 @@ function Signup() {
             phoneNumber: '',
             username: '',
             email: '',
-        password: ''
+            password: ''
         },
         validationSchema: SignUpSchema,
-        onSubmit
+        onSubmit:(values ,{setSubmitting,setErrors})=>{
+            setSubmitting(true);
+            axios.post('http://localhost:8080/api/signup', values).then(res => {
+                
+                navigate('/login'); // Navigate to the home page on successful signup
+            }
+
+            ).catch(error=>{
+                if (error.response ) {
+                    const backendError = error.response.data.error;
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Oops...',
+                      text: backendError,
+                    });
+                  }
+                    setSubmitting(false);
+
+            });
+
+
+
+
+
+        }
         
         
 
     }
     )
-    console.log(formik);
+    //console.log(formik);
 
     console.log(formik.errors);
     
     const navigate = useNavigate();
 
-    // Handle input change
- 
-
-    // // Handle form submission
-    // const handleSubmit = (event) => {
-    //     event.preventDefault();
-
-    //     // Validate and set errors
-    //     const errors = {}
-    //     if (!signupValues.cnic) errors.cnic = "CNIC is required";
-    //     if (!signupValues.firstName) errors.firstName = "First name is required";
-    //     if (!signupValues.lastName) errors.lastName = "Last name is required";
-    //     if (!signupValues.phoneNumber) errors.phoneNumber = "Phone number is required";
-    //     if (!signupValues.username) errors.username = "Username is required";
-    //     if (!signupValues.email) errors.email = "Email is required";
-    //     if (!signupValues.password) errors.password = "Password is required";
-    //     const validationErrors = SignUpValidation(signupValues);
-    //     if (validationErrors) {
-    //         Object.keys(validationErrors).forEach((key) => {
-    //             errors[key] = validationErrors[key];
-    //         });
-    //     }
-    //     setSignupError(errors);
-
-    //     // Check if there are no validation errors
-    //     const noErrors = Object.keys(errors).length === 0;
-    //     if (noErrors) {
-    //         axios.post('http://localhost:8080/api/signup', signupValues)
-    //             .then(res => {
-                    
-    //                 navigate('/login'); // Navigate to the home page on successful signup
-    //             })
-    //             .catch(err => {
-    //                 console.error(err);
-    //                 // Assuming the error message is in err.response.data.error
-    //                 setSignupError({ serverError: err.response.data.error });
-    //             });
-    //     }
-    // };
+   
 
     return (
         <div className='signup-container d-flex justify-content-center align-items-center'>
@@ -100,7 +84,7 @@ function Signup() {
                                 <label htmlFor="firstName"><strong>First Name</strong></label>
                                 <input
                                     type="text"
-                                    className="form-control mb-3 dark-outline"
+                                    className={formik.errors.firstName&& formik.touched.firstName?'form-control danger':'form-control'}
                                     id="firstName"
                                     placeholder="Enter First Name"
                                     name="firstName"
@@ -108,13 +92,13 @@ function Signup() {
                                     value={formik.values.firstName}
                                     onBlur={formik.handleBlur}
                                 />
-                                <p className='danger'>{formik.errors.firstName}</p>
+                               { formik.touched.firstName&& formik.errors.firstName&&<p className={formik.errors.firstName&& formik.touched.firstName?'form-control danger':'form-control'}>{formik.errors.firstName}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="lastName"><strong>Last Name</strong></label>
                                 <input
                                     type="text"
-                                    className="form-control mb-3 dark-outline"
+                                    className={formik.errors.lastName&& formik.touched.lastName?'form-control danger':'form-control'}
                                     id="lastName"
                                     placeholder="Enter Last Name"
                                     name="lastName"
@@ -122,13 +106,13 @@ function Signup() {
                                     onBlur={formik.handleBlur}
                                     value={formik.values.lastName}
                                 />
-                                <p className='danger'>{formik.errors.lastName}</p>
+                                {formik.touched.lastName&&formik.errors.lastName&&<p className={formik.errors.lastName&& formik.touched.lastName?'form-control danger':'form-control'}>{formik.errors.lastName}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="phoneNumber"><strong>Phone Number</strong></label>
                                 <input
                                     type="tel"
-                                    className={formik.touched.phoneNumber && formik.errors.phoneNumber ? 'danger':""}
+                                    className={formik.touched.phoneNumber && formik.errors.phoneNumber ? 'form-control danger':"form-control"}
                                     id="phoneNumber"
                                     placeholder="Enter Phone Number"
                                     name="phoneNumber"
@@ -137,7 +121,7 @@ function Signup() {
                                     onBlur={formik.handleBlur}
                                     
                                 />
-                                <p className='danger'>{formik.errors.phoneNumber}</p>
+                                {formik.touched.phoneNumber&&formik.errors.phoneNumber&&<p className={formik.errors.phoneNumber&& formik.touched.phoneNumber?'form-control danger':'form-control'}>{formik.errors.phoneNumber}</p>}
                             </div>
                         </div>
 
@@ -147,7 +131,7 @@ function Signup() {
                                 <label htmlFor="cnic"><strong>CNIC</strong></label>
                                 <input
                                     type="text"
-                                    className={formik.touched.cnic && formik.errors.cnic ? 'danger':""}
+                                    className={formik.touched.cnic && formik.errors.cnic ? 'danger form-control':'form-control'}
                                     id="cnic"
                                     placeholder="Enter CNIC"
                                     name="cnic"
@@ -155,13 +139,13 @@ function Signup() {
                                     value={formik.values.cnic}
                                     onBlur={formik.handleBlur}
                                 />
-                                <p className='danger'>{formik.errors.cnic}</p>
+                                {formik.touched.cnic&&formik.errors.cnic&&<p className={formik.touched.cnic && formik.errors.cnic ? 'danger form-control':'form-control'}>{formik.errors.cnic}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="email"><strong>Email</strong></label>
                                 <input
                                     type="email"
-                                    className={formik.touched.email && formik.errors.email ? 'danger':""}
+                                    className={formik.touched.email && formik.errors.email ? ' form-control danger':"form-control"}
                                     id="email"
                                     placeholder="Enter Email"
                                     name="email"
@@ -169,13 +153,13 @@ function Signup() {
                                     value={formik.values.email}
                                     onBlur={formik.handleBlur}
                                 />
-                                <p className='danger'>{formik.errors.email}</p>
+                                {formik.touched.email&&formik.errors.email&&<p className={formik.touched.email && formik.errors.email ? ' form-control danger':"form-control"}>{formik.errors.email}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="username"><strong>Username</strong></label>
                                 <input
                                     type="text"
-                                    className={formik.touched.username && formik.errors.username ? 'danger':""}
+                                    className={formik.touched.username && formik.errors.username ? 'form-control danger':"form-control"}
                                     id="username"
                                     placeholder="Enter Username"
                                     name="username"
@@ -183,13 +167,13 @@ function Signup() {
                                     value={formik.values.username}
                                     onBlur={formik.handleBlur}
                                 />
-                                <p className='danger'>{formik.errors.username}</p>
+                                {formik.touched.username&&formik.errors.username&&<p className={formik.touched.username && formik.errors.username ? 'form-control danger':"form-control"}>{formik.errors.username}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="password"><strong>Password</strong></label>
                                 <input
                                     type="password"
-                                    className={formik.touched.password && formik.errors.password ? 'danger':""}
+                                    className={formik.touched.password && formik.errors.password ? 'form-control danger':"form-control"}
                                     id="password"
                                     placeholder="Enter Password"
                                     name="password"
@@ -197,7 +181,7 @@ function Signup() {
                                     value={formik.values.password}
                                     onBlur={formik.handleBlur}
                                 />
-                                <p className='danger'>{formik.errors.password}</p>
+                               { formik.touched.password&&formik.errors.password&&<p className={formik.touched.password && formik.errors.password ? 'form-control danger':"form-control"}>{formik.errors.password}</p>}
                             </div>
                         </div>
                     </div>

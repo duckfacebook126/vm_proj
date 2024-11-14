@@ -92,7 +92,7 @@ function AddVMForm({ onClose }) {
                 <div className="form-sections">
                     <div className="form-left">
                     
-                        <div className="form-group dark-outline">
+                        <div className="form-group ">
                             <label htmlFor="osName">OS Name</label>
                             <input
                                 type="text"
@@ -101,10 +101,11 @@ function AddVMForm({ onClose }) {
                                 value={formData.osName}
                                 onChange={handleInput}
                                 required
+                                className='form-control dark-outline'
                             />
                             {vmError.osName && <span className="error ">{vmError.osName}</span>}
                         </div>
-                        <div className="form-group dark-outline">
+                        <div className="form-group ">
                             <label htmlFor="vmName">VM Name</label>
                             <input
                                 type="text"
@@ -113,10 +114,13 @@ function AddVMForm({ onClose }) {
                                 value={formData.vmName}
                                 onChange={handleInput}
                                 required
+                                className='form-control dark-outline'
+
+
                             />
                             {vmError.vmName && <span className="error">{vmError.vmName}</span>}
                         </div>
-                        <div className="form-group dark-outline">
+                        <div className="form-group ">
                             <label htmlFor="cpuCores">CPU Cores: {formData.cpuCores}</label>
                             <input
                                 type="range"
@@ -126,9 +130,11 @@ function AddVMForm({ onClose }) {
                                 max="8"
                                 value={formData.cpuCores}
                                 onChange={handleSliderChange}
+                                className='form-control dark-outline'
+
                             />
                         </div>
-                        <div className="form-group dark-outline">
+                        <div className="form-group ">
                             <label htmlFor="cpuCount">CPU Count: {formData.cpuCount}</label>
                             <input
                                 type="range"
@@ -138,24 +144,26 @@ function AddVMForm({ onClose }) {
                                 max="4"
                                 value={formData.cpuCount}
                                 onChange={handleSliderChange}
-                            />
+
+                            /> 
                         </div>
                     </div>
                     <div className="form-right">
-                        <div className="form-group dark-outline">
+                        <div className="form-group ">
                             <label htmlFor="diskFlavor">Disk Flavor</label>
                             <select
                                 id="diskFlavor"
                                 name="diskFlavor"
                                 value={formData.diskFlavor}
                                 onChange={handleDiskFlavorChange}
+
                             >
                                 <option value="Light">Light</option>
                                 <option value="Medium">Medium</option>
                                 <option value="Heavy">Heavy</option>
                             </select>
                         </div>
-                        <div className="form-group dark-outline">
+                        <div className="form-group ">
                             <label htmlFor="ram">RAM Size: {formData.ram} GB</label>
                             <input
                                 type="range"
@@ -165,9 +173,10 @@ function AddVMForm({ onClose }) {
                                 max={ramLimits[formData.diskFlavor].max}
                                 value={formData.ram}
                                 onChange={handleSliderChange}
+
                             />
                         </div>
-                        <div className="form-group dark-outline">
+                        <div className="form-group ">
                             <label htmlFor="diskName">Disk Name</label>
                             <input
                                 type="text"
@@ -176,10 +185,12 @@ function AddVMForm({ onClose }) {
                                 value={formData.diskName}
                                 onChange={handleInput}
                                 required
+                                className='form-control dark-outline'
+
                             />
                             {vmError.diskName && <span className="error">{vmError.diskName}</span>}
                         </div>
-                        <div className="form-group dark-outline ">
+                        <div className="form-group ">
                             <label htmlFor="diskSize">Disk Size: {formData.diskSize} GB</label>
                             <input
                                 type="range"
@@ -190,6 +201,7 @@ function AddVMForm({ onClose }) {
                                 step="50"
                                 value={formData.diskSize}
                                 onChange={handleSliderChange}
+
                             />
                         </div>
                     </div>
