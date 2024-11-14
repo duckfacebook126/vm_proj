@@ -14,13 +14,11 @@ router.post('/logout', logout);
 router.post('/create_vm',createVM);
 
 // Dashboard route with checkAuth middleware
-router.get('/dashboard', checkAuth, (req, res) => {
-    res.send('Welcome to the Dashboard!');
-});
+
 
 
 // Task routes
-router.get('/dashboard_data', checkAuth, dashboard_data);
+router.get('/dashboard_data',  dashboard_data);
 
 router.get('/test', (req, res) => {
     res.send('Test route is working.');

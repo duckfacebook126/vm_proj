@@ -16,11 +16,11 @@ const signup = async (req, res) => {
         if (rows.length > 0) {
             // Determine the type of duplicate error
             let errorMsg = '';
-            if (rows.some(row => row.CNIC == cnic)) {
+            if (rows.some(row => row.CNIC === cnic)) {
                 errorMsg = 'CNIC is already in use';
             }
-            else if (rows.some(row => row.userName === username)) {
-                errorMsg = 'Username is already in use';
+            if (rows.some(row => row.userName === username)) {
+                errorMsg = errorMsg ? `${errorMsg} and username is already in use` : 'Username is already in use';
             }
             return res.status(400).json({ error: errorMsg });
         }
@@ -56,7 +56,7 @@ const login = async (req, res) => {
 
         // Check if user exists
         if (rows.length === 0) {
-            return res.status(404).json({ login: false, error: "Username does not exist" });
+            return res.status(404).json({ login: false, username_error: "Username does not exist" });
         }
 
         const user = rows[0];
@@ -65,7 +65,7 @@ const login = async (req, res) => {
         const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (!passwordMatch) {
-            return res.status(404).json({ login: false, error: "Wrong password" });
+            return res.status(404).json({ login: false, password_error: "Wrong password" });
         }
 
         // Set the session variables if password matches
@@ -104,7 +104,6 @@ const logout = (req, res) => {
     });
 };
 
-
 // Create VM Function
 const createVM = async (req, res) => {
     let conn;
@@ -140,30 +139,30 @@ const createVM = async (req, res) => {
 
 
         // 1. Insert or get OS ID
-        
-        
+        let [osRows] = await conn.execute('SELECT id FROM operating_system WHERE NAME = ?', [osName]);
+        let osId;
+        if (osRows.length === 0) {
             const [osResult] = await conn.execute('INSERT INTO operating_system (NAME) VALUES (?)', [osName]);
-           let osId = osResult.insertId;
-            
+            osId = osResult.insertId;
+        } else {
+            osId = osRows[0].id;
+        }
 
         // 2. Insert or get disk flavor ID
+        let [flavorRows] = await conn.execute('SELECT id FROM disk_flavor WHERE NAME = ?', [diskFlavor]);
         let flavorId;
-        
+        if (flavorRows.length === 0) {
             const [flavorResult] = await conn.execute('INSERT INTO disk_flavor (NAME, size) VALUES (?, ?)', [diskFlavor, ram]);
-         
-
-            
-       
             flavorId = flavorResult.insertId;
-        
+        } else {
+            flavorId = flavorRows[0].id;
+        }
 
         // 3. Insert into virtual_machine table
         const [vmResult] = await conn.execute(
             'INSERT INTO virtual_machine (NAME, ram, CPU, cores, osId, userId, flavorId, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
             [vmName, ram, cpuCount, cpuCores, osId, userId, flavorId, diskSize]
         );
-
-
         const vmId = vmResult.insertId;
 
         // 4. Insert into DISK table
@@ -171,7 +170,6 @@ const createVM = async (req, res) => {
             'INSERT INTO DISK (NAME, size, flavorId, userId, vmId) VALUES (?, ?, ?, ?, ?)',
             [diskName, diskSize, flavorId, userId, vmId]
         );
-
         const diskId = diskResult.insertId;
 
         // Commit the transaction
@@ -187,19 +185,19 @@ const createVM = async (req, res) => {
     } catch (error) {
         if (conn) await conn.rollback();
         console.error('Failed to create VM:', error);
-        res.status(500).json({ error });
+        res.status(500).json({ error: error.message });
     } finally {
         if (conn) conn.release();
     }
 };
 
-
-
-
 const dashboard_data = async (req, res) => {
     let conn;
     try {
         const userId = req.session.uId;
+
+
+        
         if (!userId) {
             return res.status(401).json({ error: "User not authenticated" });
         }
@@ -215,7 +213,8 @@ const dashboard_data = async (req, res) => {
             WHERE vm.userId = ?
         `;
         const [vms] = await conn.execute(vmQuery, [userId]);
-
+        console.log('vm data that is fetched')
+            console.log([vms]);
         // Get all disks for the user with flavor details
         const diskQuery = `
             SELECT d.*, df.name as flavorName, vm.name as vmName
@@ -225,7 +224,8 @@ const dashboard_data = async (req, res) => {
             WHERE d.userId = ?
         `;
         const [disks] = await conn.execute(diskQuery, [userId]);
-
+        console.log('disk data that is fetched')
+        console.log([disks]);
         res.status(200).json({
             vms,
             disks
