@@ -56,7 +56,7 @@ const login = async (req, res) => {
 
         // Check if user exists
         if (rows.length === 0) {
-            return res.status(404).json({ login: false, username_error: "Username does not exist" });
+            return res.status(404).json({ login: false, error: "Username does not exist" });
         }
 
         const user = rows[0];
@@ -65,7 +65,7 @@ const login = async (req, res) => {
         const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (!passwordMatch) {
-            return res.status(404).json({ login: false, password_error: "Wrong password" });
+            return res.status(404).json({ login: false, error: "Wrong password" });
         }
 
         // Set the session variables if password matches
@@ -84,7 +84,7 @@ const login = async (req, res) => {
 
     } catch (error) {
         console.error('Login failed:', error);
-        res.status(500).json({ error: 'Login failed' });
+        res.status(500).json({ error: 'Login failed' ,login:false });
     } finally {
         if (conn) conn.release();
     }
@@ -195,9 +195,6 @@ const dashboard_data = async (req, res) => {
     let conn;
     try {
         const userId = req.session.uId;
-
-
-        
         if (!userId) {
             return res.status(401).json({ error: "User not authenticated" });
         }
@@ -213,8 +210,7 @@ const dashboard_data = async (req, res) => {
             WHERE vm.userId = ?
         `;
         const [vms] = await conn.execute(vmQuery, [userId]);
-        console.log('vm data that is fetched')
-            console.log([vms]);
+
         // Get all disks for the user with flavor details
         const diskQuery = `
             SELECT d.*, df.name as flavorName, vm.name as vmName
@@ -224,11 +220,11 @@ const dashboard_data = async (req, res) => {
             WHERE d.userId = ?
         `;
         const [disks] = await conn.execute(diskQuery, [userId]);
-        console.log('disk data that is fetched')
-        console.log([disks]);
+
         res.status(200).json({
             vms,
-            disks
+            disks,
+            login: true,
         });
     } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
@@ -238,10 +234,29 @@ const dashboard_data = async (req, res) => {
     }
 };
 
+const deleteVM = async (req, res) => {
+    let conn;
+    const vmId = parseInt(req.params.vmid);
+    try{
+        
+        conn =await db.getConnection();
+        const [result] = await conn.execute('DELETE FROM virtual_machine WHERE id = ?',[vmId]);
+        res.status(200).json({message:'VM deleted successfully'});
+    }
+    catch(error){
+
+        res.status(500).json({error:'Failed o delete VM'});
+    }
+    finally{
+        if(conn) conn.release();
+    }
+
+}
 module.exports = {
     signup,
     login,
     logout,
     createVM,
-    dashboard_data
+    dashboard_data,
+    deleteVM
 };
