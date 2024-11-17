@@ -18,6 +18,8 @@ function Login() {
                         navigate('/dashboard');
                     
                 }
+
+               
             })
             .catch(err => {
                 console.error(err);

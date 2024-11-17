@@ -6,7 +6,7 @@
 
 .sidebar {
     width: 250px;
-    background-color: #2c3e50;
+    background-color: green;
     color: white;
     padding: 20px;
 }
@@ -33,7 +33,7 @@
 }
 
 .sidebar-item:hover, .sidebar-item.active {
-    background-color: #34495e;
+    background-color: var(--cal-poly-green);
 }
 
 .main-content {
@@ -54,7 +54,7 @@
 }
 
 .vm-card, .disk-card {
-    background: white;
+    background:var(--forest-green);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -84,8 +84,12 @@
 }
 
 /* Add VM Button */
-.btn-add-vm, .btn-logout {
-    background-color: var(--button-bg);
+.btn-add-vm{
+
+
+
+} .btn-logout {
+    background-color: red !important;
     color: var(--text-primary);
     border: 1px solid rgba(240, 246, 252, 0.1);
     padding: 8px 16px;
@@ -93,11 +97,10 @@
     transition: 0.3s;
     margin-left: 12px;
 }
-.btn-add-vm:hover, .btn-logout:hover {
-    background-color: var(--button-hover);
+.btn-add-vm:hover{}
+ .btn-logout:hover {
     transform: translateY(-2px);
 }
-
 /* VM Cards */
 .vm-cards {
     margin-top: 20px;
@@ -110,6 +113,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
     transition: transform 0.2s;
+    background-color: var(--forest-green) !important;
 }
 .vm-card:hover {
     transform: scale(1.02);
@@ -129,7 +133,7 @@
 
 /* Button inside Card */
 .vm-card button {
-    background-color: #007bff;
+    background-color: white !important;
     color: white;
     border: none;
     padding: 8px 12px;
@@ -137,5 +141,23 @@
     transition: 0.3s;
 }
 .vm-card button:hover {
-    background-color: #0056b3;
+    background-color: var(--cal-poly-green);
+}
+.disk-card button{
+    background-color:white ;
+    border: 2px solid green;
+    border-radius: 5px;
+
+}
+.disk-card button:hover{
+    background-color:white ;
+}
+.loading-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    height: 100%;
+    width: 100%;
+    background-color: #f5f6fa;
 }

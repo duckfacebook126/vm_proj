@@ -3,20 +3,41 @@ import './Dashboard.css';
 import AddVMForm from './AddVMForm';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CircularProgress from '@mui/material/CircularProgress';
+import { IconButton, Button, Stack } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 
 function Dashboard() {
     const [showForm, setShowForm] = useState(false);
     const [activeTab, setActiveTab] = useState('vms');
     const [dashboardData, setDashboardData] = useState({ vms: [], disks: [] });
     const navigate = useNavigate();
+    const [loading,setLoading]=useState(true);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [vmToDelete, setVmToDelete] = useState(null);
 
-    useEffect(() => {
-        fetchDashboardData();
+    useEffect(() => {    
+           
+        setTimeout(()=>{
+            fetchDashboardData();
+            setLoading(false);
+        },3000)
     }, []);
     useEffect(()=>{
         handle_login_change();
     },[])
+const handleDeltevm=async(VMid)=>{
+axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`,{withCredentials:true})
+.then(res=>{
+    console.log(res.data);
+    fetchDashboardData();
+}).catch(err=>{
+    console.error('Failed to delete VM 1:', err);
+})
 
+}
     const fetchDashboardData = () => {
         axios.get('http://localhost:8080/api/dashboard_data', { withCredentials: true })
             .then(res => {
@@ -43,6 +64,13 @@ function Dashboard() {
                 <p>RAM: {vm.ram} GB</p>
                 <p>Disk Size: {vm.size} GB</p>
                 <p>Flavor: {vm.flavorName}</p>
+                <IconButton 
+                    style={{height: '40px', width: '40px'}} 
+                    sx={{color: 'white','&:hover':{border: '2px solid green'}}} 
+                    onClick={() => handleDeleteClick(vm.id)}
+                >
+                    <DeleteIcon style={{height: '40px', width: '40px'}} sx={{color: 'green'}} />
+                </IconButton>
             </div>
         ));
     };
@@ -54,19 +82,39 @@ function Dashboard() {
                 <p>Size: {disk.size} GB</p>
                 <p>Flavor: {disk.flavorName}</p>
                 <p>Attached to VM: {disk.vmName || 'None'}</p>
+                <IconButton style={{height: '40px', width: '40px'}} sx={{color: 'white','&:hover':{border: '2px solid green'}} }  className="btn-add-vm" >
+                <DeleteIcon style={{height: '40px', width: '40px'}} sx={{color: 'green'}} />
+                </IconButton>
             </div>
         ));
     };
 
-    const handleLogout = () => {
-        axios.post('http://localhost:8080/api/logout', {}, { withCredentials: true })
-            .then(res => {
-                console.log(res.data.message);
-                navigate('/login'); // Redirect to login page after logout
-            })
-            .catch(err => {
-                console.error('Logout failed:', err);
-            });
+    const handleLogout = async () => {
+        try {
+            const res = await axios.post('http://localhost:8080/api/logout', {}, { withCredentials: true });
+            console.log(res.data.message);
+            navigate('/login', { replace: true });
+        } catch (err) {
+            console.error('Logout failed:', err);
+        }
+    };
+
+    const handleDeleteClick = (vmId) => {
+        setVmToDelete(vmId);
+        setOpenDialog(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (vmToDelete) {
+            handleDeltevm(vmToDelete);
+            setOpenDialog(false);
+            setVmToDelete(null);
+        }
+    };
+
+    const handleCancelDelete = () => {
+        setOpenDialog(false);
+        setVmToDelete(null);
     };
 
     return (
@@ -101,15 +149,24 @@ function Dashboard() {
                 <header className="navbar">
                     <h1>{activeTab.toUpperCase()}</h1>
                     <div>
-                        <button className="btn-add-vm" onClick={() => setShowForm(true)}>Add VM</button>
-                        <button className="btn-logout" onClick={handleLogout}>Logout</button>
+                        <Stack spacing={2} direction="row">
+                        <Button variant='contained' className="btn-logout" onClick={handleLogout}>Logout</Button>
+                        </Stack>
                     </div>
                 </header>
 
                 <div className="content-area">
+                    <div className="loading-container">
+                {loading &&<CircularProgress style={{color:'green', height:'200px', width:'200px'}}/>}
+                </div>
+
+
                     {activeTab === 'vms' && (
                         <div className="vm-cards">
                             {renderVMCards()}
+                          {  !loading && <IconButton style={{height: '200px', width: '200px'}} className="btn-add-vm" onClick={() => setShowForm(true)}>
+                            <AddIcon style={{height: '200px', width: '200px'}} />
+                            </IconButton>}
                         </div>
                     )}
                     {activeTab === 'disks' && (
@@ -133,6 +190,29 @@ function Dashboard() {
                     </div>
                 )}
             </div>
+            <Dialog
+                open={openDialog}
+                onClose={handleCancelDelete}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Confirm Delete"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to delete this VM? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancelDelete} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleConfirmDelete} color="error" autoFocus>
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }
