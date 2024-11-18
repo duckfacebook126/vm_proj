@@ -1,29 +1,43 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Login.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
 import { useFormik } from 'formik';
 import { LoginValidaitonSchema } from './LoginValidation';
 import Swal from 'sweetalert2';
+import LoadingSpinner from './components/Loading';
 
 function Login() {
     const navigate = useNavigate();
-
+const [IsLoading,setIsLoading]=useState(true)
     useEffect(() => {
         // Check if the user is already logged in
-        axios.get('http://localhost:8080', { withCredentials: true })
+
+       
+            axios.get('http://localhost:8080', { withCredentials: true })
             .then(res => {
                 if (res.data.login) {
                     
                         navigate('/dashboard');
                     
                 }
+                
 
                
             })
             .catch(err => {
                 console.error(err);
             });
+            
+            const timer = setTimeout(() => {
+                setIsLoading(false);
+                return 
+              }, 3000); 
+
+              
+    return () => clearTimeout(timer);
+       
     }, [navigate]);
 
     const formik = useFormik({
@@ -54,7 +68,7 @@ function Login() {
                 });
         }
     });
-
+if(!IsLoading){
     return (
         <div className='login-container bg-white d-flex justify-content-center align-items-center'>
             <div className="login-form bg-white p-3 rounded dark-outline">
@@ -94,7 +108,15 @@ function Login() {
                 </form>
             </div>
         </div>
-    );
+
+);}
+   
+
+    else if(IsLoading)
+    {
+
+        return(<><LoadingSpinner/></>);
+    }
 }
 
 export default Login;

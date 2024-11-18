@@ -130,7 +130,7 @@ function AddVMForm({ onClose }) {
                                 max="8"
                                 value={formData.cpuCores}
                                 onChange={handleSliderChange}
-                                className='form-control dark-outline'
+                              
 
                             />
                         </div>

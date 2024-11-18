@@ -5,17 +5,19 @@ import {BrowserRouter,Routes,Route} from'react-router-dom'
 import Signup from './Signup';
 import Dashboard from './Dashboard';
 import Home from './Home';
-import LoadingWrapper from './components/LoadingWrapper';
-
+import LoadingSpinner from './components/Loading';
 function App() { 
   return (
     <BrowserRouter>
+    
       <Routes>
-        <Route path="/" element={<LoadingWrapper><Home /></LoadingWrapper>} />
-        <Route path="/signup" element={<LoadingWrapper><Signup /></LoadingWrapper>} />
-        <Route path="/login" element={<LoadingWrapper><Login /></LoadingWrapper>} />
-        <Route path="/dashboard" element={<LoadingWrapper><Dashboard /></LoadingWrapper>} />
+       
+        <Route path="/" element={ <LoadingSpinner><Home /></LoadingSpinner>} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
+      
     </BrowserRouter>
   );
 }

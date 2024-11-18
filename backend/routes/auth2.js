@@ -1,5 +1,5 @@
 const checkAuth2 = (req, res, next) => {
-    if (res.data.login) {
+    if (req.body.login) {
         // User is logged in, proceed to the next middleware or route handler
     return res.redirect('/dashboard');
     } else {

@@ -5,14 +5,21 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useFormik } from 'formik';
 import Swal from 'sweetalert2'
+import Loading from './components/Loading';
+import LoadingSpinner from './components/Loading';
 
+function loading(){
+    return (<><Loading /></>)
+}
 
 function Signup() {
-
+    
+    const [IsLoading,setIsLoading]=useState(true);
     useEffect(() => {
         axios.get('http://localhost:8080', { withCredentials: true })
             .then(res => {
                 if(res.data.login)
+                    loading();
                 {
                     console.log(res.data.login);
                     navigate('/login'); // Redirect to login page if request fails
@@ -22,6 +29,18 @@ function Signup() {
             .catch(err => {
                 console.log(err);
             });
+
+
+            const timer = setTimeout(() => {
+                setIsLoading(false);
+                return 
+              }, 3000); 
+
+              
+    return () => clearTimeout(timer);
+       
+
+
     }, []);
     const formik= useFormik({
         initialValues: {
@@ -70,7 +89,7 @@ function Signup() {
     
     const navigate = useNavigate();
 
-   
+   if(!IsLoading){
 
     return (
         <div className='signup-container d-flex justify-content-center align-items-center'>
@@ -193,4 +212,11 @@ function Signup() {
     );
 }
 
+
+else if(IsLoading){
+
+    return(<><LoadingSpinner/></>);
+}
+
+}
 export default Signup;

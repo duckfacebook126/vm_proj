@@ -252,11 +252,32 @@ const deleteVM = async (req, res) => {
     }
 
 }
+
+const deleteDisk = async (req, res) => {
+    let conn;
+    const DiskId = parseInt(req.params.Diskid);
+    try{
+        
+        conn =await db.getConnection();
+        const [result] = await conn.execute('DELETE FROM DISK WHERE id = ?',[DiskId]);
+        res.status(200).json({message:'Disk deleted successfully'});
+    }
+    catch(error){
+
+        res.status(500).json({error:'Failed o deleteDisk'});
+    }
+    finally{
+        if(conn) conn.release();
+    }
+
+}
+
 module.exports = {
     signup,
     login,
     logout,
     createVM,
     dashboard_data,
-    deleteVM
+    deleteVM,
+    deleteDisk
 };

@@ -1,13 +1,11 @@
 const checkAuth = (req, res, next) => {
-    if (req.session.username) {
-        // User is logged in, proceed to the next middleware or route handler
-    return res.redirect('/login');
-    } else {
+    if (!req.session.uId) {
         // User is not logged in, redirect to the login page or send a 401 Unauthorized response
-        return res.status(401).json({ error: 'Unauthorized access. Please log in.' });
+        return res.redirect('/login');
+    } else {
+        // User is logged in, proceed to the next middleware or route handler
+        next();
     }
 };
 
-
-
-module.exports =checkAuth;
+module.exports = checkAuth;

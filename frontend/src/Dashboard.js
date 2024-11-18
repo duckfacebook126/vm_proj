@@ -9,25 +9,44 @@ import { IconButton, Button, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 
+import LoadingSpinner from './components/Loading';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+
+
+
 function Dashboard() {
     const [showForm, setShowForm] = useState(false);
     const [activeTab, setActiveTab] = useState('vms');
     const [dashboardData, setDashboardData] = useState({ vms: [], disks: [] });
     const navigate = useNavigate();
-    const [loading,setLoading]=useState(true);
-    const [openDialog, setOpenDialog] = useState(false);
+    const [IsLoading,setIsLoading]=useState(true);
+    const [openDialogvm, setOpenDialog] = useState(false);
     const [vmToDelete, setVmToDelete] = useState(null);
 
-    useEffect(() => {    
-           
-        setTimeout(()=>{
-            fetchDashboardData();
-            setLoading(false);
-        },3000)
-    }, []);
-    useEffect(()=>{
+    const [DiskToDelete, setDiskToDelete] = useState(null);
+
+    const [openDialogDisk, setOpenDialogDisk] = useState(false);
+
+    useEffect(() => {     
+        
         handle_login_change();
-    },[])
+        fetchDashboardData();
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+            return 
+          }, 3000); 
+
+          
+return () => clearTimeout(timer);
+      
+    }, []);
+  
 const handleDeltevm=async(VMid)=>{
 axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`,{withCredentials:true})
 .then(res=>{
@@ -38,6 +57,18 @@ axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`,{withCredentials:true
 })
 
 }
+
+const handleDelteDisk=async(Diskid)=>{
+    axios.delete(`http://localhost:8080/api/delete_Disk/${Diskid}`,{withCredentials:true})
+    .then(res=>{
+        console.log(res.data);
+        fetchDashboardData();
+    }).catch(err=>{
+        console.error('Failed to delete Disk:', err);
+    })
+    
+    }
+
     const fetchDashboardData = () => {
         axios.get('http://localhost:8080/api/dashboard_data', { withCredentials: true })
             .then(res => {
@@ -73,6 +104,8 @@ axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`,{withCredentials:true
                 </IconButton>
             </div>
         ));
+
+        
     };
 
     const renderDiskCards = () => {
@@ -82,26 +115,118 @@ axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`,{withCredentials:true
                 <p>Size: {disk.size} GB</p>
                 <p>Flavor: {disk.flavorName}</p>
                 <p>Attached to VM: {disk.vmName || 'None'}</p>
-                <IconButton style={{height: '40px', width: '40px'}} sx={{color: 'white','&:hover':{border: '2px solid green'}} }  className="btn-add-vm" >
+                <IconButton style={{height: '40px', width: '40px'}} sx={{color: 'white','&:hover':{border: '2px solid green'}}  }  onClick={() => handleDeleteClickDisk(disk.id)} className="btn-add-vm" >
                 <DeleteIcon style={{height: '40px', width: '40px'}} sx={{color: 'green'}} />
                 </IconButton>
             </div>
         ));
     };
 
+
+
+    const renderVMTable = () => {
+        return(
+        <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+          <TableHead>
+            <TableRow>
+            <TableCell align="left" sx={{ fontWeight: 'bold' }}>VM ID</TableCell>
+            <TableCell align="left" sx={{ fontWeight: 'bold' }}>VM Name</TableCell>
+            <TableCell align="left" sx={{ fontWeight: 'bold' }}>OS Name</TableCell>
+
+              <TableCell align="left" sx={{ fontWeight: 'bold' }}>Disk Space</TableCell>
+              <TableCell align="left" sx={{ fontWeight: 'bold' }}>Ram</TableCell>
+              <TableCell align="left" sx={{ fontWeight: 'bold' }}>Cpu</TableCell>
+              <TableCell align="left" sx={{ fontWeight: 'bold' }}>Flavour</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {dashboardData.vms.map((vm) => (
+              <TableRow
+                key={vm.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                
+                <TableCell align="left">{vm.id}</TableCell> 
+                <TableCell align="left">{vm.name}</TableCell>
+                <TableCell align="left">{vm.osName}</TableCell>
+                <TableCell align="left">{vm.size}</TableCell>
+                <TableCell align="left">{vm.ram}</TableCell>
+                <TableCell align="left">{vm.cpu} x {vm.cores}</TableCell>
+                <TableCell align="left">{vm.flavorName}</TableCell>
+        
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+        );
+
+        }
+
+        const renderDiskTable = () => {
+            return (
+                <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell align="left" sx={{ fontWeight: 'bold' }}>Disk ID</TableCell>
+                                <TableCell align="left" sx={{ fontWeight: 'bold' }}>Disk Name</TableCell>
+                                <TableCell align="left" sx={{ fontWeight: 'bold' }}>Flavor</TableCell>
+                                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Size</TableCell>
+                                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Attached to VM</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {dashboardData.disks.map((disk) => (
+                                <TableRow
+                                    key={disk.id}
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                >
+                                    <TableCell align="left">{disk.id}</TableCell>
+                                    <TableCell align="left">{disk.name}</TableCell>
+                                    <TableCell align="leftt">{disk.flavorName}</TableCell>
+                                    <TableCell align="left">{disk.size}</TableCell>
+                                    <TableCell align="left">{disk.vmName || 'None'}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            );
+        };
+    
+
     const handleLogout = async () => {
         try {
             const res = await axios.post('http://localhost:8080/api/logout', {}, { withCredentials: true });
             console.log(res.data.message);
-            navigate('/login', { replace: true });
+            if(res.data.message==='Logout successful'){
+               
+              
+                    navigate('/login');
+                   
+              
+
+             
+           
+
+            }
         } catch (err) {
+
+        
             console.error('Logout failed:', err);
         }
     };
-
+//
     const handleDeleteClick = (vmId) => {
         setVmToDelete(vmId);
         setOpenDialog(true);
+    };
+
+    const handleDeleteClickDisk = (DiskId) => {
+        setDiskToDelete(DiskId);
+        setOpenDialogDisk(true);
     };
 
     const handleConfirmDelete = () => {
@@ -112,10 +237,29 @@ axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`,{withCredentials:true
         }
     };
 
+
+    const handleConfirmDeleteDisk = () => {
+        if (DiskToDelete) {
+            handleDelteDisk(DiskToDelete);
+            setOpenDialogDisk(false);
+            setDiskToDelete(null);
+        }
+    };
+
     const handleCancelDelete = () => {
         setOpenDialog(false);
         setVmToDelete(null);
     };
+
+
+    const handleCancelDeleteDisk = () => {
+        setOpenDialogDisk(false);
+        setDiskToDelete(null);
+    };
+    
+
+    if(!IsLoading)
+    {
 
     return (
         <div className="dashboard-container">
@@ -157,21 +301,23 @@ axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`,{withCredentials:true
 
                 <div className="content-area">
                     <div className="loading-container">
-                {loading &&<CircularProgress style={{color:'green', height:'200px', width:'200px'}}/>}
                 </div>
 
 
                     {activeTab === 'vms' && (
                         <div className="vm-cards">
                             {renderVMCards()}
-                          {  !loading && <IconButton style={{height: '200px', width: '200px'}} className="btn-add-vm" onClick={() => setShowForm(true)}>
-                            <AddIcon style={{height: '200px', width: '200px'}} />
+                          {   <IconButton style={{height: '50px', width: '50px'}} className="btn-add-vm" onClick={() => setShowForm(true)}>
+                            <AddIcon style={{height: '50px', width: '50px'}} />
                             </IconButton>}
+                            {renderVMTable()}
+                           
                         </div>
                     )}
                     {activeTab === 'disks' && (
                         <div className="disk-cards">
                             {renderDiskCards()}
+                            {renderDiskTable()}
                         </div>
                     )}
                     {activeTab === 'analytics' && (
@@ -191,13 +337,13 @@ axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`,{withCredentials:true
                 )}
             </div>
             <Dialog
-                open={openDialog}
+                open={openDialogvm}
                 onClose={handleCancelDelete}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                    {"Confirm Delete"}
+                    {" delete VM confirmatioopenDialogDisk"}
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
@@ -213,8 +359,43 @@ axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`,{withCredentials:true
                     </Button>
                 </DialogActions>
             </Dialog>
+
+
+            <Dialog
+                open={openDialogDisk}
+                onClose={handleCancelDeleteDisk}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {" delete Disk confirmation"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to delete this Disk? This will also delete the attached VM.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancelDeleteDisk} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleConfirmDeleteDisk} color="error" autoFocus>
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
+
+
+
+        //deletion dialouge box for the disk
+
+        
     );
+}
+
+else if(IsLoading)
+{return(<><LoadingSpinner/></>)}
 }
 
 export default Dashboard;
