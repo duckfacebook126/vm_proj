@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import './Dashboard.css';
 import AddVMForm from './AddVMForm';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +8,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { IconButton, Button, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-
 import LoadingSpinner from './components/Loading';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -17,6 +16,11 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import Chart01 from './Charts';
+
+export  const graphcontext=createContext();
+
+
 
 
 
@@ -25,49 +29,44 @@ function Dashboard() {
     const [activeTab, setActiveTab] = useState('vms');
     const [dashboardData, setDashboardData] = useState({ vms: [], disks: [] });
     const navigate = useNavigate();
-    const [IsLoading,setIsLoading]=useState(true);
+    const [IsLoading, setIsLoading] = useState(true);
     const [openDialogvm, setOpenDialog] = useState(false);
     const [vmToDelete, setVmToDelete] = useState(null);
-
     const [DiskToDelete, setDiskToDelete] = useState(null);
-
     const [openDialogDisk, setOpenDialogDisk] = useState(false);
+    const [viewMode, setViewMode] = useState('card'); // State for view mode
 
-    useEffect(() => {     
-        
+    useEffect(() => {
         handle_login_change();
         fetchDashboardData();
         const timer = setTimeout(() => {
             setIsLoading(false);
-            return 
-          }, 3000); 
+        }, 3000);
 
-          
-return () => clearTimeout(timer);
-      
+        return () => clearTimeout(timer);
     }, []);
-  
-const handleDeltevm=async(VMid)=>{
-axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`,{withCredentials:true})
-.then(res=>{
-    console.log(res.data);
-    fetchDashboardData();
-}).catch(err=>{
-    console.error('Failed to delete VM 1:', err);
-})
 
-}
+    const handleDeletevm = async (VMid) => {
+        axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`, { withCredentials: true })
+            .then(res => {
+                console.log(res.data);
+                fetchDashboardData();
+            })
+            .catch(err => {
+                console.error('Failed to delete VM:', err);
+            });
+    };
 
-const handleDelteDisk=async(Diskid)=>{
-    axios.delete(`http://localhost:8080/api/delete_Disk/${Diskid}`,{withCredentials:true})
-    .then(res=>{
-        console.log(res.data);
-        fetchDashboardData();
-    }).catch(err=>{
-        console.error('Failed to delete Disk:', err);
-    })
-    
-    }
+    const handleDeleteDisk = async (Diskid) => {
+        axios.delete(`http://localhost:8080/api/delete_Disk/${Diskid}`, { withCredentials: true })
+            .then(res => {
+                console.log(res.data);
+                fetchDashboardData();
+            })
+            .catch(err => {
+                console.error('Failed to delete Disk:', err);
+            });
+    };
 
     const fetchDashboardData = () => {
         axios.get('http://localhost:8080/api/dashboard_data', { withCredentials: true })
@@ -82,10 +81,11 @@ const handleDelteDisk=async(Diskid)=>{
             });
     };
 
-    const handle_login_change=async()=>{
-        const res=await axios.get('http://localhost:8080/',{withCredentials:true})
+    const handle_login_change = async () => {
+        const res = await axios.get('http://localhost:8080/', { withCredentials: true });
         console.log(res.data);
-    }
+    };
+
     const renderVMCards = () => {
         return dashboardData.vms.map(vm => (
             <div key={vm.id} className="vm-card">
@@ -95,17 +95,15 @@ const handleDelteDisk=async(Diskid)=>{
                 <p>RAM: {vm.ram} GB</p>
                 <p>Disk Size: {vm.size} GB</p>
                 <p>Flavor: {vm.flavorName}</p>
-                <IconButton 
-                    style={{height: '40px', width: '40px'}} 
-                    sx={{color: 'white','&:hover':{border: '2px solid green'}}} 
+                <IconButton
+                    style={{ height: '40px', width: '40px' }}
+                    sx={{ color: 'white', '&:hover': { border: '2px solid green' } }}
                     onClick={() => handleDeleteClick(vm.id)}
                 >
-                    <DeleteIcon style={{height: '40px', width: '40px'}} sx={{color: 'green'}} />
+                    <DeleteIcon style={{ height: '40px', width: '40px' }} sx={{ color: 'green' }} />
                 </IconButton>
             </div>
         ));
-
-        
     };
 
     const renderDiskCards = () => {
@@ -115,110 +113,97 @@ const handleDelteDisk=async(Diskid)=>{
                 <p>Size: {disk.size} GB</p>
                 <p>Flavor: {disk.flavorName}</p>
                 <p>Attached to VM: {disk.vmName || 'None'}</p>
-                <IconButton style={{height: '40px', width: '40px'}} sx={{color: 'white','&:hover':{border: '2px solid green'}}  }  onClick={() => handleDeleteClickDisk(disk.id)} className="btn-add-vm" >
-                <DeleteIcon style={{height: '40px', width: '40px'}} sx={{color: 'green'}} />
+                <IconButton
+                    style={{ height: '40px', width: '40px' }}
+                    sx={{ color: 'white', '&:hover': { border: '2px solid green' } }}
+                    onClick={() => handleDeleteClickDisk(disk.id)}
+                >
+                    <DeleteIcon style={{ height: '40px', width: '40px' }} sx={{ color: 'green' }} />
                 </IconButton>
             </div>
         ));
     };
 
-
-
     const renderVMTable = () => {
-        return(
-        <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-          <TableHead>
-            <TableRow>
-            <TableCell align="left" sx={{ fontWeight: 'bold' }}>VM ID</TableCell>
-            <TableCell align="left" sx={{ fontWeight: 'bold' }}>VM Name</TableCell>
-            <TableCell align="left" sx={{ fontWeight: 'bold' }}>OS Name</TableCell>
-
-              <TableCell align="left" sx={{ fontWeight: 'bold' }}>Disk Space</TableCell>
-              <TableCell align="left" sx={{ fontWeight: 'bold' }}>Ram</TableCell>
-              <TableCell align="left" sx={{ fontWeight: 'bold' }}>Cpu</TableCell>
-              <TableCell align="left" sx={{ fontWeight: 'bold' }}>Flavour</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {dashboardData.vms.map((vm) => (
-              <TableRow
-                key={vm.id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                
-                <TableCell align="left">{vm.id}</TableCell> 
-                <TableCell align="left">{vm.name}</TableCell>
-                <TableCell align="left">{vm.osName}</TableCell>
-                <TableCell align="left">{vm.size}</TableCell>
-                <TableCell align="left">{vm.ram}</TableCell>
-                <TableCell align="left">{vm.cpu} x {vm.cores}</TableCell>
-                <TableCell align="left">{vm.flavorName}</TableCell>
-        
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-        );
-
-        }
-
-        const renderDiskTable = () => {
-            return (
-                <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="left" sx={{ fontWeight: 'bold' }}>Disk ID</TableCell>
-                                <TableCell align="left" sx={{ fontWeight: 'bold' }}>Disk Name</TableCell>
-                                <TableCell align="left" sx={{ fontWeight: 'bold' }}>Flavor</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Size</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Attached to VM</TableCell>
+        return (
+            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', maxHeight:'100%' }}>
+                <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>VM ID</TableCell>
+                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>VM Name</TableCell>
+                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>OS Name</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Disk Space</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Ram</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Cpu</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Flavor</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {dashboardData.vms.map((vm) => (
+                            <TableRow
+                                key={vm.id}
+                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                            >
+                                <TableCell align="left">{vm.id}</TableCell>
+                                <TableCell align="left">{vm.name}</TableCell>
+                                <TableCell align="left">{vm.osName}</TableCell>
+                                <TableCell align="right">{vm.size}</TableCell>
+                                <TableCell align="right">{vm.ram}</TableCell>
+                                <TableCell align="right">{vm.cpu} x {vm.cores}</TableCell>
+                                <TableCell align="right">{vm.flavorName}</TableCell>
                             </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {dashboardData.disks.map((disk) => (
-                                <TableRow
-                                    key={disk.id}
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                >
-                                    <TableCell align="left">{disk.id}</TableCell>
-                                    <TableCell align="left">{disk.name}</TableCell>
-                                    <TableCell align="leftt">{disk.flavorName}</TableCell>
-                                    <TableCell align="left">{disk.size}</TableCell>
-                                    <TableCell align="left">{disk.vmName || 'None'}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            );
-        };
-    
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        );
+    };
+
+    const renderDiskTable = () => {
+        return (
+            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', maxHeight:'100%' }}>
+                <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>Disk ID</TableCell>
+                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>Disk Name</TableCell>
+                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>Flavor</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Size</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Attached to VM</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {dashboardData.disks.map((disk) => (
+                            <TableRow
+                                key={disk.id}
+                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                            >
+                                <TableCell align="left">{disk.id}</TableCell>
+                                <TableCell align="left">{disk.name}</TableCell>
+                                <TableCell align="left">{disk.flavorName}</TableCell>
+                                <TableCell align="right">{disk.size}</TableCell>
+                                <TableCell align="right">{disk.vmName || 'None'}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        );
+    };
 
     const handleLogout = async () => {
         try {
             const res = await axios.post('http://localhost:8080/api/logout', {}, { withCredentials: true });
             console.log(res.data.message);
-            if(res.data.message==='Logout successful'){
-               
-              
-                    navigate('/login');
-                   
-              
-
-             
-           
-
+            if (res.data.message === 'Logout successful') {
+                navigate('/login');
             }
         } catch (err) {
-
-        
             console.error('Logout failed:', err);
         }
     };
-//
+
     const handleDeleteClick = (vmId) => {
         setVmToDelete(vmId);
         setOpenDialog(true);
@@ -231,16 +216,15 @@ const handleDelteDisk=async(Diskid)=>{
 
     const handleConfirmDelete = () => {
         if (vmToDelete) {
-            handleDeltevm(vmToDelete);
+            handleDeletevm(vmToDelete);
             setOpenDialog(false);
             setVmToDelete(null);
         }
     };
 
-
     const handleConfirmDeleteDisk = () => {
         if (DiskToDelete) {
-            handleDelteDisk(DiskToDelete);
+            handleDeleteDisk(DiskToDelete);
             setOpenDialogDisk(false);
             setDiskToDelete(null);
         }
@@ -251,151 +235,146 @@ const handleDelteDisk=async(Diskid)=>{
         setVmToDelete(null);
     };
 
-
     const handleCancelDeleteDisk = () => {
         setOpenDialogDisk(false);
         setDiskToDelete(null);
     };
-    
 
-    if(!IsLoading)
-    {
-
-    return (
-        <div className="dashboard-container">
-            <div className="sidebar">
-                <div className="sidebar-header">
-                    <h3>Dashboard</h3>
-                </div>
-                <div className="sidebar-menu">
-                    <button 
-                        className={`sidebar-item ${activeTab === 'vms' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('vms')}
-                    >
-                        VMs
-                    </button>
-                    <button 
-                        className={`sidebar-item ${activeTab === 'disks' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('disks')}
-                    >
-                        Disks
-                    </button>
-                    <button 
-                        className={`sidebar-item ${activeTab === 'analytics' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('analytics')}
-                    >
-                        Analytics
-                    </button>
-                </div>
-            </div>
-
-            <div className="main-content">
-                <header className="navbar">
-                    <h1>{activeTab.toUpperCase()}</h1>
-                    <div>
-                        <Stack spacing={2} direction="row">
-                        <Button variant='contained' className="btn-logout" onClick={handleLogout}>Logout</Button>
-                        </Stack>
+    if (!IsLoading) {
+        return (
+            <div className="dashboard-container">
+                <div className="sidebar">
+                    <div className="sidebar-header">
+                        <h3>Dashboard</h3>
                     </div>
-                </header>
-
-                <div className="content-area">
-                    <div className="loading-container">
-                </div>
-
-
-                    {activeTab === 'vms' && (
-                        <div className="vm-cards">
-                            {renderVMCards()}
-                          {   <IconButton style={{height: '50px', width: '50px'}} className="btn-add-vm" onClick={() => setShowForm(true)}>
-                            <AddIcon style={{height: '50px', width: '50px'}} />
-                            </IconButton>}
-                            {renderVMTable()}
-                           
-                        </div>
-                    )}
-                    {activeTab === 'disks' && (
-                        <div className="disk-cards">
-                            {renderDiskCards()}
-                            {renderDiskTable()}
-                        </div>
-                    )}
-                    {activeTab === 'analytics' && (
-                        <div className="analytics">
-                            <h2>Analytics Coming Soon</h2>
-                        </div>
-                    )}
-                </div>
-
-                {showForm && (
-                    <div className="overlay">
-                        <AddVMForm onClose={() => {
-                            setShowForm(false);
-                            fetchDashboardData();
-                        }} />
+                    <div className="sidebar-menu">
+                        <button
+                            className={`sidebar-item ${activeTab === 'vms' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('vms')}
+                        >
+                            VMs
+                        </button>
+                        <button
+                            className={`sidebar-item ${activeTab === 'disks' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('disks')}
+                        >
+                            Disks
+                        </button>
+                        <button
+                            className={`sidebar-item ${activeTab === 'analytics' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('analytics')}
+                        >
+                            Analytics
+                        </button>
                     </div>
-                )}
+                </div>
+
+                <div className="main-content">
+                    <header className="navbar">
+                        <h1>{activeTab.toUpperCase()}</h1>
+                        <div>
+                            <Stack spacing={2} direction="row">
+                                <Button variant='contained' className="btn-logout" onClick={handleLogout}>Logout</Button>
+                                <Button variant='contained' onClick={() => setViewMode('card')}>Card View</Button>
+                                <Button variant='contained' onClick={() => setViewMode('table')}>Table View</Button>
+                            </Stack>
+                        </div>
+                    </header>
+
+                    <div className="content-area">
+                        <div className="loading-container"></div>
+
+                        {activeTab === 'vms' && (
+                            <div className="vm-cards">
+                                {viewMode === 'card' && renderVMCards()}
+                                {viewMode === 'table' && renderVMTable()}
+                                <IconButton style={{ height: '50px', width: '50px' }} className="btn-add-vm" onClick={() => setShowForm(true)}>
+                                    <AddIcon style={{ height: '50px', width: '50px' }} />
+                                </IconButton>
+                            </div>
+                        )}
+                        {activeTab === 'disks' && (
+                            <div className="vm-cards">
+                                {viewMode === 'card' && renderDiskCards()}
+                                {viewMode === 'table' && renderDiskTable()}
+                               
+                            </div>
+
+                        )
+
+                            
+                        }
+                       {activeTab === 'analytics' && (
+                                <div className="analytics" style={{ width: '100%', height: '100%' }}>
+                                 <h2>Analytics</h2>
+                                 <graphcontext.Provider value={dashboardData}>
+                                <Chart01 />
+                                </graphcontext.Provider>
+                                </div>
+                        )}
+                    </div>
+
+                    {showForm && (
+                        <div className="overlay">
+                            <AddVMForm onClose={() => {
+                                setShowForm(false);
+                                fetchDashboardData();
+                            }} />
+                        </div>
+                    )}
+                </div>
+                <Dialog
+                    open={openDialogvm}
+                    onClose={handleCancelDelete}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {"Delete VM Confirmation"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to delete this VM? This action cannot be undone.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCancelDelete} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleConfirmDelete} color="error" autoFocus>
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog
+                    open={openDialogDisk}
+                    onClose={handleCancelDeleteDisk}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {"Delete Disk Confirmation"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to delete this Disk? This will also delete the attached VM.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCancelDeleteDisk} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleConfirmDeleteDisk} color="error" autoFocus>
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </div>
-            <Dialog
-                open={openDialogvm}
-                onClose={handleCancelDelete}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">
-                    {" delete VM confirmatioopenDialogDisk"}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        Are you sure you want to delete this VM? This action cannot be undone.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCancelDelete} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={handleConfirmDelete} color="error" autoFocus>
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-
-            <Dialog
-                open={openDialogDisk}
-                onClose={handleCancelDeleteDisk}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">
-                    {" delete Disk confirmation"}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        Are you sure you want to delete this Disk? This will also delete the attached VM.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCancelDeleteDisk} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={handleConfirmDeleteDisk} color="error" autoFocus>
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </div>
-
-
-
-        //deletion dialouge box for the disk
-
-        
-    );
-}
-
-else if(IsLoading)
-{return(<><LoadingSpinner/></>)}
+        );
+    } else if (IsLoading) {
+        return (<><LoadingSpinner /></>);
+    }
 }
 
 export default Dashboard;

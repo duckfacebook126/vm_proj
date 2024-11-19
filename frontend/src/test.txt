@@ -1,365 +1,73 @@
-import React, { useEffect, useState } from 'react';
-import './Dashboard.css';
-import AddVMForm from './AddVMForm';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import DeleteIcon from '@mui/icons-material/Delete';
-import CircularProgress from '@mui/material/CircularProgress';
-import { IconButton, Button, Stack } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-import LoadingSpinner from './components/Loading';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 
-function Dashboard() {
-    const [showForm, setShowForm] = useState(false);
-    const [activeTab, setActiveTab] = useState('vms');
-    const [dashboardData, setDashboardData] = useState({ vms: [], disks: [] });
-    const navigate = useNavigate();
-    const [IsLoading, setIsLoading] = useState(true);
-    const [openDialogvm, setOpenDialog] = useState(false);
-    const [vmToDelete, setVmToDelete] = useState(null);
-    const [DiskToDelete, setDiskToDelete] = useState(null);
-    const [openDialogDisk, setOpenDialogDisk] = useState(false);
-    const [viewMode, setViewMode] = useState('card'); // State for view mode
+###Explanation of the Code
 
-    useEffect(() => {
-        handle_login_change();
-        fetchDashboardData();
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 3000);
+1. **Imports**:
+   - The necessary components and functions are imported from `react`, `@mui/material`, `@mui/icons-material`, `@toolpad/core`, and `@toolpad/core/internal`.
 
-        return () => clearTimeout(timer);
-    }, []);
+2. **Theme Creation**:
+   - A custom theme is created using `createTheme` from `@mui/material/styles`. This theme includes a color scheme selector and breakpoints for responsive design.
 
-    const handleDeletevm = async (VMid) => {
-        axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`, { withCredentials: true })
-            .then(res => {
-                console.log(res.data);
-                fetchDashboardData();
-            })
-            .catch(err => {
-                console.error('Failed to delete VM:', err);
-            });
-    };
+3. **DemoPageContent Component**:
+   - This component renders the content for a specific pathname. It uses the `Box` component from Material-UI to create a flexbox layout with centered text.
+   - The `Typography` component is used to display the pathname.
 
-    const handleDeleteDisk = async (Diskid) => {
-        axios.delete(`http://localhost:8080/api/delete_Disk/${Diskid}`, { withCredentials: true })
-            .then(res => {
-                console.log(res.data);
-                fetchDashboardData();
-            })
-            .catch(err => {
-                console.error('Failed to delete Disk:', err);
-            });
-    };
+4. **PropTypes**:
+   - The `propTypes` for `DemoPageContent` ensure that the `pathname` prop is a required string.
 
-    const fetchDashboardData = () => {
-        axios.get('http://localhost:8080/api/dashboard_data', { withCredentials: true })
-            .then(res => {
-                setDashboardData(res.data);
-            })
-            .catch(err => {
-                console.error('Failed to fetch dashboard data:', err);
-                if (err.response?.status === 401) {
-                    navigate('/login');
-                }
-            });
-    };
+5. **DashboardLayoutNavigationLinks Component**:
+   - This component sets up the navigation links for the dashboard layout.
+   - It uses the `AppProvider` component from `@toolpad/core` to provide the necessary context for the application.
+   - The `useDemoRouter` hook is used to set up the router with the initial path set to `/home`.
+   - The `DashboardLayout` component is used to render the layout of the dashboard.
+   - The `DemoPageContent` component is used to render the content for the current pathname.
 
-    const handle_login_change = async () => {
-        const res = await axios.get('http://localhost:8080/', { withCredentials: true });
-        console.log(res.data);
-    };
+6. **PropTypes for DashboardLayoutNavigationLinks**:
+   - The `propTypes` for `DashboardLayoutNavigationLinks` ensure that the `window` prop is a function.
 
-    const renderVMCards = () => {
-        return dashboardData.vms.map(vm => (
-            <div key={vm.id} className="vm-card">
-                <h5>{vm.name}</h5>
-                <p>OS: {vm.osName}</p>
-                <p>CPU: {vm.cpu} x {vm.cores} cores</p>
-                <p>RAM: {vm.ram} GB</p>
-                <p>Disk Size: {vm.size} GB</p>
-                <p>Flavor: {vm.flavorName}</p>
-                <IconButton
-                    style={{ height: '40px', width: '40px' }}
-                    sx={{ color: 'white', '&:hover': { border: '2px solid green' } }}
-                    onClick={() => handleDeleteClick(vm.id)}
-                >
-                    <DeleteIcon style={{ height: '40px', width: '40px' }} sx={{ color: 'green' }} />
-                </IconButton>
-            </div>
-        ));
-    };
+### Data Flow and Workflow
 
-    const renderDiskCards = () => {
-        return dashboardData.disks.map(disk => (
-            <div key={disk.id} className="disk-card">
-                <h5>{disk.name}</h5>
-                <p>Size: {disk.size} GB</p>
-                <p>Flavor: {disk.flavorName}</p>
-                <p>Attached to VM: {disk.vmName || 'None'}</p>
-                <IconButton
-                    style={{ height: '40px', width: '40px' }}
-                    sx={{ color: 'white', '&:hover': { border: '2px solid green' } }}
-                    onClick={() => handleDeleteClickDisk(disk.id)}
-                >
-                    <DeleteIcon style={{ height: '40px', width: '40px' }} sx={{ color: 'green' }} />
-                </IconButton>
-            </div>
-        ));
-    };
+1. **Initialization**:
+   - The `DashboardLayoutNavigationLinks` component initializes the router and sets up the navigation links.
+   - The `AppProvider` component provides the necessary context for the application, including the theme and window object.
 
-    const renderVMTable = () => {
-        return (
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>VM ID</TableCell>
-                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>VM Name</TableCell>
-                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>OS Name</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Disk Space</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Ram</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Cpu</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Flavor</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {dashboardData.vms.map((vm) => (
-                            <TableRow
-                                key={vm.id}
-                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                                <TableCell align="left">{vm.id}</TableCell>
-                                <TableCell align="left">{vm.name}</TableCell>
-                                <TableCell align="left">{vm.osName}</TableCell>
-                                <TableCell align="right">{vm.size}</TableCell>
-                                <TableCell align="right">{vm.ram}</TableCell>
-                                <TableCell align="right">{vm.cpu} x {vm.cores}</TableCell>
-                                <TableCell align="right">{vm.flavorName}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        );
-    };
+2. **Routing**:
+   - The `useDemoRouter` hook sets up the router with the initial path set to `/home`.
+   - The `router` object is passed to the `AppProvider` component to handle navigation.
 
-    const renderDiskTable = () => {
-        return (
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>Disk ID</TableCell>
-                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>Disk Name</TableCell>
-                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>Flavor</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Size</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Attached to VM</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {dashboardData.disks.map((disk) => (
-                            <TableRow
-                                key={disk.id}
-                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                                <TableCell align="left">{disk.id}</TableCell>
-                                <TableCell align="left">{disk.name}</TableCell>
-                                <TableCell align="left">{disk.flavorName}</TableCell>
-                                <TableCell align="right">{disk.size}</TableCell>
-                                <TableCell align="right">{disk.vmName || 'None'}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        );
-    };
+3. **Rendering**:
+   - The `DashboardLayout` component renders the layout of the dashboard.
+   - The `DemoPageContent` component renders the content for the current pathname.
 
-    const handleLogout = async () => {
-        try {
-            const res = await axios.post('http://localhost:8080/api/logout', {}, { withCredentials: true });
-            console.log(res.data.message);
-            if (res.data.message === 'Logout successful') {
-                navigate('/login');
-            }
-        } catch (err) {
-            console.error('Logout failed:', err);
-        }
-    };
+4. **Responsive Design**:
+   - The custom theme includes breakpoints for responsive design, ensuring that the layout adapts to different screen sizes.
 
-    const handleDeleteClick = (vmId) => {
-        setVmToDelete(vmId);
-        setOpenDialog(true);
-    };
+### Diagram
 
-    const handleDeleteClickDisk = (DiskId) => {
-        setDiskToDelete(DiskId);
-        setOpenDialogDisk(true);
-    };
+Here is a diagram to visualize the data flow and workflow:
 
-    const handleConfirmDelete = () => {
-        if (vmToDelete) {
-            handleDeletevm(vmToDelete);
-            setOpenDialog(false);
-            setVmToDelete(null);
-        }
-    };
-
-    const handleConfirmDeleteDisk = () => {
-        if (DiskToDelete) {
-            handleDeleteDisk(DiskToDelete);
-            setOpenDialogDisk(false);
-            setDiskToDelete(null);
-        }
-    };
-
-    const handleCancelDelete = () => {
-        setOpenDialog(false);
-        setVmToDelete(null);
-    };
-
-    const handleCancelDeleteDisk = () => {
-        setOpenDialogDisk(false);
-        setDiskToDelete(null);
-    };
-
-    if (!IsLoading) {
-        return (
-            <div className="dashboard-container">
-                <div className="sidebar">
-                    <div className="sidebar-header">
-                        <h3>Dashboard</h3>
-                    </div>
-                    <div className="sidebar-menu">
-                        <button
-                            className={`sidebar-item ${activeTab === 'vms' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('vms')}
-                        >
-                            VMs
-                        </button>
-                        <button
-                            className={`sidebar-item ${activeTab === 'disks' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('disks')}
-                        >
-                            Disks
-                        </button>
-                        <button
-                            className={`sidebar-item ${activeTab === 'analytics' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('analytics')}
-                        >
-                            Analytics
-                        </button>
-                    </div>
-                </div>
-
-                <div className="main-content">
-                    <header className="navbar">
-                        <h1>{activeTab.toUpperCase()}</h1>
-                        <div>
-                            <Stack spacing={2} direction="row">
-                                <Button variant='contained' className="btn-logout" onClick={handleLogout}>Logout</Button>
-                                <Button variant='contained' onClick={() => setViewMode('card')}>Card View</Button>
-                                <Button variant='contained' onClick={() => setViewMode('table')}>Table View</Button>
-                            </Stack>
-                        </div>
-                    </header>
-
-                    <div className="content-area">
-                        <div className="loading-container"></div>
-
-                        {activeTab === 'vms' && (
-                            <div className="vm-cards">
-                                {viewMode === 'card' && renderVMCards()}
-                                {viewMode === 'table' && renderVMTable()}
-                                <IconButton style={{ height: '50px', width: '50px' }} className="btn-add-vm" onClick={() => setShowForm(true)}>
-                                    <AddIcon style={{ height: '50px', width: '50px' }} />
-                                </IconButton>
-                            </div>
-                        )}
-                        {activeTab === 'disks' && (
-                            <div className="disk-cards">
-                                {viewMode === 'card' && renderDiskCards()}
-                                {viewMode === 'table' && renderDiskTable()}
-                            </div>
-                        )}
-                        {activeTab === 'analytics' && (
-                            <div className="analytics">
-                                <h2>Analytics Coming Soon</h2>
-                            </div>
-                        )}
-                    </div>
-
-                    {showForm && (
-                        <div className="overlay">
-                            <AddVMForm onClose={() => {
-                                setShowForm(false);
-                                fetchDashboardData();
-                            }} />
-                        </div>
-                    )}
-                </div>
-                <Dialog
-                    open={openDialogvm}
-                    onClose={handleCancelDelete}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title">
-                        {"Delete VM Confirmation"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                            Are you sure you want to delete this VM? This action cannot be undone.
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCancelDelete} color="primary">
-                            Cancel
-                        </Button>
-                        <Button onClick={handleConfirmDelete} color="error" autoFocus>
-                            Delete
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-
-                <Dialog
-                    open={openDialogDisk}
-                    onClose={handleCancelDeleteDisk}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title">
-                        {"Delete Disk Confirmation"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                            Are you sure you want to delete this Disk? This will also delete the attached VM.
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCancelDeleteDisk} color="primary">
-                            Cancel
-                        </Button>
-                        <Button onClick={handleConfirmDeleteDisk} color="error" autoFocus>
-                            Delete
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </div>
-        );
-    } else if (IsLoading) {
-        return (<><LoadingSpinner /></>);
-    }
-}
-
-export default Dashboard;
+```plaintext
++---------------------+
+| DashboardLayoutNavigationLinks |
+|---------------------|
+| - Initializes router  |
+| - Sets up navigation links |
+| - Provides context with AppProvider |
+| - Renders DashboardLayout |
+| - Renders DemoPageContent for current pathname |
++---------------------+
+          |
+          v
++---------------------+
+| DashboardLayout      |
+|---------------------|
+| - Renders the layout of the dashboard |
+| - Uses DemoPageContent to render content for the current pathname |
++---------------------+
+          |
+          v
++---------------------+
+| DemoPageContent     |
+|---------------------|
+| - Renders content for a specific pathname |
+| - Uses Box and Typography components for layout and text |
++---------------------+
