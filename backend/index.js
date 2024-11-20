@@ -30,7 +30,11 @@ app.use('/api', taskRouter);
 app.get('/', (req, res) => {
     console.log(`Session username: ${req.session.username}`);
     if (req.session.username) {
-        res.status(200).json({ login: true, username: req.session.username });
+        res.status(200).json({ 
+            login: true, 
+            username: req.session.username,
+            userId: req.session.uId
+        });
     } else {
         res.status(404).json({ login: false });
     }

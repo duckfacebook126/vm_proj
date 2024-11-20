@@ -79,7 +79,7 @@ const login = async (req, res) => {
                 return res.status(500).json({ error: 'Failed to save session' });
             }
             console.log(`Session saved. Username: ${req.session.username}, uId: ${req.session.uId}`);
-            res.status(200).json({ message: "Login successful", login: true, username: req.session.username });
+            res.status(200).json({ message: "Login successful", login: true, username: req.session.username, userId: req.session.uId });
         });
 
     } catch (error) {

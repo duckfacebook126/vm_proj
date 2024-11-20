@@ -6,19 +6,20 @@ import Signup from './Signup';
 import Dashboard from './Dashboard';
 import Home from './Home';
 import LoadingSpinner from './components/Loading';
+import { AuthProvider } from './contexts/AuthContext';
+
 function App() { 
   return (
-    <BrowserRouter>
-    
-      <Routes>
-       
-        <Route path="/" element={ <LoadingSpinner><Home /></LoadingSpinner>} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-      
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={ <LoadingSpinner><Home /></LoadingSpinner>} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

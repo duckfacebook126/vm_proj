@@ -291,37 +291,80 @@ function Dashboard() {
         });
 
         function DemoPageContent({ pathname }) {
-
-            
-            if(pathname==='/virtualmachines')
-            {
-
+            if (pathname === '/virtualmachines') {
                 return (
-                                <div className="vm-cards">
-                                {viewMode === 'card' && renderVMCards()}
-                                {viewMode === 'table' && renderVMTable()}
-                                <IconButton style={{ height: '50px', width: '50px' }} className="btn-add-vm" onClick={() => setShowForm(true)}>
-                                    <AddIcon style={{ height: '50px', width: '50px' }} />
-                                </IconButton>
-                            </div>
-                        
+                    <div className="vm-cards">
+                        {viewMode === 'card' && renderVMCards()}
+                        {viewMode === 'table' && renderVMTable()}
+                        <IconButton style={{ height: '50px', width: '50px' }} className="btn-add-vm" onClick={() => setShowForm(true)}>
+                            <AddIcon style={{ height: '50px', width: '50px' }} />
+                        </IconButton>
+                    </div>
+                );
+            } else if (pathname === '/disks') {
+                return (
+                    <div className="vm-cards">
+                        {viewMode === 'card' && renderDiskCards()}
+                        {viewMode === 'table' && renderDiskTable()}
+                    </div>
                 );
             }
-         else if (pathname === '/disks'){
 
-            return (
-            
-            
-                <div className="vm-cards">
-                {viewMode === 'card' && renderDiskCards()}
-                {viewMode === 'table' && renderDiskTable()}
-            </div>
-            
-            )
+            else if (pathname === '/analytics') {
+                return (
+                    <div className="vm-cards">
+                                <Box sx={{ minWidth: 375 }}>
+                                    <Card variant="outlined">
+                                        <CardContent>
+                                            <Typography variant="h5" component="div">
+                                                Ram by VM
+                                            </Typography>
+                                            <graphcontext.Provider value={dashboardData}>
+                                                <Chart01 />
+                                            </graphcontext.Provider>
+                                        </CardContent>
+                                    </Card>
+                                </Box>
 
-           
-            
-         }
+                                <Box sx={{ minWidth: 375 }}>
+                                    <Card variant="outlined">
+                                        <CardContent>
+                                            <Typography variant="h5" component="div">
+                                                Number of Cores per VM
+                                            </Typography>
+                                            <graphcontext.Provider value={dashboardData}>
+                                                <Chart02 />
+                                            </graphcontext.Provider>
+                                        </CardContent>
+                                    </Card>
+                                </Box>
+                                <Box sx={{ minWidth: 375 }}>
+                                    <Card variant="outlined">
+                                        <CardContent>
+                                            <Typography variant="h5" component="div">
+                                                Number of CPUs per VM
+                                            </Typography>
+                                            <graphcontext.Provider value={dashboardData}>
+                                                <Chart03 />
+                                            </graphcontext.Provider>
+                                        </CardContent>
+                                    </Card>
+                                </Box>
+                                <Box sx={{ minWidth: 375 }}>
+                                    <Card variant="outlined">
+                                        <CardContent>
+                                            <Typography variant="h5" component="div">
+                                                Disk Size of each VM
+                                            </Typography>
+                                            <graphcontext.Provider value={dashboardData}>
+                                                <Chart04 />
+                                            </graphcontext.Provider>
+                                        </CardContent>
+                                    </Card>
+                                </Box>
+                            </div>
+                );
+            }
         }
 
         DemoPageContent.propTypes = {
@@ -341,6 +384,11 @@ function Dashboard() {
                 theme={demoTheme}
             >
                 <DashboardLayout>
+                    <div className="header-buttons">
+                        <Button variant='contained' className="btn-logout" onClick={handleLogout}>Logout</Button>
+                        <Button variant='contained' onClick={() => setViewMode('card')}>Card View</Button>
+                        <Button variant='contained' onClick={() => setViewMode('table')}>Table View</Button>
+                    </div>
                     <DemoPageContent pathname={router.pathname} />
                 </DashboardLayout>
             </AppProvider>
@@ -349,36 +397,13 @@ function Dashboard() {
 
     if (!IsLoading) {
         return (
-            <div className="dashboard-container">
-                <DashboardLayoutBranding/>{/* Include the DashboardLayoutBranding function here */}
+            <div >
+                <DashboardLayoutBranding />{/* Include the DashboardLayoutBranding function here */}
                 <div className="main-content">
-                    <header className="navbar">
-                        <h1>{activeTab.toUpperCase()}</h1>
-                        <div>
-                            <Stack spacing={2} direction="row">
-                                <Button variant='contained' className="btn-logout" onClick={handleLogout}>Logout</Button>
-                                <Button variant='contained' onClick={() => setViewMode('card')}>Card View</Button>
-                                <Button variant='contained' onClick={() => setViewMode('table')}>Table View</Button>
-                            </Stack>
-                        </div>
-                    </header>
+                    
                     <div className="content-area">
                         <div className="loading-container"></div>
-                        {activeTab === 'vms' && (
-                            <div className="vm-cards">
-                                {viewMode === 'card' && renderVMCards()}
-                                {viewMode === 'table' && renderVMTable()}
-                                <IconButton style={{ height: '50px', width: '50px' }} className="btn-add-vm" onClick={() => setShowForm(true)}>
-                                    <AddIcon style={{ height: '50px', width: '50px' }} />
-                                </IconButton>
-                            </div>
-                        )}
-                        {activeTab === 'disks' && (
-                            <div className="vm-cards">
-                                {viewMode === 'card' && renderDiskCards()}
-                                {viewMode === 'table' && renderDiskTable()}
-                            </div>
-                        )}
+
                         {activeTab === 'analytics' && (
                             <div className="vm-cards">
                                 <Box sx={{ minWidth: 375 }}>
@@ -393,7 +418,6 @@ function Dashboard() {
                                         </CardContent>
                                     </Card>
                                 </Box>
-
 
                                 <Box sx={{ minWidth: 375 }}>
                                     <Card variant="outlined">
