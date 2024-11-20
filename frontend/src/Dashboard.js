@@ -26,11 +26,16 @@ import Chart01 from './Charts';
 import Chart02 from './Chart2';
 import Chart03 from './Chart03';
 import Chart04 from './Chart4';
-export  const graphcontext=createContext();
+import PropTypes from 'prop-types';
+import { createTheme } from '@mui/material/styles';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { AppProvider } from '@toolpad/core/AppProvider';
+import { DashboardLayout } from '@toolpad/core/DashboardLayout';
+import { useDemoRouter } from '@toolpad/core/internal';
 
-
-
-
+// Context that has been exported to other children
+export const graphcontext = createContext();
 
 function Dashboard() {
     const [showForm, setShowForm] = useState(false);
@@ -134,7 +139,7 @@ function Dashboard() {
 
     const renderVMTable = () => {
         return (
-            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', maxHeight:'100%' }}>
+            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', maxHeight: '100%' }}>
                 <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
                     <TableHead>
                         <TableRow>
@@ -170,7 +175,7 @@ function Dashboard() {
 
     const renderDiskTable = () => {
         return (
-            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', maxHeight:'100%' }}>
+            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', maxHeight: '100%' }}>
                 <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
                     <TableHead>
                         <TableRow>
@@ -248,35 +253,104 @@ function Dashboard() {
         setDiskToDelete(null);
     };
 
+    // Define the DashboardLayoutBranding function inside the Dashboard component
+    const DashboardLayoutBranding = () => {
+        const NAVIGATION = [
+            {
+                segment: 'virtualmachines',
+                title: 'Virtual Machines',
+                icon: <DashboardIcon />,
+            },
+            {
+                segment: 'disks',
+                title: 'Disks',
+                icon: <ShoppingCartIcon />,
+            },
+            {
+                segment: 'analytics',
+                title: 'Analytics',
+                icon: <ShoppingCartIcon />,
+
+            }
+        ];
+
+        const demoTheme = createTheme({
+            cssVariables: {
+                colorSchemeSelector: 'data-toolpad-color-scheme',
+            },
+            colorSchemes: { light: true, dark: true },
+            breakpoints: {
+                values: {
+                    xs: 0,
+                    sm: 600,
+                    md: 600,
+                    lg: 1200,
+                    xl: 1536,
+                },
+            },
+        });
+
+        function DemoPageContent({ pathname }) {
+
+            
+            if(pathname==='/virtualmachines')
+            {
+
+                return (
+                                <div className="vm-cards">
+                                {viewMode === 'card' && renderVMCards()}
+                                {viewMode === 'table' && renderVMTable()}
+                                <IconButton style={{ height: '50px', width: '50px' }} className="btn-add-vm" onClick={() => setShowForm(true)}>
+                                    <AddIcon style={{ height: '50px', width: '50px' }} />
+                                </IconButton>
+                            </div>
+                        
+                );
+            }
+         else if (pathname === '/disks'){
+
+            return (
+            
+            
+                <div className="vm-cards">
+                {viewMode === 'card' && renderDiskCards()}
+                {viewMode === 'table' && renderDiskTable()}
+            </div>
+            
+            )
+
+           
+            
+         }
+        }
+
+        DemoPageContent.propTypes = {
+            pathname: PropTypes.string.isRequired,
+        };
+
+        const router = useDemoRouter('virtualmachines');
+
+        return (
+            <AppProvider
+                navigation={NAVIGATION}
+                branding={{
+                    logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
+                    title: 'MUI',
+                }}
+                router={router}
+                theme={demoTheme}
+            >
+                <DashboardLayout>
+                    <DemoPageContent pathname={router.pathname} />
+                </DashboardLayout>
+            </AppProvider>
+        );
+    };
+
     if (!IsLoading) {
         return (
             <div className="dashboard-container">
-                <div className="sidebar">
-                    <div className="sidebar-header">
-                        <h3>Dashboard</h3>
-                    </div>
-                    <div className="sidebar-menu">
-                        <button
-                            className={`sidebar-item ${activeTab === 'vms' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('vms')}
-                        >
-                            VMs
-                        </button>
-                        <button
-                            className={`sidebar-item ${activeTab === 'disks' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('disks')}
-                        >
-                            Disks
-                        </button>
-                        <button
-                            className={`sidebar-item ${activeTab === 'analytics' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('analytics')}
-                        >
-                            Analytics
-                        </button>
-                    </div>
-                </div>
-
+                <DashboardLayoutBranding/>{/* Include the DashboardLayoutBranding function here */}
                 <div className="main-content">
                     <header className="navbar">
                         <h1>{activeTab.toUpperCase()}</h1>
@@ -288,10 +362,8 @@ function Dashboard() {
                             </Stack>
                         </div>
                     </header>
-
                     <div className="content-area">
                         <div className="loading-container"></div>
-
                         {activeTab === 'vms' && (
                             <div className="vm-cards">
                                 {viewMode === 'card' && renderVMCards()}
@@ -305,75 +377,63 @@ function Dashboard() {
                             <div className="vm-cards">
                                 {viewMode === 'card' && renderDiskCards()}
                                 {viewMode === 'table' && renderDiskTable()}
-                               
                             </div>
+                        )}
+                        {activeTab === 'analytics' && (
+                            <div className="vm-cards">
+                                <Box sx={{ minWidth: 375 }}>
+                                    <Card variant="outlined">
+                                        <CardContent>
+                                            <Typography variant="h5" component="div">
+                                                Ram by VM
+                                            </Typography>
+                                            <graphcontext.Provider value={dashboardData}>
+                                                <Chart01 />
+                                            </graphcontext.Provider>
+                                        </CardContent>
+                                    </Card>
+                                </Box>
 
-                        )
 
-                            
-                        }
-                       {activeTab === 'analytics' && (
-                                <div className="vm-cards">
-                                  <Box sx={{ minWidth: 375 }}>
-                                  <Card variant="outlined">
-                                  <CardContent>
-                                  <Typography variant="h5" component="div">
-                                    Ram by VM
-                                  </Typography>
-                                  <graphcontext.Provider value={dashboardData}>
-                                  <Chart01 />
-                                  
-                                  </graphcontext.Provider>
-                                  </CardContent>
-                                  </Card>
-                                  </Box>
-
-                                  <Box sx={{ minWidth: 375 }}>
-                                  <Card variant="outlined">
-                                  <CardContent>
-                                  <Typography variant="h5" component="div">
-                                    Number of Cores per VM
-                                  </Typography>
-                                  <graphcontext.Provider value={dashboardData}>
-                                  <Chart02 />
-                                  
-                                  </graphcontext.Provider>
-                                  </CardContent>
-                                  </Card>
-                                  </Box>
-
-                                  <Box sx={{ minWidth: 375 }}>
-                                  <Card variant="outlined">
-                                  <CardContent>
-                                  <Typography variant="h5" component="div">
-                                    Number of CPUs per VM
-                                  </Typography>
-                                  <graphcontext.Provider value={dashboardData}>
-                                  <Chart03 />
-                                  
-                                  </graphcontext.Provider>
-                                  </CardContent>
-                                  </Card>
-                                  </Box>
-
-                                  <Box sx={{ minWidth: 375 }}>
-                                  <Card variant="outlined">
-                                  <CardContent>
-                                  <Typography variant="h5" component="div">
-                                    Disk Size of each VM
-                                  </Typography>
-                                  <graphcontext.Provider value={dashboardData}>
-                                  <Chart04 />
-                                  
-                                  </graphcontext.Provider>
-                                  </CardContent>
-                                  </Card>
-                                  </Box>
-                                 
-                                </div>
+                                <Box sx={{ minWidth: 375 }}>
+                                    <Card variant="outlined">
+                                        <CardContent>
+                                            <Typography variant="h5" component="div">
+                                                Number of Cores per VM
+                                            </Typography>
+                                            <graphcontext.Provider value={dashboardData}>
+                                                <Chart02 />
+                                            </graphcontext.Provider>
+                                        </CardContent>
+                                    </Card>
+                                </Box>
+                                <Box sx={{ minWidth: 375 }}>
+                                    <Card variant="outlined">
+                                        <CardContent>
+                                            <Typography variant="h5" component="div">
+                                                Number of CPUs per VM
+                                            </Typography>
+                                            <graphcontext.Provider value={dashboardData}>
+                                                <Chart03 />
+                                            </graphcontext.Provider>
+                                        </CardContent>
+                                    </Card>
+                                </Box>
+                                <Box sx={{ minWidth: 375 }}>
+                                    <Card variant="outlined">
+                                        <CardContent>
+                                            <Typography variant="h5" component="div">
+                                                Disk Size of each VM
+                                            </Typography>
+                                            <graphcontext.Provider value={dashboardData}>
+                                                <Chart04 />
+                                            </graphcontext.Provider>
+                                        </CardContent>
+                                    </Card>
+                                </Box>
+                            </div>
                         )}
                     </div>
-
                     {showForm && (
                         <div className="overlay">
                             <AddVMForm onClose={() => {
@@ -406,7 +466,6 @@ function Dashboard() {
                         </Button>
                     </DialogActions>
                 </Dialog>
-
                 <Dialog
                     open={openDialogDisk}
                     onClose={handleCancelDeleteDisk}

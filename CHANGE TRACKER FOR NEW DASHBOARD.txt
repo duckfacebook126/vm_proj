@@ -1,0 +1,10 @@
+done:
+
+-sidebar removed
+--navbar removed
+in progress:
+
+-add new sidebar
+not touched:
+- add new routes 
+- add new buttons and form
