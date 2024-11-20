@@ -1,10 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import './Dashboard.css';
 import AddVMForm from './AddVMForm';
+import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CircularProgress from '@mui/material/CircularProgress';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
+import CardActionArea from '@mui/material/CardActionArea';
 import { IconButton, Button, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
@@ -17,7 +23,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Chart01 from './Charts';
-
+import Chart02 from './Chart2';
+import Chart03 from './Chart03';
+import Chart04 from './Chart4';
 export  const graphcontext=createContext();
 
 
@@ -305,11 +313,63 @@ function Dashboard() {
                             
                         }
                        {activeTab === 'analytics' && (
-                                <div className="analytics" style={{ width: '100%', height: '100%' }}>
-                                 <h2>Analytics</h2>
-                                 <graphcontext.Provider value={dashboardData}>
-                                <Chart01 />
-                                </graphcontext.Provider>
+                                <div className="vm-cards">
+                                  <Box sx={{ minWidth: 375 }}>
+                                  <Card variant="outlined">
+                                  <CardContent>
+                                  <Typography variant="h5" component="div">
+                                    Ram by VM
+                                  </Typography>
+                                  <graphcontext.Provider value={dashboardData}>
+                                  <Chart01 />
+                                  
+                                  </graphcontext.Provider>
+                                  </CardContent>
+                                  </Card>
+                                  </Box>
+
+                                  <Box sx={{ minWidth: 375 }}>
+                                  <Card variant="outlined">
+                                  <CardContent>
+                                  <Typography variant="h5" component="div">
+                                    Number of Cores per VM
+                                  </Typography>
+                                  <graphcontext.Provider value={dashboardData}>
+                                  <Chart02 />
+                                  
+                                  </graphcontext.Provider>
+                                  </CardContent>
+                                  </Card>
+                                  </Box>
+
+                                  <Box sx={{ minWidth: 375 }}>
+                                  <Card variant="outlined">
+                                  <CardContent>
+                                  <Typography variant="h5" component="div">
+                                    Number of CPUs per VM
+                                  </Typography>
+                                  <graphcontext.Provider value={dashboardData}>
+                                  <Chart03 />
+                                  
+                                  </graphcontext.Provider>
+                                  </CardContent>
+                                  </Card>
+                                  </Box>
+
+                                  <Box sx={{ minWidth: 375 }}>
+                                  <Card variant="outlined">
+                                  <CardContent>
+                                  <Typography variant="h5" component="div">
+                                    Disk Size of each VM
+                                  </Typography>
+                                  <graphcontext.Provider value={dashboardData}>
+                                  <Chart04 />
+                                  
+                                  </graphcontext.Provider>
+                                  </CardContent>
+                                  </Card>
+                                  </Box>
+                                 
                                 </div>
                         )}
                     </div>

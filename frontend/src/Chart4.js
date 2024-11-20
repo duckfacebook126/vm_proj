@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { BarChart, Bar, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
+import { BarChart, Bar, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend,ComposedChart,Line, AreaChart, Area } from 'recharts';
 import { graphcontext } from './Dashboard';
 const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', 'red', 'pink'];
 
@@ -16,7 +16,7 @@ const getPath = (x, y, width, height) => {
     return <path d={getPath(x, y, width, height)} stroke="none" fill={fill} />;
   };
 
-function Chart01() {
+function Chart04() {
     const dashboard_data = useContext(graphcontext);
     const vms = dashboard_data.vms;
     const disks = dashboard_data.disks;
@@ -26,29 +26,26 @@ function Chart01() {
 
     return (
         <div style={{ width: '500px', height: '400px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-      width={500}
-      height={300}
-      data={vms}
-      margin={{
-        top: 20,
-        right: 30,
-        left: 20,
-        bottom: 5,
-      }}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="name" />
-      <YAxis />
-      <Bar dataKey="ram" fill="#8884d8" shape={<TriangleBar />} label={{ position: 'top' }}>
-        {vms.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={colors[index % 20]} />
-        ))}
-      </Bar>
-    </BarChart>
-            </ResponsiveContainer>
-        </div>
+             <ResponsiveContainer width="100%" height="100%">
+        <AreaChart
+          width={500}
+          height={400}
+          data={vms}
+          margin={{
+            top: 10,
+            right: 30,
+            left: 0,
+            bottom: 0,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis dataKey="size" />
+          <Tooltip />
+          <Area type="monotone" dataKey="size" stroke="#8884d8" fill="#8884d8" />
+        </AreaChart>
+      </ResponsiveContainer>
+      </div>
     );
 }
 
@@ -91,4 +88,6 @@ const aggregateData = (vms, disks) => {
     return Array.from(userMap.values());
 };
 
-export default Chart01;
+export default Chart04;
+
+

@@ -16,7 +16,7 @@ const getPath = (x, y, width, height) => {
     return <path d={getPath(x, y, width, height)} stroke="none" fill={fill} />;
   };
 
-function Chart01() {
+function Chart02() {
     const dashboard_data = useContext(graphcontext);
     const vms = dashboard_data.vms;
     const disks = dashboard_data.disks;
@@ -26,29 +26,29 @@ function Chart01() {
 
     return (
         <div style={{ width: '500px', height: '400px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-      width={500}
-      height={300}
-      data={vms}
-      margin={{
-        top: 20,
-        right: 30,
-        left: 20,
-        bottom: 5,
-      }}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="name" />
-      <YAxis />
-      <Bar dataKey="ram" fill="#8884d8" shape={<TriangleBar />} label={{ position: 'top' }}>
-        {vms.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={colors[index % 20]} />
-        ))}
-      </Bar>
-    </BarChart>
-            </ResponsiveContainer>
-        </div>
+        <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          width={500}
+          height={300}
+          data={vms}
+          margin={{
+            top: 20,
+            right: 30,
+            left: 20,
+            bottom: 5,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis dataKey="cores" yAxisId="left" orientation="left" stroke="#8884d8" />
+          <YAxis dataKey="name" yAxisId="right" orientation="right" stroke="#82ca9d" />
+          <Tooltip />
+          <Legend />
+          <Bar yAxisId="left" dataKey="cores" fill="#8884d8" />
+        <Bar yAxisId="right" dataKey="name" fill="#82ca9d" />
+        </BarChart>
+      </ResponsiveContainer>
+      </div>
     );
 }
 
@@ -91,4 +91,6 @@ const aggregateData = (vms, disks) => {
     return Array.from(userMap.values());
 };
 
-export default Chart01;
+export default Chart02;
+
+
