@@ -22,14 +22,14 @@ function Chart01() {
     const disks = dashboard_data.disks;
 
     // Aggregate the data
-    const aggregatedData = aggregateData(vms, disks);
+    const agg_vms = aggregateData(vms);
 
     return (
-        <div style={{ width: '500px', height: '400px' }}>
+        <div style={{ width: '350px', height: '350px' }}>
             <ResponsiveContainer width="100%" height="100%">
             <BarChart
-      width={500}
-      height={300}
+      width={350}
+      height={350}
       data={vms}
       margin={{
         top: 20,
@@ -66,29 +66,20 @@ const custom_tooltip = ({ active, payload, label }) => {
     return null;
 };
 
-const aggregateData = (vms, disks) => {
+const aggregateData = (vms) => {
     const userMap = new Map();
 
-    // Aggregate VM counts
+    // Aggregate VM cores
     vms.forEach(vm => {
         if (userMap.has(vm.userId)) {
-            userMap.get(vm.userId).vmCount += 1;
+            userMap.get(vm.userId).cores += vm.cores;
         } else {
-            userMap.set(vm.userId, { userId: vm.userId, vmCount: 1, diskCount: 0 });
+            userMap.set(vm.userId, { userId: vm.userId, name: `User ${vm.userId}`, cores: vm.cores });
         }
     });
 
-    // Aggregate Disk counts
-    disks.forEach(disk => {
-        if (userMap.has(disk.userId)) {
-            userMap.get(disk.userId).diskCount += 1;
-        } else {
-            userMap.set(disk.userId, { userId: disk.userId, vmCount: 0, diskCount: 1 });
-        }
-    });
-
-    // Convert Map to Array
-    return Array.from(userMap.values());
+    // Convert Map to Array and filter out any null or undefined values
+    return Array.from(userMap.values()).filter(item => item.cores !== null && item.cores !== undefined);
 };
 
 export default Chart01;

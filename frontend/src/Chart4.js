@@ -25,15 +25,15 @@ function Chart04() {
     const aggregatedData = aggregateData(vms, disks);
 
     return (
-        <div style={{ width: '500px', height: '400px' }}>
+        <div style={{ width: '350px', height: '350px' }}>
              <ResponsiveContainer width="100%" height="100%">
         <AreaChart
-          width={500}
-          height={400}
+          width={350}
+          height={350}
           data={vms}
           margin={{
-            top: 10,
-            right: 30,
+            top: 5,
+            right: 0,
             left: 0,
             bottom: 0,
           }}

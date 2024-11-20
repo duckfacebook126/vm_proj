@@ -19,17 +19,16 @@ const getPath = (x, y, width, height) => {
 function Chart03() {
     const dashboard_data = useContext(graphcontext);
     const vms = dashboard_data.vms;
-    const disks = dashboard_data.disks;
 
-    // Aggregate the data
-    const aggregatedData = aggregateData(vms, disks);
+    
+   
 
     return (
-        <div style={{ width: '500px', height: '400px' }}>
-       <ResponsiveContainer width="100%" height="100%">
+        <div style={{ width: '350px', height: '350px' }}>
+<ResponsiveContainer width="100%" height="100%">
         <ComposedChart
-          width={500}
-          height={400}
+          width={350}
+          height={350}
           data={vms}
           margin={{
             top: 20,
@@ -39,14 +38,15 @@ function Chart03() {
           }}
         >
           <CartesianGrid stroke="#f5f5f5" />
-          <XAxis dataKey="name" scale="band" />
-          <YAxis />
+          <XAxis dataKey="name" scale="auto" />
+          <YAxis dataKey="cpu" scale="auto" />
           <Tooltip />
           <Legend />
           <Bar dataKey="cpu" barSize={20} fill="#413ea0" />
           <Line type="monotone" dataKey="cpu" stroke="#ff7300" />
         </ComposedChart>
       </ResponsiveContainer>
+     
       </div>
     );
 }
@@ -65,31 +65,6 @@ const custom_tooltip = ({ active, payload, label }) => {
     return null;
 };
 
-const aggregateData = (vms, disks) => {
-    const userMap = new Map();
-
-    // Aggregate VM counts
-    vms.forEach(vm => {
-        if (userMap.has(vm.userId)) {
-            userMap.get(vm.userId).vmCount += 1;
-        } else {
-            userMap.set(vm.userId, { userId: vm.userId, vmCount: 1, diskCount: 0 });
-        }
-    });
-
-    // Aggregate Disk counts
-    disks.forEach(disk => {
-        if (userMap.has(disk.userId)) {
-            userMap.get(disk.userId).diskCount += 1;
-        } else {
-            userMap.set(disk.userId, { userId: disk.userId, vmCount: 0, diskCount: 1 });
-        }
-    });
-
-    // Convert Map to Array
-    return Array.from(userMap.values());
-};
 
 export default Chart03;
-
 
