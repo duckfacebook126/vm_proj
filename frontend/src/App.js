@@ -7,7 +7,7 @@ import Dashboard from './Dashboard';
 import Home from './Home';
 import LoadingSpinner from './components/Loading';
 import { AuthProvider } from './contexts/AuthContext';
-
+import { DataProvider } from './contexts/DashboardContext';
 function App() { 
   return (
     <AuthProvider>
@@ -16,7 +16,7 @@ function App() {
           <Route path="/" element={ <LoadingSpinner><Home /></LoadingSpinner>} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+         <DataProvider> <Route path="/dashboard" element={<Dashboard />} /></DataProvider>
         </Routes>
       </BrowserRouter>
     </AuthProvider>

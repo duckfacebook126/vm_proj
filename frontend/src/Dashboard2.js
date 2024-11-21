@@ -1,3 +1,6 @@
+
+// importing statements
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import './Dashboard.css';
 import AddVMForm from './AddVMForm';
@@ -26,21 +29,13 @@ import Chart01 from './Charts';
 import Chart02 from './Chart2';
 import Chart03 from './Chart03';
 import Chart04 from './Chart4';
-import PropTypes from 'prop-types';
-import { createTheme } from '@mui/material/styles';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { AppProvider } from '@toolpad/core/AppProvider';
-import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import { useDemoRouter } from '@toolpad/core/internal';
-import { useAuth,AuthProvider } from './contexts/AuthContext';
+import Chart05 from './Chart5';
+export  const graphcontext=createContext();
 
 
+// main dashbaord functionalities
 
-// Context that has been exported to other children
-export const graphcontext = createContext();
-
-function Dashboard() {
+function Dashboard2() {
     const [showForm, setShowForm] = useState(false);
     const [activeTab, setActiveTab] = useState('vms');
     const [dashboardData, setDashboardData] = useState({ vms: [], disks: [] });
@@ -50,10 +45,10 @@ function Dashboard() {
     const [vmToDelete, setVmToDelete] = useState(null);
     const [DiskToDelete, setDiskToDelete] = useState(null);
     const [openDialogDisk, setOpenDialogDisk] = useState(false);
-    const [viewMode, setViewMode] = useState('card'); 
-    const { user, loading, error, logout, checkAuthStatus } = useAuth();
+    const [viewMode, setViewMode] = useState('card'); // State for view mode
 
 
+    // use effect that fetcches the dashboard data
     useEffect(() => {
         handle_login_change();
         fetchDashboardData();
@@ -64,6 +59,8 @@ function Dashboard() {
         return () => clearTimeout(timer);
     }, []);
 
+
+    //handles the delteing of the vms when the dailog is confirmed to delete
     const handleDeletevm = async (VMid) => {
         axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`, { withCredentials: true })
             .then(res => {
@@ -74,7 +71,7 @@ function Dashboard() {
                 console.error('Failed to delete VM:', err);
             });
     };
-
+ // when the delete disk is confirmed this will handle the delete disk
     const handleDeleteDisk = async (Diskid) => {
         axios.delete(`http://localhost:8080/api/delete_Disk/${Diskid}`, { withCredentials: true })
             .then(res => {
@@ -86,6 +83,7 @@ function Dashboard() {
             });
     };
 
+/// the dashboard data is being fetched from the db  and sets the state variable of dasboard data to it
     const fetchDashboardData = () => {
         axios.get('http://localhost:8080/api/dashboard_data', { withCredentials: true })
             .then(res => {
@@ -99,11 +97,12 @@ function Dashboard() {
             });
     };
 
+    //I think it does prevents from going  back to the login from the dashboard
     const handle_login_change = async () => {
         const res = await axios.get('http://localhost:8080/', { withCredentials: true });
         console.log(res.data);
     };
-
+// render the cards of the vms with the dashboard data
     const renderVMCards = () => {
         return dashboardData.vms.map(vm => (
             <div key={vm.id} className="vm-card">
@@ -123,7 +122,7 @@ function Dashboard() {
             </div>
         ));
     };
-
+//reneers the disk cards for the card view
     const renderDiskCards = () => {
         return dashboardData.disks.map(disk => (
             <div key={disk.id} className="disk-card">
@@ -141,10 +140,10 @@ function Dashboard() {
             </div>
         ));
     };
-
+//renders he vm data table for the table view 
     const renderVMTable = () => {
         return (
-            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', maxHeight: '100%' }}>
+            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', maxHeight:'100%' }}>
                 <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
                     <TableHead>
                         <TableRow>
@@ -177,10 +176,10 @@ function Dashboard() {
             </TableContainer>
         );
     };
-
+//remders the table view of the disk data
     const renderDiskTable = () => {
         return (
-            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', maxHeight: '100%' }}>
+            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', maxHeight:'100%' }}>
                 <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
                     <TableHead>
                         <TableRow>
@@ -209,7 +208,7 @@ function Dashboard() {
             </TableContainer>
         );
     };
-
+// navigates to the login page and sends the request to backend ot clear the cookies and the session
     const handleLogout = async () => {
         try {
             const res = await axios.post('http://localhost:8080/api/logout', {}, { withCredentials: true });
@@ -221,17 +220,17 @@ function Dashboard() {
             console.error('Logout failed:', err);
         }
     };
-
+// opens the vm dialouge for deleteion
     const handleDeleteClick = (vmId) => {
         setVmToDelete(vmId);
         setOpenDialog(true);
     };
-
+//opens the vm dialouge for disk deletion
     const handleDeleteClickDisk = (DiskId) => {
         setDiskToDelete(DiskId);
         setOpenDialogDisk(true);
     };
-
+ //calls the handle deletevm function in deletion on confirmation
     const handleConfirmDelete = () => {
         if (vmToDelete) {
             handleDeletevm(vmToDelete);
@@ -239,6 +238,7 @@ function Dashboard() {
             setVmToDelete(null);
         }
     };
+ //calls the handle deletevm function in deletion on confirmation
 
     const handleConfirmDeleteDisk = () => {
         if (DiskToDelete) {
@@ -247,222 +247,161 @@ function Dashboard() {
             setDiskToDelete(null);
         }
     };
-
+//handles when the user cancels the delete dialoge box or vm
     const handleCancelDelete = () => {
         setOpenDialog(false);
         setVmToDelete(null);
     };
+//handles when the user cancels the delete dialoge box or disk
 
     const handleCancelDeleteDisk = () => {
         setOpenDialogDisk(false);
         setDiskToDelete(null);
     };
-
-    // Define the DashboardLayoutBranding function inside the Dashboard component
-    const DashboardLayoutBranding = () => {
-        const NAVIGATION = [
-            {
-                segment: 'virtualmachines',
-                title: 'Virtual Machines',
-                icon: <DashboardIcon />,
-            },
-            {
-                segment: 'disks',
-                title: 'Disks',
-                icon: <ShoppingCartIcon />,
-            },
-            {
-                segment: 'analytics',
-                title: 'Analytics',
-                icon: <ShoppingCartIcon />,
-
-            }
-        ];
-
-        const demoTheme = createTheme({
-            cssVariables: {
-                colorSchemeSelector: 'data-toolpad-color-scheme',
-            },
-            colorSchemes: { light: true, dark: true },
-            breakpoints: {
-                values: {
-                    xs: 0,
-                    sm: 600,
-                    md: 600,
-                    lg: 1200,
-                    xl: 1536,
-                },
-            },
-        });
-
-        function DemoPageContent({ pathname }) {
-            if (pathname === '/virtualmachines') {
-                return (
-                    <div className="vm-cards">
-                        {viewMode === 'card' && renderVMCards()}
-                        {viewMode === 'table' && renderVMTable()}
-                        <IconButton style={{ height: '50px', width: '50px' }} className="btn-add-vm" onClick={() => setShowForm(true)}>
-                            <AddIcon style={{ height: '50px', width: '50px' }} />
-                        </IconButton>
-                    </div>
-                );
-            } else if (pathname === '/disks') {
-                return (
-                    <div className="vm-cards">
-                        {viewMode === 'card' && renderDiskCards()}
-                        {viewMode === 'table' && renderDiskTable()}
-                    </div>
-                );
-            }
-
-            else if (pathname === '/analytics') {
-                return (
-                    <div className="vm-cards">
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Ram by VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart01 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Number of Cores per VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart02 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Number of CPUs per VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart03 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Disk Size of each VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart04 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-                            </div>
-                );
-            }
-        }
-
-        DemoPageContent.propTypes = {
-            pathname: PropTypes.string.isRequired,
-        };
-        const authentication = React.useMemo(() => {
-            return {
-              
-              signOut: () => {
-                handleLogout();
-              },
-            };
-          }, []);
-        const router = useDemoRouter('virtualmachines');
-
-        return (
-            <AppProvider
-      authentication={authentication}
-      navigation={NAVIGATION}
-      router={router}
-      theme={demoTheme}
-      window={demoWindow}
-    >
-      <DashboardLayout>
-        <DemoPageContent pathname={router.pathname} />
-      </DashboardLayout>
-    </AppProvider>
-        );
-    };
-
+//if the Isloading  is true  hten show the dashboard page ohter ise show  the loading screen
     if (!IsLoading) {
         return (
-            <div >
-                <DashboardLayoutBranding />{/* Include the DashboardLayoutBranding function here */}
+            <div className="dashboard-container">
+                <div className="sidebar">
+                    <div className="sidebar-header">
+                        <h3>Dashboard</h3>
+                    </div>
+                    {/* the side bar menu*/}
+                    <div className="sidebar-menu">
+                        <button
+                            className={`sidebar-item ${activeTab === 'vms' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('vms')}
+                        >
+                            VMs
+                        </button>
+                        <button
+                            className={`sidebar-item ${activeTab === 'disks' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('disks')}
+                        >
+                            Disks
+                        </button>
+                        <button
+                            className={`sidebar-item ${activeTab === 'analytics' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('analytics')}
+                        >
+                            Analytics
+                        </button>
+                    </div>
+                </div>
+                     {/* the  main contetnt on the centre of the page*/}
+
                 <div className="main-content">
-                    
+                                        {/* the vabar inside  the main content on the centre of the page*/}
+
+                    <header className="navbar">
+                        <h1>{activeTab.toUpperCase()}</h1>
+                        <div>
+                                                {/* button stack*/}
+
+                            <Stack spacing={2} direction="row">
+                                <Button variant='contained' className="btn-logout" onClick={handleLogout}>Logout</Button>
+                                <Button variant='contained' onClick={() => setViewMode('card')}>Card View</Button>
+                                <Button variant='contained' onClick={() => setViewMode('table')}>Table View</Button>
+                            </Stack>
+                        </div>
+                    </header>
+                                            {/* he main content that will be diplayed below the navabar like cards data etc*/}
+
                     <div className="content-area">
                         <div className="loading-container"></div>
 
-                        {activeTab === 'analytics' && (
+                        {activeTab === 'vms' && (
                             <div className="vm-cards">
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Ram by VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart01 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
+                                {viewMode === 'card' && renderVMCards()}
+                                {viewMode === 'table' && renderVMTable()}
 
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Number of Cores per VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart02 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Number of CPUs per VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart03 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Disk Size of each VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart04 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
+                                                    {/* add icon button afterend of the cards*/}
+
+                                <IconButton style={{ height: '50px', width: '50px' }} className="btn-add-vm" onClick={() => setShowForm(true)}>
+                                    <AddIcon style={{ height: '50px', width: '50px' }} />
+                                </IconButton>
                             </div>
                         )}
+                        {activeTab === 'disks' && (
+                            <div className="vm-cards">
+                                {viewMode === 'card' && renderDiskCards()}
+                                {viewMode === 'table' && renderDiskTable()}
+                               
+                            </div>
+
+                        )
+
+                            
+                        }
+                       {activeTab === 'analytics' && (
+                                <div className="vm-cards">
+
+                                {/*different graph cards in the body*/}
+
+                                  <Box sx={{ minWidth: 375 }}>
+                                  <Card variant="outlined">
+                                  <CardContent>
+                                  <Typography variant="h5" component="div">
+                                    Ram by VM
+                                  </Typography>
+                                  <graphcontext.Provider value={dashboardData}>
+                                  <Chart01 />
+                                  
+                                  </graphcontext.Provider>
+                                  </CardContent>
+                                  </Card>
+                                  </Box>
+
+                                  <Box sx={{ minWidth: 375 }}>
+                                  <Card variant="outlined">
+                                  <CardContent>
+                                  <Typography variant="h5" component="div">
+                                    Number of Cores per VM
+                                  </Typography>
+                                  <graphcontext.Provider value={dashboardData}>
+                                  <Chart02 />
+                                  
+                                  </graphcontext.Provider>
+                                  </CardContent>
+                                  </Card>
+                                  </Box>
+
+                                  <Box sx={{ minWidth: 375 }}>
+                                  <Card variant="outlined">
+                                  <CardContent>
+                                  <Typography variant="h5" component="div">
+                                    Number of CPUs per VM
+                                  </Typography>
+                                  <graphcontext.Provider value={dashboardData}>
+                                  <Chart03 />
+                                  
+                                  </graphcontext.Provider>
+                                  </CardContent>
+                                  </Card>
+                                  </Box>
+
+                                  <Box sx={{ minWidth: 375 }}>
+                                  <Card variant="outlined">
+                                  <CardContent>
+                                  <Typography variant="h5" component="div">
+                                    Disk Size of each VM
+                                  </Typography>
+                                  <graphcontext.Provider value={dashboardData}>
+                                  <Chart04 />
+                                  
+                                  </graphcontext.Provider>
+                                  </CardContent>
+                                  </Card>
+                                  </Box>
+
+                                
+                                </div>
+                        )} 
                     </div>
+
+                    {/* render the form if thhe addicon btton is pressed*/}
+
+
                     {showForm && (
                         <div className="overlay">
                             <AddVMForm onClose={() => {
@@ -471,7 +410,11 @@ function Dashboard() {
                             }} />
                         </div>
                     )}
+
+
                 </div>
+                                    {/* the dialouge box code when the open dialoguevm is true(the delelte button is pressed)*/}
+
                 <Dialog
                     open={openDialogvm}
                     onClose={handleCancelDelete}
@@ -495,6 +438,8 @@ function Dashboard() {
                         </Button>
                     </DialogActions>
                 </Dialog>
+                 {/* the dialouge box code when the open dialoguediks is true(the delelte button is pressed)*/}
+
                 <Dialog
                     open={openDialogDisk}
                     onClose={handleCancelDeleteDisk}
@@ -525,4 +470,4 @@ function Dashboard() {
     }
 }
 
-export default Dashboard;
+export default Dashboard2;

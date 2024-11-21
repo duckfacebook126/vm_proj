@@ -33,6 +33,17 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { useDemoRouter } from '@toolpad/core/internal';
+import { useAuth,AuthProvider } from './contexts/AuthContext';
+import LogoutIcon from '@mui/icons-material/Logout';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import StorageIcon from '@mui/icons-material/Storage';
+import { useTheme } from '@mui/material/styles';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import LastPageIcon from '@mui/icons-material/LastPage';
+import Pagination from '@mui/material/Pagination';
+import DiskTable from './DiskTable';
 
 // Context that has been exported to other children
 export const graphcontext = createContext();
@@ -47,7 +58,11 @@ function Dashboard() {
     const [vmToDelete, setVmToDelete] = useState(null);
     const [DiskToDelete, setDiskToDelete] = useState(null);
     const [openDialogDisk, setOpenDialogDisk] = useState(false);
-    const [viewMode, setViewMode] = useState('card'); // State for view mode
+    const [viewMode, setViewMode] = useState('card'); 
+    // State for view mode
+
+    const [page, setPage] = useState(1);
+    const rowsPerPage = 5;
 
     useEffect(() => {
         handle_login_change();
@@ -137,72 +152,17 @@ function Dashboard() {
         ));
     };
 
-    const renderVMTable = () => {
-        return (
-            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', maxHeight: '100%' }}>
-                <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>VM ID</TableCell>
-                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>VM Name</TableCell>
-                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>OS Name</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Disk Space</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Ram</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Cpu</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Flavor</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {dashboardData.vms.map((vm) => (
-                            <TableRow
-                                key={vm.id}
-                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                                <TableCell align="left">{vm.id}</TableCell>
-                                <TableCell align="left">{vm.name}</TableCell>
-                                <TableCell align="left">{vm.osName}</TableCell>
-                                <TableCell align="right">{vm.size}</TableCell>
-                                <TableCell align="right">{vm.ram}</TableCell>
-                                <TableCell align="right">{vm.cpu} x {vm.cores}</TableCell>
-                                <TableCell align="right">{vm.flavorName}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        );
-    };
+  const renderVMTable=()=>
+  {
 
+
+
+
+  }
     const renderDiskTable = () => {
-        return (
-            <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto', maxHeight: '100%' }}>
-                <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>Disk ID</TableCell>
-                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>Disk Name</TableCell>
-                            <TableCell align="left" sx={{ fontWeight: 'bold' }}>Flavor</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Size</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 'bold' }}>Attached to VM</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {dashboardData.disks.map((disk) => (
-                            <TableRow
-                                key={disk.id}
-                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                                <TableCell align="left">{disk.id}</TableCell>
-                                <TableCell align="left">{disk.name}</TableCell>
-                                <TableCell align="left">{disk.flavorName}</TableCell>
-                                <TableCell align="right">{disk.size}</TableCell>
-                                <TableCell align="right">{disk.vmName || 'None'}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        );
+        // Number of rows per page
+    
+        return(<> <DiskTable/></>)
     };
 
     const handleLogout = async () => {
@@ -264,12 +224,18 @@ function Dashboard() {
             {
                 segment: 'disks',
                 title: 'Disks',
-                icon: <ShoppingCartIcon />,
+                icon: <StorageIcon />,
             },
             {
                 segment: 'analytics',
                 title: 'Analytics',
-                icon: <ShoppingCartIcon />,
+                icon: <TrendingUpIcon />,
+
+            },
+            {
+                segment: 'logout',
+                title: 'Logout',
+                icon: <LogoutIcon/>,
 
             }
         ];
@@ -365,6 +331,13 @@ function Dashboard() {
                             </div>
                 );
             }
+
+            else if(pathname==='/logout'){
+
+
+handleLogout();
+
+            }
         }
 
         DemoPageContent.propTypes = {
@@ -385,7 +358,6 @@ function Dashboard() {
             >
                 <DashboardLayout>
                     <div className="header-buttons">
-                        <Button variant='contained' className="btn-logout" onClick={handleLogout}>Logout</Button>
                         <Button variant='contained' onClick={() => setViewMode('card')}>Card View</Button>
                         <Button variant='contained' onClick={() => setViewMode('table')}>Table View</Button>
                     </div>
