@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { useState, useEffect, createContext } from 'react';
 import './Dashboard.css';
 import AddVMForm from './AddVMForm';
 import Box from '@mui/material/Box';
@@ -29,20 +29,12 @@ import Chart04 from './Chart4';
 import PropTypes from 'prop-types';
 import { createTheme } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import StorageIcon from '@mui/icons-material/Storage';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { useDemoRouter } from '@toolpad/core/internal';
-import { useAuth,AuthProvider } from './contexts/AuthContext';
-import LogoutIcon from '@mui/icons-material/Logout';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import StorageIcon from '@mui/icons-material/Storage';
-import { useTheme } from '@mui/material/styles';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import LastPageIcon from '@mui/icons-material/LastPage';
-import Pagination from '@mui/material/Pagination';
 import DiskTable from './DiskTable';
 
 // Context that has been exported to other children
@@ -58,9 +50,7 @@ function Dashboard() {
     const [vmToDelete, setVmToDelete] = useState(null);
     const [DiskToDelete, setDiskToDelete] = useState(null);
     const [openDialogDisk, setOpenDialogDisk] = useState(false);
-    const [viewMode, setViewMode] = useState('card'); 
-    // State for view mode
-
+    const [viewMode, setViewMode] = useState('card');
     const [page, setPage] = useState(1);
     const rowsPerPage = 5;
 
@@ -152,18 +142,11 @@ function Dashboard() {
         ));
     };
 
-  const renderVMTable=()=>
-  {
-
-
-
-
-  }
     const renderDiskTable = () => {
-        // Number of rows per page
-    
-        return(<> <DiskTable/></>)
+        return (<> <DiskTable /> </>);
     };
+
+    const renderVMTable=()=>{}
 
     const handleLogout = async () => {
         try {
@@ -235,7 +218,7 @@ function Dashboard() {
             {
                 segment: 'logout',
                 title: 'Logout',
-                icon: <LogoutIcon/>,
+                icon: <LogoutIcon />,
 
             }
         ];
@@ -279,64 +262,61 @@ function Dashboard() {
             else if (pathname === '/analytics') {
                 return (
                     <div className="vm-cards">
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Ram by VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart01 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
+                        <Box sx={{ minWidth: 375 }}>
+                            <Card variant="outlined">
+                                <CardContent>
+                                    <Typography variant="h5" component="div">
+                                        Ram by VM
+                                    </Typography>
+                                    <graphcontext.Provider value={dashboardData}>
+                                        <Chart01 />
+                                    </graphcontext.Provider>
+                                </CardContent>
+                            </Card>
+                        </Box>
 
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Number of Cores per VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart02 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Number of CPUs per VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart03 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Disk Size of each VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart04 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-                            </div>
+                        <Box sx={{ minWidth: 375 }}>
+                            <Card variant="outlined">
+                                <CardContent>
+                                    <Typography variant="h5" component="div">
+                                        Number of Cores per VM
+                                    </Typography>
+                                    <graphcontext.Provider value={dashboardData}>
+                                        <Chart02 />
+                                    </graphcontext.Provider>
+                                </CardContent>
+                            </Card>
+                        </Box>
+                        <Box sx={{ minWidth: 375 }}>
+                            <Card variant="outlined">
+                                <CardContent>
+                                    <Typography variant="h5" component="div">
+                                        Number of CPUs per VM
+                                    </Typography>
+                                    <graphcontext.Provider value={dashboardData}>
+                                        <Chart03 />
+                                    </graphcontext.Provider>
+                                </CardContent>
+                            </Card>
+                        </Box>
+                        <Box sx={{ minWidth: 375 }}>
+                            <Card variant="outlined">
+                                <CardContent>
+                                    <Typography variant="h5" component="div">
+                                        Disk Size of each VM
+                                    </Typography>
+                                    <graphcontext.Provider value={dashboardData}>
+                                        <Chart04 />
+                                    </graphcontext.Provider>
+                                </CardContent>
+                            </Card>
+                        </Box>
+                    </div>
                 );
             }
 
-            else if(pathname==='/logout'){
-
-
-handleLogout();
-
+            else if (pathname === '/logout') {
+                handleLogout();
             }
         }
 
@@ -369,10 +349,9 @@ handleLogout();
 
     if (!IsLoading) {
         return (
-            <div >
-                <DashboardLayoutBranding />{/* Include the DashboardLayoutBranding function here */}
+            <div>
+                <DashboardLayoutBranding />
                 <div className="main-content">
-                    
                     <div className="content-area">
                         <div className="loading-container"></div>
 
