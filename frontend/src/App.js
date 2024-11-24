@@ -8,7 +8,9 @@ import Home from './Home';
 import LoadingSpinner from './components/Loading';
 import { AuthProvider } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DashboardContext';
-
+import AdminSignup from './AdminSignup';
+import AdminLogin from './AdminLogin';
+import Sidebar from './Sidebar';
 function App() {
     return (
         <AuthProvider>
@@ -19,6 +21,10 @@ function App() {
                         <Route path="/signup" element={<Signup />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/admin_signup" element={<AdminSignup />} />
+                        <Route path="/admin_login" element={<AdminLogin />} />
+                        <Route path="/admin_dashboard" element={<Sidebar />} />
+
                     </Routes>
                 </BrowserRouter>
             </DataProvider>

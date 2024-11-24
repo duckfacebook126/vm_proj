@@ -272,6 +272,94 @@ const deleteDisk = async (req, res) => {
 
 }
 
+
+const adminSignup = async (req, res) => {
+    let conn;
+    try {
+        conn = await db.getConnection();
+        const { firstName, lastName, phoneNumber, cnic, email, username, password } = req.body;
+
+        // Check if admin already exists
+        const [existingAdmin] = await conn.execute(
+            'SELECT * FROM ADMIN WHERE userName = ? OR email = ? OR CNIC = ?',
+            [username, email, cnic]
+        );
+
+        if (existingAdmin.length > 0) {
+            return res.status(400).json({ 
+                error: 'An admin with this username, email, or CNIC already exists' 
+            });
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insert new admin
+        await conn.execute(
+            'INSERT INTO ADMIN (firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [firstName, lastName, phoneNumber, cnic, email, username, hashedPassword]
+        );
+
+        res.status(201).json({ success: true, message: 'Admin registered successfully' });
+    } catch (error) {
+        console.error('Admin signup error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        if (conn) conn.release();
+    }
+};
+
+  const adminLogin = async (req, res) => {
+    let conn;
+    try {
+        conn = await db.getConnection();
+        const { username, password } = req.body;
+
+        // Find admin by username
+        const [admins] = await conn.execute(
+            'SELECT * FROM ADMIN WHERE userName = ?',
+            [username]
+        );
+
+        if (admins.length === 0) {
+            return res.status(401).json({ login: false, error: 'Username does not exist' });
+        }
+
+        const admin = admins[0];
+        const passwordMatch = await bcrypt.compare(password, admin.PASSWORD);
+
+        if (!passwordMatch) {
+            return res.status(401).json({ login: false, error: 'Wrong password' });
+        }
+
+        // Set session data
+        req.session.adminId = admin.id;
+        req.session.isAdmin = true;
+        req.session.username = admin.userName;
+
+        // Save the session
+        req.session.save(err => {
+            if (err) {
+                console.error('Session save error:', err);
+                return res.status(500).json({ error: 'Failed to save session' });
+            }
+            res.status(200).json({ 
+                message: "Admin login successful", 
+                login: true,
+                username: admin.userName,
+                adminId: admin.id
+            });
+        });
+    } catch (error) {
+        console.error('Admin login error:', error);
+        res.status(500).json({ error: 'Login failed', login: false });
+    } finally {
+        if (conn) conn.release();
+    }
+};
+
+// Add to module exports
+
 module.exports = {
     signup,
     login,
@@ -279,5 +367,8 @@ module.exports = {
     createVM,
     dashboard_data,
     deleteVM,
-    deleteDisk
+    deleteDisk,
+    adminSignup,  
+    adminLogin
+
 };

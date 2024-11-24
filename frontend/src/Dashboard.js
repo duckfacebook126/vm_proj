@@ -36,9 +36,19 @@ import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { useDemoRouter } from '@toolpad/core/internal';
 import DiskTable from './DiskTable';
+import Sidebar from './Sidebar';
 
 // Context that has been exported to other children
 export const graphcontext = createContext();
+
+// Add this style for the button container
+const buttonContainerStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  gap: '20px',  // This creates equal spacing between buttons
+  marginBottom: '20px',  // Add some space below the buttons
+  paddingTop: '20px'  // Add some space above the buttons
+};
 
 function Dashboard() {
     const [showForm, setShowForm] = useState(false);
@@ -50,7 +60,9 @@ function Dashboard() {
     const [vmToDelete, setVmToDelete] = useState(null);
     const [DiskToDelete, setDiskToDelete] = useState(null);
     const [openDialogDisk, setOpenDialogDisk] = useState(false);
-    const [viewMode, setViewMode] = useState('card');
+    const [VmViewMode, setVmViewMode] = useState('Vmscard');
+    const [DiskViewMode, setDiskViewMode] = useState('Diskscard');
+
     const [page, setPage] = useState(1);
     const rowsPerPage = 5;
 
@@ -146,7 +158,13 @@ function Dashboard() {
         return (<> <DiskTable /> </>);
     };
 
-    const renderVMTable=()=>{}
+    const renderVMTable = () => {
+        return (<>
+            <div>
+                VM table here
+            </div>
+        </>);
+    }
 
     const handleLogout = async () => {
         try {
@@ -240,26 +258,65 @@ function Dashboard() {
         });
 
         function DemoPageContent({ pathname }) {
+            console.log('Current pathname:', pathname);
+            console.log('Current DiskViewMode:', DiskViewMode);
+
             if (pathname === '/virtualmachines') {
                 return (
-                    <div className="vm-cards">
-                        {viewMode === 'card' && renderVMCards()}
-                        {viewMode === 'table' && renderVMTable()}
-                        <IconButton style={{ height: '50px', width: '50px' }} className="btn-add-vm" onClick={() => setShowForm(true)}>
-                            <AddIcon style={{ height: '50px', width: '50px' }} />
-                        </IconButton>
+                    <div className="vm-cards-container">
+                        {/* Updated button container with styling */}
+                        <div style={buttonContainerStyle}>
+                            <Button 
+                                variant='contained' 
+                                onClick={() => setVmViewMode('Vmscard')}
+                            >
+                                Card View
+                            </Button>
+                            <Button 
+                                variant='contained' 
+                                onClick={() => setVmViewMode('Vmstable')}
+                            >
+                                Table View
+                            </Button>
+                        </div>
+                        <div className="vm-cards">
+                            {VmViewMode === 'Vmscard' && renderVMCards()}
+                            {VmViewMode === 'Vmstable' && renderVMTable()}
+                            <IconButton 
+                                style={{ height: '50px', width: '50px' }} 
+                                className="btn-add-vm" 
+                                onClick={() => setShowForm(true)}
+                            >
+                                <AddIcon style={{ height: '50px', width: '50px' }} />
+                            </IconButton>
+                        </div>
                     </div>
                 );
             } else if (pathname === '/disks') {
                 return (
-                    <div className="vm-cards">
-                        {viewMode === 'card' && renderDiskCards()}
-                        {viewMode === 'table' && renderDiskTable()}
+                    <div className="vm-cards-container">
+                        {/* Updated button container with styling */}
+                        <div style={buttonContainerStyle}>
+                            <Button 
+                                variant='contained' 
+                                onClick={() => setDiskViewMode('Diskscard')}
+                            >
+                                Card View
+                            </Button>
+                            <Button
+                                variant='contained'
+                                onClick={() => setDiskViewMode('Diskstable')}
+                            >
+                                Table View
+                            </Button>
+                        </div>
+                        <div className="vm-cards">
+                            {DiskViewMode === 'Diskscard' && renderDiskCards()}
+                            {DiskViewMode === 'Diskstable' && renderDiskTable()}
+                        </div>
                     </div>
                 );
-            }
-
-            else if (pathname === '/analytics') {
+            } else if (pathname === '/analytics') {
                 return (
                     <div className="vm-cards">
                         <Box sx={{ minWidth: 375 }}>
@@ -313,9 +370,7 @@ function Dashboard() {
                         </Box>
                     </div>
                 );
-            }
-
-            else if (pathname === '/logout') {
+            } else if (pathname === '/logout') {
                 handleLogout();
             }
         }
@@ -337,10 +392,6 @@ function Dashboard() {
                 theme={demoTheme}
             >
                 <DashboardLayout>
-                    <div className="header-buttons">
-                        <Button variant='contained' onClick={() => setViewMode('card')}>Card View</Button>
-                        <Button variant='contained' onClick={() => setViewMode('table')}>Table View</Button>
-                    </div>
                     <DemoPageContent pathname={router.pathname} />
                 </DashboardLayout>
             </AppProvider>
@@ -350,74 +401,7 @@ function Dashboard() {
     if (!IsLoading) {
         return (
             <div>
-                <DashboardLayoutBranding />
-                <div className="main-content">
-                    <div className="content-area">
-                        <div className="loading-container"></div>
-
-                        {activeTab === 'analytics' && (
-                            <div className="vm-cards">
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Ram by VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart01 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Number of Cores per VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart02 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Number of CPUs per VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart03 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-                                <Box sx={{ minWidth: 375 }}>
-                                    <Card variant="outlined">
-                                        <CardContent>
-                                            <Typography variant="h5" component="div">
-                                                Disk Size of each VM
-                                            </Typography>
-                                            <graphcontext.Provider value={dashboardData}>
-                                                <Chart04 />
-                                            </graphcontext.Provider>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-                            </div>
-                        )}
-                    </div>
-                    {showForm && (
-                        <div className="overlay">
-                            <AddVMForm onClose={() => {
-                                setShowForm(false);
-                                fetchDashboardData();
-                            }} />
-                        </div>
-                    )}
-                </div>
+                <DashboardLayoutBranding/>
                 <Dialog
                     open={openDialogvm}
                     onClose={handleCancelDelete}

@@ -1,10 +1,13 @@
 import * as yup from 'yup';
+// The current SignUpSchema already ensures that firstName and lastName do not contain any numbers by using regex patterns.
+// No additional code is needed.
+
 export const SignUpSchema = yup.object().shape({
     firstName: yup.string()
-        .matches(/^[A-Za-z][^0-9]{1,10}$/, 'First name must be at most 10 alphabets')
+        .matches(/^[A-Za-z]{1,10}$/, 'First name must be at most 10 alphabets and no numbers')
         .required('First name is required'),
     lastName: yup.string()
-        .matches(/^[A-Za-z][^0-9]{1,10}$/, 'Last name must be at most 10 alphabets')
+        .matches(/^[A-Za-z]{1,10}$/, 'Last name must be at most 10 alphabets and no numbers')
         .required('Last name is required'),
     cnic: yup.string()
         .matches(/^\d{13}$/, 'CNIC must be exactly 13 digits')
