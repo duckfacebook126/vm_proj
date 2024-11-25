@@ -8,7 +8,7 @@ const signup = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { cnic, firstName, lastName, phoneNumber, username, email, password } = req.body;
-                
+                const userType="Stanadard"
         // Check for duplicate CNIC or username
         const checkQuery = 'SELECT * FROM users WHERE CNIC = ? OR userName = ?';
         const [rows] = await conn.execute(checkQuery, [cnic, username]);
@@ -31,8 +31,8 @@ const signup = async (req, res) => {
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const query = 'INSERT INTO users (id, firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-        await conn.execute(query, [id, firstName, lastName, phoneNumber, cnic, email, username, hashedPassword]);
+        const query = 'INSERT INTO users (id, firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD,userType) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)';
+        await conn.execute(query, [id, firstName, lastName, phoneNumber, cnic, email, username, hashedPassword,userType]);
 
         res.status(201).json({ message: 'User created successfully' });
     } catch (error) {
@@ -49,7 +49,7 @@ const login = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { username, password } = req.body;
-
+           const userType="Standard" 
         // Query to find the user by username
         const query = 'SELECT * FROM users WHERE userName = ?';
         const [rows] = await conn.execute(query, [username]);
@@ -70,6 +70,7 @@ const login = async (req, res) => {
 
         // Set the session variables if password matches
         req.session.username = user.userName;
+        req.session.userType = userType;
         req.session.uId = user.id;
         
         // Save the session
@@ -79,7 +80,7 @@ const login = async (req, res) => {
                 return res.status(500).json({ error: 'Failed to save session' });
             }
             console.log(`Session saved. Username: ${req.session.username}, uId: ${req.session.uId}`);
-            res.status(200).json({ message: "Login successful", login: true, username: req.session.username, userId: req.session.uId });
+            res.status(200).json({ message: "Login successful", login: true, username: req.session.username, userId: req.session.uId, userType:req.session.userType });
         });
 
     } catch (error) {
@@ -264,8 +265,10 @@ const deleteDisk = async (req, res) => {
     }
     catch(error){
 
-        res.status(500).json({error:'Failed o deleteDisk'});
+        res.status(500).json({error:'Failed to deleteDisk'});
     }
+
+
     finally{
         if(conn) conn.release();
     }
@@ -278,16 +281,18 @@ const adminSignup = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { firstName, lastName, phoneNumber, cnic, email, username, password } = req.body;
+        const userType = "Admin";
+        const id = uuidv4();
 
         // Check if admin already exists
         const [existingAdmin] = await conn.execute(
-            'SELECT * FROM ADMIN WHERE userName = ? OR email = ? OR CNIC = ?',
-            [username, email, cnic]
+            'SELECT * FROM users WHERE (userName = ? OR email = ? OR CNIC = ?) AND userType = ?',
+            [username, email, cnic, userType]
         );
 
         if (existingAdmin.length > 0) {
-            return res.status(400).json({ 
-                error: 'An admin with this username, email, or CNIC already exists' 
+            return res.status(400).json({
+                error: 'An admin with this username, email, or CNIC already exists'
             });
         }
 
@@ -296,18 +301,20 @@ const adminSignup = async (req, res) => {
 
         // Insert new admin
         await conn.execute(
-            'INSERT INTO ADMIN (firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [firstName, lastName, phoneNumber, cnic, email, username, hashedPassword]
+            'INSERT INTO users (firstName, lastName, phoneNumber, CNIC, email, userName, password, userType) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)',
+            [firstName, lastName, phoneNumber, cnic, email, username, hashedPassword, userType]
         );
 
-        res.status(201).json({ success: true, message: 'Admin registered successfully' });
+        res.status(201).json({ success: true, message: 'Admin user registered successfully' });
     } catch (error) {
         console.error('Admin signup error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error', details: error.message });
     } finally {
         if (conn) conn.release();
     }
 };
+
+
 
   const adminLogin = async (req, res) => {
     let conn;
@@ -317,7 +324,7 @@ const adminSignup = async (req, res) => {
 
         // Find admin by username
         const [admins] = await conn.execute(
-            'SELECT * FROM ADMIN WHERE userName = ?',
+            'SELECT * FROM users WHERE userName =? AND userType =',
             [username]
         );
 

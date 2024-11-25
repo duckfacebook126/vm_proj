@@ -33,7 +33,8 @@ app.get('/', (req, res) => {
         res.status(200).json({ 
             login: true, 
             username: req.session.username,
-            userId: req.session.uId
+            userId: req.session.uId,
+            userType:req.session.userType
         });
     } else {
         res.status(404).json({ login: false });
