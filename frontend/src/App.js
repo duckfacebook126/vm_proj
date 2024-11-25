@@ -11,9 +11,12 @@ import { DataProvider } from './contexts/DashboardContext';
 import AdminSignup from './AdminSignup';
 import AdminLogin from './AdminLogin';
 import Sidebar from './Sidebar';
+import { UserProvider } from './contexts/UserContext';
 function App() {
     return (
         <AuthProvider>
+        <UserProvider>
+
             <DataProvider>
                 <BrowserRouter>
                     <Routes>
@@ -27,7 +30,9 @@ function App() {
 
                     </Routes>
                 </BrowserRouter>
+            
             </DataProvider>
+            </UserProvider>
         </AuthProvider>
     );
 }

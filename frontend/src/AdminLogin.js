@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState,useEffect } from 'react';
 import { useFormik } from 'formik';
 import { AdminLoginSchema } from './schemas/AdminLoginSchema';
 import { useNavigate } from 'react-router-dom';
@@ -13,8 +13,23 @@ import {
   Alert
 } from '@mui/material';
 import Swal from 'sweetalert2';
+import { useUser } from './contexts/UserContext';
 
 function AdminLogin() {
+const {userType}=useUser();
+console.log(userType);
+
+useEffect(()=>{
+  if(userType!="Admin"){
+    navigate("/admin_login")
+  }
+
+  else if(userType==="Admin"){
+    navigate("/admin_dashboard")
+  }
+},[])
+
+
   const navigate = useNavigate();
   const [error, setError] = useState('');
 

@@ -321,11 +321,11 @@ const adminSignup = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { username, password } = req.body;
-
+const userType="Admin";
         // Find admin by username
         const [admins] = await conn.execute(
-            'SELECT * FROM users WHERE userName =? AND userType =',
-            [username]
+            'SELECT * FROM users WHERE userName =? AND userType =?',
+            [username,userType]
         );
 
         if (admins.length === 0) {
@@ -343,6 +343,7 @@ const adminSignup = async (req, res) => {
         req.session.adminId = admin.id;
         req.session.isAdmin = true;
         req.session.username = admin.userName;
+        req.session.userType="Admin";
 
         // Save the session
         req.session.save(err => {
