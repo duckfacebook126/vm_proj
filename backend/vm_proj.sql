@@ -9,7 +9,7 @@ CREATE TABLE users (
     userName VARCHAR(50) UNIQUE NOT NULL,
     PASSWORD VARCHAR(255) NOT NULL
    ,
-   userType VARCHAR(255) NOT NULL
+   userType VARCHAR(255) NOT NULL 
 );
 
 -- Create the operating_system table
@@ -55,10 +55,9 @@ CREATE TABLE DISK (
 );
 
 CREATE TABLE user_Type(
-userId INT NOT NULL
+userId INT NOT NULL,
 typeId INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 typeName VARCHAR (255) NOT NULL,
-FOREIGN KEY (typeName) REFERENCES users(userType),
 FOREIGN KEY (userId) REFERENCES users(id)
 
 
@@ -66,8 +65,19 @@ FOREIGN KEY (userId) REFERENCES users(id)
 );
 
 CREATE TABLE permissions(
+userId INT NOT NULL,
+typeId INT NOT NULL,
+permission_id INT PRIMARY KEY,
+permission VARCHAR(255) NOT NULL,
 
-permission_id
+FOREIGN KEY (userId) REFERENCES users(id),
+FOREIGN KEY (typeId) REFERENCES user_Type(typeId)
+
+ 
+
+
+
+
 
 );
 
