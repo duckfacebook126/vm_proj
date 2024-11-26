@@ -105,6 +105,8 @@ const logout = (req, res) => {
     });
 };
 
+
+
 // Create VM Function
 const createVM = async (req, res) => {
     let conn;
@@ -222,9 +224,15 @@ const dashboard_data = async (req, res) => {
         `;
         const [disks] = await conn.execute(diskQuery, [userId]);
 
+        const userQuery= `SELECT * FROM users WHERE userType!=?`
+
+        const [users] = await conn.execute(userQuery,[req.session.userType]);
+
+
         res.status(200).json({
             vms,
             disks,
+            users,
             login: true,
         });
     } catch (error) {
@@ -366,6 +374,20 @@ const userType="Admin";
     }
 };
 
+
+const adminLogout=(req,res)=>{
+
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Failed to destroy session:', err);
+            return res.status(500).json({ error: 'Failed to logout' });
+        }
+        // Clear the session cookie and destroy the session
+        res.clearCookie('connect.sid', { path: '/' });
+        res.status(200).json({ message: 'Logout successful', login: false });
+    });
+
+}
 // Add to module exports
 
 module.exports = {
@@ -377,6 +399,7 @@ module.exports = {
     deleteVM,
     deleteDisk,
     adminSignup,  
-    adminLogin
+    adminLogin,
+    adminLogout
 
 };

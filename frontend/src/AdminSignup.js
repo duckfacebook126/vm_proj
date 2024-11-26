@@ -3,6 +3,7 @@ import { useFormik } from 'formik';
 import { AdminSignupSchema } from './schemas/AdminSignupSchema';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import LoadingSpinner from './components/Loading';
 import {
   Box,
   TextField,
@@ -13,8 +14,20 @@ import {
   Grid,
   Alert
 } from '@mui/material';
+import { useEffect } from 'react';
 
 function AdminSignup() {
+  const [IsLoading, setIsLoading] = useState(true);
+
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+        setIsLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+}, []);
+
   const navigate = useNavigate();
   const [error, setError] = useState('');
 
@@ -45,7 +58,7 @@ function AdminSignup() {
     }
   });
 
-  return (
+  if(!IsLoading){return (
     <Container component="main" maxWidth="sm">
       <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
         <Typography component="h1" variant="h5" align="center" gutterBottom>
@@ -149,6 +162,15 @@ function AdminSignup() {
       </Paper>
     </Container>
   );
+}
+
+else if(IsLoading)
+{
+
+  return(<>
+  
+  <LoadingSpinner></LoadingSpinner></>)
+}
 }
 
 export default AdminSignup;

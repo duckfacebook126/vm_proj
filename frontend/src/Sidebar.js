@@ -22,8 +22,14 @@ import ComputerIcon from '@mui/icons-material/Computer';
 import StorageIcon from '@mui/icons-material/Storage';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
 import PeopleIcon from '@mui/icons-material/People';
-const drawerWidth = 240;
+import LoadingSpinner from './components/Loading';
+import { useNavigate } from 'react-router-dom';
+import UserTable from './UserTable';
+import LogoutIcon from '@mui/icons-material/Logout';
+import axios from 'axios';
+import { useState,useEffect } from 'react';
 
+const drawerWidth = 240;
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
@@ -106,6 +112,17 @@ export default function Sidebar() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
 const [index,setIndex] = React.useState(0)
+const [IsLoading, setIsLoading] = useState(true);
+
+useEffect(() => {
+
+  const timer = setTimeout(() => {
+      setIsLoading(false);
+  }, 3000);
+
+  return () => clearTimeout(timer);
+}, []);
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -113,8 +130,23 @@ const [index,setIndex] = React.useState(0)
   const handleDrawerClose = () => {
     setOpen(false);
   };
+const navigate=useNavigate();
+//handle admin  logouut
+  const handleLogout = async () => {
+    try {
+        const res = await axios.post('http://localhost:8080/api/admin_logout', {}, { withCredentials: true });
+        console.log(res.data.message);
+        if (res.data.message) {
+            navigate('/admin_login');
+            console.log(res.data.isAdmin)
+        }
+    } catch (err) {
+        console.error('Logout failed:', err);
+    }
+};
 
-  return (
+
+ if(!IsLoading){ return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
@@ -134,7 +166,7 @@ const [index,setIndex] = React.useState(0)
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Mini variant drawer
+           Admin Dashboard Panel
           </Typography>
         </Toolbar>
       </AppBar>
@@ -145,8 +177,8 @@ const [index,setIndex] = React.useState(0)
           </IconButton>
         </DrawerHeader>
         <List>
-          {['Users', 'Analytics'].map((text, index) => (
-            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+          {['Users', 'Analytics','Logout'].map((text, listindex) => (
+            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
                 sx={[
                   {
@@ -162,7 +194,13 @@ const [index,setIndex] = React.useState(0)
                       },
                 ]}
               onClick={()=>{
-                setIndex(index)
+                setIndex(listindex);
+
+                if(text==="Logout")
+                {
+
+                  handleLogout();
+                }
               }}>
                 <ListItemIcon
                   sx={[
@@ -179,11 +217,14 @@ const [index,setIndex] = React.useState(0)
                         },
                   ]}
                 >
-                  {index  === 0&& <PeopleIcon />}
-                  {index  === 1&& <EqualizerIcon />}
+                  {text  == 'Users'&& <PeopleIcon />}
+                  {text  == 'Analytics'&& <EqualizerIcon />}
+                  {text  == 'Logout'&& <LogoutIcon />}
 
+                    
 
                 </ListItemIcon>
+
                 <ListItemText
                   primary={text}
                   sx={[
@@ -195,7 +236,9 @@ const [index,setIndex] = React.useState(0)
                           opacity: 0,
                         },
                   ]}
-                />
+                /> 
+
+
               </ListItemButton>
             </ListItem>
           ))}
@@ -205,36 +248,20 @@ const [index,setIndex] = React.useState(0)
       <>
       {index === 0 && <Box  sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader/>
-        <Typography sx={{ marginBottom: 2 }}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-          enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-          imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-          Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-          Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-          adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-          nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-          leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-          feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-          consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-          sapien faucibus et molestie ac.
-        </Typography>
-        <Typography sx={{ marginBottom: 2 }}>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-          eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-          neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-          tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-          sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-          tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-          gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-          et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-          tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-          eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-          posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
+        <UserTable></UserTable>
+       
       </Box>}
       </>
     </Box>
     
   );
+}
+
+else if(IsLoading)
+{
+
+  return (<><LoadingSpinner /></>);
+
+
+}
 }

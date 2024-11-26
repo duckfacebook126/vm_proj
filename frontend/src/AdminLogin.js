@@ -3,6 +3,8 @@ import { useFormik } from 'formik';
 import { AdminLoginSchema } from './schemas/AdminLoginSchema';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import LoadingSpinner from './components/Loading';
+
 import {
   Box,
   TextField,
@@ -15,18 +17,37 @@ import {
 import Swal from 'sweetalert2';
 import { useUser } from './contexts/UserContext';
 
+
+
+const handleLogout=() => {
+
+
+
+};
+
 function AdminLogin() {
+  const [IsLoading, setIsLoading] = useState(true);
+
 const {userType}=useUser();
 console.log(userType);
 
+
 useEffect(()=>{
-  if(userType!="Admin"){
+ 
+
+  if(userType=='Admin'){
+    navigate("/admin_dashboard")
+  }
+
+  else{
     navigate("/admin_login")
   }
 
-  else if(userType==="Admin"){
-    navigate("/admin_dashboard")
-  }
+  const timer = setTimeout(() => {
+    setIsLoading(false);
+}, 3000);
+
+return () => clearTimeout(timer);
 },[])
 
 
@@ -44,8 +65,8 @@ useEffect(()=>{
         const response = await axios.post('http://localhost:8080/api/admin_login', values, {
           withCredentials: true
         });
-        if (response.data.login) {
-          console.log('Admin logged in');
+        if (response.data) {
+          console.log(`user type is ${response.data.userType}`);
           navigate('/admin_dashboard');
         }
       } catch (err) {
@@ -60,7 +81,7 @@ useEffect(()=>{
       }
     }
   });
-
+if(!IsLoading){
   return (
     <Container component="main" maxWidth="xs">
       <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
@@ -107,6 +128,13 @@ useEffect(()=>{
       </Paper>
     </Container>
   );
+}
+
+else if(IsLoading)
+  {
+
+    return(<><LoadingSpinner></LoadingSpinner></>)
+  } 
 }
 
 export default AdminLogin;

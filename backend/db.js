@@ -4,7 +4,8 @@ class Database {
     constructor() {
         if (!Database.instance) {
             this.pool = mysql.createPool({
-                host: 'localhost',   // Ensure host, user, password, and database are correct
+                host: 'localhost',  
+                port: 3307, // Ensure host, user, password, and database are correct
                 user: 'root',
                 password: '',         // Your MySQL password here
                 database: 'vm_proj'

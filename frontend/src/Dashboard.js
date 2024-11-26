@@ -168,7 +168,7 @@ function Dashboard() {
 
     const handleLogout = async () => {
         try {
-            const res = await axios.post('http://localhost:8080/api/logout', {}, { withCredentials: true });
+            const res = await axios.post('http://localhost:8080/api/admin_logout', {}, { withCredentials: true });
             console.log(res.data.message);
             if (res.data.message === 'Logout successful') {
                 navigate('/login');

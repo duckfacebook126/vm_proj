@@ -4,7 +4,7 @@ import axios from 'axios';
 export const DataContext = createContext(null);
 
 export const DataProvider = ({ children }) => {
-    const [dashboardData, setDashboardData] = useState({ vms: [], disks: [] });
+    const [dashboardData, setDashboardData] = useState({ vms: [], disks: [],users:[] });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
