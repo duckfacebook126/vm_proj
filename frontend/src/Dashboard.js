@@ -38,6 +38,8 @@ import { useDemoRouter } from '@toolpad/core/internal';
 import DiskTable from './DiskTable';
 import Sidebar from './Sidebar';
 
+import VMTable from './VmTable';
+
 // Context that has been exported to other children
 export const graphcontext = createContext();
 
@@ -160,9 +162,7 @@ function Dashboard() {
 
     const renderVMTable = () => {
         return (<>
-            <div>
-                VM table here
-            </div>
+          <VMTable/>
         </>);
     }
 
@@ -400,7 +400,8 @@ function Dashboard() {
 
     if (!IsLoading) {
         return (
-            <div>
+            <>
+            <div className='display-dashboard'>
                 <DashboardLayoutBranding/>
                 <Dialog
                     open={openDialogvm}
@@ -449,7 +450,26 @@ function Dashboard() {
                     </DialogActions>
                 </Dialog>
             </div>
-        );
+
+
+        {showForm && (
+    <div className="overlay">
+        <AddVMForm onClose={() => {
+                setShowForm(false);
+                fetchDashboardData();
+                }}
+                onSubmit={
+                        
+                ()=>{
+                    setShowForm(false);
+                    fetchDashboardData();
+
+                }
+
+                } />
+    </div>
+)}
+        </>);
     } else if (IsLoading) {
         return (<><LoadingSpinner /></>);
     }

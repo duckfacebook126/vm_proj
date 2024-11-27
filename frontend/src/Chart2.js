@@ -20,6 +20,7 @@ function Chart02() {
     const dashboard_data = useContext(graphcontext);
     const vms = dashboard_data.vms;
     const disks = dashboard_data.disks;
+    const users= dashboard_data.users;
 
     // Aggregate the data
     const aggregatedData = aggregateData(vms, disks);

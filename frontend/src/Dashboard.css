@@ -182,3 +182,15 @@ width: 100%;
   margin-bottom: 20px;
   padding-top: 20px;
 }
+
+.display-dashboard{
+
+    z-index:0 ;
+}
+
+.overlay
+{
+
+z-index: 500555;    
+}
+

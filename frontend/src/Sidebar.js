@@ -28,6 +28,8 @@ import UserTable from './UserTable';
 import LogoutIcon from '@mui/icons-material/Logout';
 import axios from 'axios';
 import { useState,useEffect } from 'react';
+import AdminAnalytics from './AdminAnalytics';
+
 
 const drawerWidth = 240;
 const openedMixin = (theme) => ({
@@ -251,6 +253,15 @@ const navigate=useNavigate();
         <UserTable></UserTable>
        
       </Box>}
+
+      {index === 1 && <Box  sx={{ flexGrow: 1, p: 3 }}>
+        <DrawerHeader/>
+        <AdminAnalytics></AdminAnalytics>
+       
+      </Box>}
+
+
+
       </>
     </Box>
     

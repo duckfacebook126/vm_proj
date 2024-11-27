@@ -22,7 +22,7 @@ export const SignUpSchema = yup.object().shape({
         .matches(/^(?=.*\d).{1,12}$/, 'Username must contain numbers and be no longer than 12 characters')
         .required('Username is required'),
     password: yup.string()
-        .matches(/^(?=.*[0-9])(?=.*[!@#$%^&*]).{8,12}$/, 'Password must include at least one number, one special character, and be 8-12 characters long')
+        .matches(/^(?=.*[0-9])(?=.*[!@#$%^&*_]).{8,12}$/, 'Password must include at least one number, one special character, and be 8-12 characters long')
         .required('Password is required'),
 });
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AddVMForm.css';
 
-function AddVMForm({ onClose }) {
+function AddVMForm({ onClose, onSubmit }) {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         osName: '',
@@ -36,7 +36,7 @@ function AddVMForm({ onClose }) {
     const handleDiskFlavorChange = (event) => {
         const diskFlavor = event.target.value;
         let minRAM, maxRAM;
-        
+
         if (diskFlavor === 'Light') {
             minRAM = 2;
             maxRAM = 8;
@@ -54,6 +54,7 @@ function AddVMForm({ onClose }) {
             ram: minRAM
         }));
     };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -73,6 +74,7 @@ function AddVMForm({ onClose }) {
             });
             console.log('VM created successfully:', response.data);
             navigate('/dashboard');
+            onSubmit(); // Call the onSubmit prop to close the form
         } catch (err) {
             console.error('Error creating VM:', err);
             setVmError({ submit: err.response?.data?.error || "Failed to create VM. Please try again." });
@@ -91,7 +93,6 @@ function AddVMForm({ onClose }) {
                 <h2>Add New VM</h2>
                 <div className="form-sections">
                     <div className="form-left">
-                    
                         <div className="form-group ">
                             <label htmlFor="osName">OS Name</label>
                             <input
@@ -115,8 +116,6 @@ function AddVMForm({ onClose }) {
                                 onChange={handleInput}
                                 required
                                 className='form-control dark-outline'
-
-
                             />
                             {vmError.vmName && <span className="error">{vmError.vmName}</span>}
                         </div>
@@ -130,8 +129,6 @@ function AddVMForm({ onClose }) {
                                 max="8"
                                 value={formData.cpuCores}
                                 onChange={handleSliderChange}
-                              
-
                             />
                         </div>
                         <div className="form-group ">
@@ -144,8 +141,7 @@ function AddVMForm({ onClose }) {
                                 max="4"
                                 value={formData.cpuCount}
                                 onChange={handleSliderChange}
-
-                            /> 
+                            />
                         </div>
                     </div>
                     <div className="form-right">
@@ -156,7 +152,6 @@ function AddVMForm({ onClose }) {
                                 name="diskFlavor"
                                 value={formData.diskFlavor}
                                 onChange={handleDiskFlavorChange}
-
                             >
                                 <option value="Light">Light</option>
                                 <option value="Medium">Medium</option>
@@ -173,7 +168,6 @@ function AddVMForm({ onClose }) {
                                 max={ramLimits[formData.diskFlavor].max}
                                 value={formData.ram}
                                 onChange={handleSliderChange}
-
                             />
                         </div>
                         <div className="form-group ">
@@ -186,7 +180,6 @@ function AddVMForm({ onClose }) {
                                 onChange={handleInput}
                                 required
                                 className='form-control dark-outline'
-
                             />
                             {vmError.diskName && <span className="error">{vmError.diskName}</span>}
                         </div>
@@ -201,7 +194,6 @@ function AddVMForm({ onClose }) {
                                 step="50"
                                 value={formData.diskSize}
                                 onChange={handleSliderChange}
-
                             />
                         </div>
                     </div>

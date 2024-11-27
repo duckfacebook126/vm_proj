@@ -1,119 +1,150 @@
-import React, { useState } from 'react';
-import { useDashboard } from './contexts/DashboardContext';
+import React, { useContext, useState } from 'react';
+import { DataContext } from './contexts/DashboardContext';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
-import LoadingSpinner from './components/Loading';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import Box from '@mui/material/Box';
+import TablePagination from '@mui/material/TablePagination';
+import {  TableHead } from '@mui/material';
 
-function VmTable() {
-    const { dashboardData, isLoading } = useDashboard();
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [dense, setDense] = useState(false);
 
-    if (isLoading) {
-        return <LoadingSpinner />;
-    }
+export default function VMTable() {
+  const { dashboardData } = useContext(DataContext);
+  const vms = dashboardData?.vms || [];
+console.log(vms);
+  // States for handling pagination
+  const [page, setPage] = useState(0); // Current page index
+  const [rowsPerPage, setRowsPerPage] = useState(5); // Number of rows per page
 
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
+  // Handle page change
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+  // Handle rows per page change
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0); // Reset to the first page
+  };
 
-    const handleChangeDense = (event) => {
-        setDense(event.target.checked);
-    };
+  return (
+    <TableContainer component={Paper} sx={{ border: '1px solid #ccc' }}>
+      <Table sx={{ minWidth: 500 }} aria-label="simple table">
+      <TableHead>
 
-    const emptyRows = page > 0 
-        ? Math.max(0, (1 + page) * rowsPerPage - dashboardData.vms.length) 
-        : 0;
+<TableRow>
 
-    const visibleRows = dashboardData.vms
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  <TableCell sx={{ fontWeight: 'bold' }} component="th" scope="row">
 
-    return (
-        <Box sx={{ width: '100%' }}>
-            <Paper sx={{ width: '100%', mb: 2, border: '1px solid rgba(224, 224, 224, 1)' }}>
-                <TableContainer>
-                    <Table 
-                        sx={{ 
-                            minWidth: 750,
-                            '& .MuiTableCell-root': {
-                                borderRight: '1px solid rgba(224, 224, 224, 1)',
-                                '&:last-child': {
-                                    borderRight: 'none'
-                                }
-                            }
-                        }} 
-                        size={dense ? 'small' : 'medium'}
-                        aria-label="vm table"
-                    >
-                        <TableHead>
-                            <TableRow sx={{ 
-                                backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                                '& th': { fontWeight: 'bold' }
-                            }}>
-                                <TableCell>VM ID</TableCell>
-                                <TableCell>VM Name</TableCell>
-                                <TableCell>OS Name</TableCell>
-                                <TableCell align="right">Disk Space</TableCell>
-                                <TableCell align="right">RAM</TableCell>
-                                <TableCell align="right">CPU</TableCell>
-                                <TableCell align="right">Flavor</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {visibleRows.map((vm) => (
-                                <TableRow key={vm.id}>
-                                    <TableCell>{vm.id}</TableCell>
-                                    <TableCell>{vm.name}</TableCell>
-                                    <TableCell>{vm.osName}</TableCell>
-                                    <TableCell align="right">{vm.size}</TableCell>
-                                    <TableCell align="right">{vm.ram}</TableCell>
-                                    <TableCell align="right">{vm.cpu} x {vm.cores}</TableCell>
-                                    <TableCell align="right">{vm.flavorName}</TableCell>
-                                </TableRow>
-                            ))}
-                            {emptyRows > 0 && (
-                                <TableRow
-                                    style={{
-                                        height: (dense ? 33 : 53) * emptyRows,
-                                    }}
-                                >
-                                    <TableCell colSpan={7} />
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={dashboardData.vms.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-            </Paper>
-            <FormControlLabel
-                control={<Switch checked={dense} onChange={handleChangeDense} />}
-                label="Dense padding"
-            />
-        </Box>
-    );
+    VM ID
+
+  </TableCell>
+
+  <TableCell sx={{ fontWeight: 'bold' }} component="th" scope="row">
+
+    DISK NAME
+
+  </TableCell>
+
+
+  <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+
+    RAM
+
+  </TableCell>
+
+
+    <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+
+        CORES
+
+    </TableCell>
+
+    <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+
+        OS ID
+
+    </TableCell>
+
+
+     <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+
+        USER ID
+
+    </TableCell>
+
+
+     <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+
+        FLAVOR ID
+
+    </TableCell>
+
+
+    <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>
+
+    DISK SIZE
+
+    </TableCell>
+
+    </TableRow>
+
+    </TableHead>
+        <TableBody>
+
+          
+          {vms.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((vm) => (
+            <TableRow key={vm.id}>
+
+              <TableCell component="th" scope="row">
+                {vm.NAME}
+              </TableCell>
+
+              <TableCell align="left">
+                {vm.ram}
+              </TableCell>
+
+              <TableCell align="left">
+                {vm.cpu}
+              </TableCell>
+
+
+              <TableCell align="left">
+                {vm.cores}
+              </TableCell>
+
+              <TableCell align="left">
+                {vm.osId}
+              </TableCell>
+
+              <TableCell align="left">
+                {vm.userId}
+              </TableCell>
+
+              <TableCell align="left">
+                {vm.flavorId}
+              </TableCell>
+
+
+              <TableCell align="left">
+                {vm.size}
+              </TableCell>
+
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <TablePagination
+        component="div"
+        count={vms.length}
+        page={page}
+        onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={[5, 10, 15]}
+      />
+    </TableContainer>
+  );
 }
-
-export default VmTable;

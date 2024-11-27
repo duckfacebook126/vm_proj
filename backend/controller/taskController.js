@@ -49,26 +49,28 @@ const login = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { username, password } = req.body;
-           const userType="Standard" 
-        // Query to find the user by username
-        const query = 'SELECT * FROM users WHERE userName = ?';
-        const [rows] = await conn.execute(query, [username]);
+const notUserType="Admin";
+const userType="Standard" 
 
-        // Check if user exists
-        if (rows.length === 0) {
-            return res.status(404).json({ login: false, error: "Username does not exist" });
+        // Find admin by username
+        const [users] = await conn.execute(
+            'SELECT * FROM users WHERE userName =? AND userType !=?',
+            [username,notUserType]
+        );
+
+        if (users.length === 0) {
+            return res.status(401).json({ login: false, error: 'Username does not exist' });
         }
 
-        const user = rows[0];
-
-        // Compare the submitted password with the stored hashed password
-        const passwordMatch = await bcrypt.compare(password, user.password);
+        const user =users[0];
+        const passwordMatch = await bcrypt.compare(password, user.PASSWORD);
 
         if (!passwordMatch) {
-            return res.status(404).json({ login: false, error: "Wrong password" });
+            return res.status(401).json({ login: false, error: 'Wrong password' });
         }
 
-        // Set the session variables if password matches
+        // Set session data
+    
         req.session.username = user.userName;
         req.session.userType = userType;
         req.session.uId = user.id;
@@ -82,10 +84,10 @@ const login = async (req, res) => {
             console.log(`Session saved. Username: ${req.session.username}, uId: ${req.session.uId}`);
             res.status(200).json({ message: "Login successful", login: true, username: req.session.username, userId: req.session.uId, userType:req.session.userType });
         });
-
+    
     } catch (error) {
-        console.error('Login failed:', error);
-        res.status(500).json({ error: 'Login failed' ,login:false });
+        console.error('User login error:', error);
+        res.status(500).json({ error: 'Login failed', login: false });
     } finally {
         if (conn) conn.release();
     }
@@ -224,10 +226,17 @@ const dashboard_data = async (req, res) => {
         `;
         const [disks] = await conn.execute(diskQuery, [userId]);
 
-        const userQuery= `SELECT * FROM users WHERE userType!=?`
+        const userQuery= 'SELECT * FROM users';
 
-        const [users] = await conn.execute(userQuery,[req.session.userType]);
+        const [users] = await conn.execute(userQuery);
 
+                if (users.length>0)
+                {console.log(`this is the user data${users}`)}
+                    else if(users.length===0)
+                    {
+                        console.log(' the query resulted in 0 users ');
+
+                    }
 
         res.status(200).json({
             vms,
@@ -324,54 +333,75 @@ const adminSignup = async (req, res) => {
 
 
 
-  const adminLogin = async (req, res) => {
+const adminLogin = async (req, res) => {
     let conn;
     try {
         conn = await db.getConnection();
         const { username, password } = req.body;
-const userType="Admin";
+const notUserType="Admin";
+const userType="Admin" 
+
         // Find admin by username
-        const [admins] = await conn.execute(
+        const [users] = await conn.execute(
             'SELECT * FROM users WHERE userName =? AND userType =?',
-            [username,userType]
+            [username,notUserType]
         );
 
-        if (admins.length === 0) {
+        if (users.length === 0) {
             return res.status(401).json({ login: false, error: 'Username does not exist' });
         }
 
-        const admin = admins[0];
-        const passwordMatch = await bcrypt.compare(password, admin.PASSWORD);
+        const user =users[0];
+        const passwordMatch = await bcrypt.compare(password, user.PASSWORD);
 
         if (!passwordMatch) {
             return res.status(401).json({ login: false, error: 'Wrong password' });
         }
 
         // Set session data
-        req.session.adminId = admin.id;
-        req.session.isAdmin = true;
-        req.session.username = admin.userName;
-        req.session.userType="Admin";
-
+    
+        req.session.username = user.userName;
+        req.session.userType = userType;
+        req.session.uId = user.id;
+        
         // Save the session
         req.session.save(err => {
             if (err) {
                 console.error('Session save error:', err);
                 return res.status(500).json({ error: 'Failed to save session' });
             }
-            res.status(200).json({ 
-                message: "Admin login successful", 
-                login: true,
-                username: admin.userName,
-                adminId: admin.id
-            });
+            console.log(`Session saved. Username: ${req.session.username}, uId: ${req.session.uId}`);
+            res.status(200).json({ message: "Login successful", login: true, username: req.session.username, userId: req.session.uId, userType:req.session.userType });
         });
+    
     } catch (error) {
-        console.error('Admin login error:', error);
+        console.error('User login error:', error);
         res.status(500).json({ error: 'Login failed', login: false });
     } finally {
         if (conn) conn.release();
     }
+};
+
+const userTableData=async(req,res)=>{
+    let conn;
+
+    try{
+
+        conn = await db.getConnection();
+
+    }
+
+    catch(error){
+
+        console.error('user fetching error:', error);
+        res.status(500).json({ error: 'failed to fetch user data', login: false });
+    }
+
+    finally{
+        if (conn) conn.release();
+
+    }
+
 };
 
 
@@ -400,6 +430,7 @@ module.exports = {
     deleteDisk,
     adminSignup,  
     adminLogin,
-    adminLogout
+    adminLogout,
+    userTableData
 
 };
