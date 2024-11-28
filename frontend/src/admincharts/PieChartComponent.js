@@ -1,47 +1,100 @@
-import React, { useContext } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { graphcontext } from '../AdminAnalytics';
-import { DataContext } from '../contexts/DashboardContext';
+import React, { useContext, useEffect, useState } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Box, Typography, CircularProgress } from '@mui/material';
 
-const colors = ['#0088FE', '#00C49F', '#FFBB28'];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
 
-function AdminPieChartComponent() {
-  const { dashboardData } = useContext(DataContext);
-  const vms = dashboardData.vms || [];
-  const disks = dashboardData.disks || [];
-  const users = dashboard_data.users || [];
-
-  console.log(` users:${users}`);
-  console.log(`vms${vms}`);
-  console.log(`disks${disks}`);
-
-  // Aggregate the data
-  const aggregatedData = [
-    { name: 'Users', value: users.length },
-    { name: 'VMs', value: vms.length },
-    { name: 'Disks', value: disks.length },
-  ];
+const RADIAN = Math.PI / 180;
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }) => {
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
   return (
-    <div style={{ width: '100%', height: 400 }}>
-      <ResponsiveContainer>
+    <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+      {`${name}: ${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
+};
+
+function AdminPieChartComponent() {
+  const [adminDashboardData, setAdminDashboardData] = useState({ users: [], vms: [], disks: [] });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  
+  const fetchAdminData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get('http://localhost:8080/api/admin_dashboard_data', { 
+        withCredentials: true 
+      });
+      
+      if (response.data.error) {
+        throw new Error(response.data.error);
+      }
+      
+      setAdminDashboardData(response.data);
+    } catch (error) {
+      console.error('Error fetching admin data:', error);
+      if (error.response?.status === 401) {
+        navigate('/admin_login');
+      } else {
+        setError(error.message || 'Failed to fetch data');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdminData();
+  }, []);
+
+  const pieData = [
+    { name: 'Users', value: adminDashboardData.users.length },
+    { name: 'VMs', value: adminDashboardData.vms.length },
+    { name: 'Disks', value: adminDashboardData.disks.length }
+  ];
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '320px' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '320px' }}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <div style={{ width: '350px', height: '320px' }}>
+      <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
-            data={aggregatedData}
+            data={pieData}
             cx="50%"
             cy="50%"
-            innerRadius={60}
+            labelLine={false}
+            label={renderCustomizedLabel}
             outerRadius={80}
             fill="#8884d8"
-            paddingAngle={5}
             dataKey="value"
           >
-            {aggregatedData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+            {pieData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
           <Tooltip />
-          <Legend />
         </PieChart>
       </ResponsiveContainer>
     </div>

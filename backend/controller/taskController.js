@@ -252,6 +252,9 @@ const dashboard_data = async (req, res) => {
     }
 };
 
+
+
+
 const deleteVM = async (req, res) => {
     let conn;
     const vmId = parseInt(req.params.vmid);
@@ -338,20 +341,19 @@ const adminLogin = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { username, password } = req.body;
-const notUserType="Admin";
-const userType="Admin" 
+        const adminUserType = "Admin";
 
-        // Find admin by username
+        // Find admin by username and userType
         const [users] = await conn.execute(
-            'SELECT * FROM users WHERE userName =? AND userType =?',
-            [username,notUserType]
+            'SELECT * FROM users WHERE userName = ? AND userType = ?',
+            [username, adminUserType]  // Check for Admin users
         );
 
         if (users.length === 0) {
-            return res.status(401).json({ login: false, error: 'Username does not exist' });
+            return res.status(401).json({ login: false, error: 'Admin account not found' });
         }
 
-        const user =users[0];
+        const user = users[0];
         const passwordMatch = await bcrypt.compare(password, user.PASSWORD);
 
         if (!passwordMatch) {
@@ -359,9 +361,8 @@ const userType="Admin"
         }
 
         // Set session data
-    
         req.session.username = user.userName;
-        req.session.userType = userType;
+        req.session.userType = user.userType;  // Use the actual userType from database
         req.session.uId = user.id;
         
         // Save the session
@@ -370,15 +371,31 @@ const userType="Admin"
                 console.error('Session save error:', err);
                 return res.status(500).json({ error: 'Failed to save session' });
             }
-            console.log(`Session saved. Username: ${req.session.username}, uId: ${req.session.uId}`);
-            res.status(200).json({ message: "Login successful", login: true, username: req.session.username, userId: req.session.uId, userType:req.session.userType });
+            console.log('Session saved:', {
+                username: req.session.username,
+                uId: req.session.uId,
+                userType: req.session.userType
+            });
+            res.status(200).json({ 
+                message: "Admin login successful", 
+                login: true, 
+                username: req.session.username, 
+                userId: req.session.uId, 
+                userType: req.session.userType 
+            });
         });
     
     } catch (error) {
-        console.error('User login error:', error);
+        console.error('Admin login error:', error);
         res.status(500).json({ error: 'Login failed', login: false });
     } finally {
-        if (conn) conn.release();
+        if (conn) {
+            try {
+                await conn.release();
+            } catch (err) {
+                console.error('Error releasing connection:', err);
+            }
+        }
     }
 };
 
@@ -407,18 +424,197 @@ const userTableData=async(req,res)=>{
 
 const adminLogout=(req,res)=>{
 
+
+   
+
     req.session.destroy((err) => {
         if (err) {
             console.error('Failed to destroy session:', err);
             return res.status(500).json({ error: 'Failed to logout' });
         }
         // Clear the session cookie and destroy the session
+     
+
+
+
         res.clearCookie('connect.sid', { path: '/' });
         res.status(200).json({ message: 'Logout successful', login: false });
     });
 
 }
+
+
+///fetching adminn data nad displaying on the admin dashboard
+
+
+
+
+const fetchAdminData = async (req, res) => {
+    let conn;
+    try {
+        // Check if user is authenticated and is an admin
+        if (!req.session || !req.session.uId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
+        conn = await db.getConnection();
+
+        // First, verify if the user is an admin
+        const [adminCheck] = await conn.execute(
+            'SELECT userType FROM users WHERE id = ?',
+            [req.session.uId]
+        );
+
+        if (!adminCheck.length || adminCheck[0].userType !== 'Admin') {
+            return res.status(403).json({ error: 'Not authorized as admin' });
+        }
+
+        // Fetch users that are not admin
+        const [users] = await conn.execute(
+            'SELECT * FROM users WHERE userType != "Admin"'
+        );
+
+        // Fetch all VMs
+        const [vms] = await conn.execute('SELECT * FROM virtual_machine');
+
+        // Fetch all disks
+        const [disks] = await conn.execute('SELECT * FROM disk');
+
+        res.status(200).json({
+            users,
+            vms,
+            disks
+        });
+    } catch (error) {
+        console.error('Error in fetchAdminData:', error);
+        res.status(500).json({ 
+            error: 'Failed to fetch admin data',
+            details: error.message 
+        });
+    } finally {
+        if (conn) {
+            try {
+                await conn.release();
+            } catch (err) {
+                console.error('Error releasing connection:', err);
+            }
+        }
+    }
+};
+
 // Add to module exports
+
+const createUser = async (req, res) => {
+    let conn;
+    try {
+        conn = await db.getConnection();
+        const { firstName, lastName, phoneNumber, CNIC, email, userName, password, userType } = req.body;
+
+        // Check for duplicate CNIC or username
+        const [existingUser] = await conn.execute(
+            'SELECT * FROM users WHERE CNIC = ? OR userName = ?',
+            [CNIC, userName]
+        );
+
+        if (existingUser.length > 0) {
+            let errorMsg = '';
+            if (existingUser.some(user => user.CNIC === CNIC)) {
+                errorMsg = 'CNIC is already in use';
+            }
+            if (existingUser.some(user => user.userName === userName)) {
+                errorMsg = errorMsg ? `${errorMsg} and username is already in use` : 'Username is already in use';
+            }
+            return res.status(400).json({ error: errorMsg });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        const query = 'INSERT INTO users (firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD, userType) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+        const values = [firstName, lastName, phoneNumber, CNIC, email, userName, hashedPassword, userType || 'Standard'];
+        
+        const [result] = await conn.execute(query, values);
+        res.status(201).json({ message: 'User created successfully', userId: result.insertId });
+    } catch (error) {
+        console.error('Error creating user:', error);
+        res.status(500).json({ error: 'Failed to create user' });
+    } finally {
+        if (conn) conn.release();
+    }
+};
+
+const updateUser = async (req, res) => {
+    let conn;
+    try {
+        conn = await db.getConnection();
+        const { userId } = req.params;
+        const { firstName, lastName, phoneNumber, CNIC, email } = req.body;
+        
+        // Check if user exists
+        const [user] = await conn.execute('SELECT * FROM users WHERE id = ?', [userId]);
+        if (user.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Check if CNIC is already taken by another user
+        if (CNIC) {
+            const [existingUser] = await conn.execute(
+                'SELECT * FROM users WHERE CNIC = ? AND id != ?',
+                [CNIC, userId]
+            );
+            if (existingUser.length > 0) {
+                return res.status(400).json({ error: 'CNIC is already in use' });
+            }
+        }
+        
+        const query = 'UPDATE users SET firstName = ?, lastName = ?, phoneNumber = ?, CNIC = ?, email = ? WHERE id = ?';
+        const values = [firstName, lastName, phoneNumber, CNIC, email, userId];
+        
+        const [result] = await conn.execute(query, values);
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'User not found or no changes made' });
+        }
+        
+        res.json({ message: 'User updated successfully' });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ error: 'Failed to update user' });
+    } finally {
+        if (conn) conn.release();
+    }
+};
+
+const deleteUser = async (req, res) => {
+    let conn;
+    try {
+        conn = await db.getConnection();
+        const { userId } = req.params;
+        
+        // Check if user exists
+        const [user] = await conn.execute('SELECT * FROM users WHERE id = ?', [userId]);
+        if (user.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Don't allow deletion of admin users
+        if (user[0].userType == 'Admin') {
+            return res.status(403).json({ error: 'Cannot delete admin users' });
+        }
+        
+        const [result] = await conn.execute('DELETE FROM users WHERE id = ?', [userId]);
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        res.json({ message: 'User deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ error: 'Failed to delete user' });
+    } finally {
+        if (conn) conn.release();
+    }
+};
 
 module.exports = {
     signup,
@@ -431,6 +627,9 @@ module.exports = {
     adminSignup,  
     adminLogin,
     adminLogout,
-    userTableData
-
+    userTableData,
+    fetchAdminData,
+    createUser,
+    updateUser,
+    deleteUser
 };

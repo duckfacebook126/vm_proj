@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AddVMForm.css';
 
-function AddVMForm({ onClose, onSubmit }) {
+function AddVMForm({ onClose, onSuccess }) {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         osName: '',
@@ -73,8 +73,10 @@ function AddVMForm({ onClose, onSubmit }) {
                 withCredentials: true  // This line is crucial for sending cookies
             });
             console.log('VM created successfully:', response.data);
-            navigate('/dashboard');
-            onSubmit(); // Call the onSubmit prop to close the form
+            if (onSuccess) {
+                onSuccess();
+            }
+            onClose();
         } catch (err) {
             console.error('Error creating VM:', err);
             setVmError({ submit: err.response?.data?.error || "Failed to create VM. Please try again." });

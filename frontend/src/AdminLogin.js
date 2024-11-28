@@ -1,10 +1,9 @@
 import React, { useContext, useState,useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { AdminLoginSchema } from './schemas/AdminLoginSchema';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import LoadingSpinner from './components/Loading';
-
 import {
   Box,
   TextField,
@@ -27,31 +26,23 @@ const handleLogout=() => {
 
 function AdminLogin() {
   const [IsLoading, setIsLoading] = useState(true);
-
-const {userType}=useUser();
-console.log(userType);
-
-
-useEffect(()=>{
- 
-
-  if(userType=='Admin'){
-    navigate("/admin_dashboard")
-  }
-
-  else{
-    navigate("/admin_login")
-  }
-
-  const timer = setTimeout(() => {
-    setIsLoading(false);
-}, 3000);
-
-return () => clearTimeout(timer);
-},[])
-
-
+  const { userType, checkUserType } = useUser();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      await checkUserType();
+      if (userType === 'Admin') {
+        navigate('/admin_dashboard');
+      }
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [userType, navigate, checkUserType]);
+
+
+
   const [error, setError] = useState('');
 
   const formik = useFormik({

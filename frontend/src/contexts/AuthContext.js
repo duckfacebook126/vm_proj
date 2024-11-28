@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+
 //creatig a context
 const AuthContext = createContext(null);
 
@@ -15,13 +16,18 @@ export const AuthProvider = ({ children }) => {
 
     const checkAuthStatus = async () => {
         try {
-            const response = await axios.get('http://localhost:8080', { 
+            const response = await axios.get('http://localhost:8080/api/check_auth', { 
                 withCredentials: true 
             });
             if (response.data.login) {
-                setUser(response.data);
+                setUser({
+                    username: response.data.username,
+                    userType: response.data.userType,
+                    userId: response.data.userId
+                });
             }
         } catch (err) {
+            console.error('Auth check failed:', err);
             setError(err.message);
         } finally {
             setLoading(false);
@@ -30,11 +36,16 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await axios.post('http://localhost:8080/api/logout', {}, { 
+            const logoutEndpoint = user?.userType === 'Admin' 
+                ? '/api/admin_logout' 
+                : '/api/logout';
+            
+            await axios.post(`http://localhost:8080${logoutEndpoint}`, {}, { 
                 withCredentials: true 
             });
             setUser(null);
         } catch (err) {
+            console.error('Logout failed:', err);
             setError(err.message);
         }
     };

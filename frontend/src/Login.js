@@ -48,14 +48,17 @@ const [IsLoading,setIsLoading]=useState(true)
         
         onSubmit: (values, { setErrors, setSubmitting }) => {
             setSubmitting(true);
+            console.log('Submitting login with values:', values);
             axios.post('http://localhost:8080/api/login',values, { withCredentials: true })
                 .then((res) => {
+                    console.log('Login response:', res.data);
                     setSubmitting(false);
                     if (res.data.login) {
                         navigate('/dashboard');
                     }
                 })
                 .catch(error => {
+                    console.error('Login error:', error.response?.data || error);
                     if (error.response) {
                         const backendError = error.response.data.error;
                         Swal.fire({

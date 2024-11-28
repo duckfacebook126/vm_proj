@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { BarChart, Bar, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
-import { graphcontext } from './Dashboard';
+import { graphcontext } from './Dashboard3';
 const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', 'red', 'pink'];
 
 const getPath = (x, y, width, height) => {
@@ -31,14 +31,20 @@ function Chart01() {
     
       data={vms}
       margin={{
-        top: 0,
-        right: 0,
-        left: 0,
-        bottom: 0,
+        top: 20,
+        right: 30,
+        left: 20,
+        bottom: 10
       }}
     >
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="name" />
+      <XAxis 
+        dataKey="NAME" 
+        angle={-45}
+        textAnchor="end"
+        
+        interval={0}
+      />
       <YAxis />
       <Bar dataKey="ram" fill="#8884d8" shape={<TriangleBar />} label={{ position: 'top' }}>
         {vms.map((entry, index) => (

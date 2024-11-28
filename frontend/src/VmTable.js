@@ -107,7 +107,7 @@ console.log(vms);
               </TableCell>
 
               <TableCell align="left">
-                {vm.cpu}
+                {vm.size}
               </TableCell>
 
 

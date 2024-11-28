@@ -29,7 +29,9 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import axios from 'axios';
 import { useState,useEffect } from 'react';
 import AdminAnalytics from './AdminAnalytics';
-
+import UT from './UserTable';
+import { Button } from '@mui/material';
+import { useUser } from './contexts/UserContext';
 
 const drawerWidth = 240;
 const openedMixin = (theme) => ({
@@ -113,17 +115,10 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 export default function Sidebar() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
-const [index,setIndex] = React.useState(0)
-const [IsLoading, setIsLoading] = useState(true);
-
-useEffect(() => {
-
-  const timer = setTimeout(() => {
-      setIsLoading(false);
-  }, 3000);
-
-  return () => clearTimeout(timer);
-}, []);
+  const [index, setIndex] = React.useState(0);
+  const [IsLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const { checkUserType } = useUser();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -132,147 +127,162 @@ useEffect(() => {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-const navigate=useNavigate();
-//handle admin  logouut
+
   const handleLogout = async () => {
     try {
-        const res = await axios.post('http://localhost:8080/api/admin_logout', {}, { withCredentials: true });
-        console.log(res.data.message);
-        if (res.data.message) {
-            navigate('/admin_login');
-            console.log(res.data.isAdmin)
-        }
+      const res = await axios.post('http://localhost:8080/api/admin_logout', {}, { withCredentials: true });
+      if (res.status === 200) {
+        await checkUserType(); // Update user context
+        navigate('/admin_login');
+      }
     } catch (err) {
-        console.error('Logout failed:', err);
+      console.error('Logout failed:', err);
     }
-};
+  };
 
+  useEffect(() => {
 
- if(!IsLoading){ return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={[
-              {
-                marginRight: 5,
-              },
-              open && { display: 'none' },
-            ]}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-           Admin Dashboard Panel
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <List>
-          {['Users', 'Analytics','Logout'].map((text, listindex) => (
-            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!IsLoading) {
+    return (
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar position="fixed" open={open}>
+          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+                edge="start"
                 sx={[
                   {
-                    minHeight: 48,
-                    px: 2.5,
+                    marginRight: 5,
                   },
-                  open
-                    ? {
-                        justifyContent: 'initial',
-                      }
-                    : {
-                        justifyContent: 'center',
-                      },
+                  open && { display: 'none' },
                 ]}
-              onClick={()=>{
-                setIndex(listindex);
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" noWrap component="div">
+                Admin Dashboard Panel
+              </Typography>
+            </Box>
 
-                if(text==="Logout")
-                {
+            <Box sx={{ marginLeft: 'auto' }}>
+              <IconButton
+                color="inherit"
+                aria-label="logout"
+                onClick={handleLogout}
+                edge="end"
+              >
+                <LogoutIcon />
+              </IconButton>
+            </Box>
+          </Toolbar>
 
-                  handleLogout();
-                }
-              }}>
-                <ListItemIcon
+        </AppBar>
+        <Drawer variant="permanent" open={open}>
+          <DrawerHeader>
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            </IconButton>
+          </DrawerHeader>
+          <List>
+            {['Users', 'Analytics'].map((text, listindex) => (
+              <ListItem key={text} disablePadding sx={{ display: 'block' }}>
+                <ListItemButton
                   sx={[
                     {
-                      minWidth: 0,
-                      justifyContent: 'center',
+                      minHeight: 48,
+                      px: 2.5,
                     },
                     open
                       ? {
+                        justifyContent: 'initial',
+                      }
+                      : {
+                        justifyContent: 'center',
+                      },
+                  ]}
+                  onClick={() => {
+                    setIndex(listindex);
+
+                    if (text === "Logout") {
+
+                    }
+                  }}>
+                  <ListItemIcon
+                    sx={[
+                      {
+                        minWidth: 0,
+                        justifyContent: 'center',
+                      },
+                      open
+                        ? {
                           mr: 3,
                         }
-                      : {
+                        : {
                           mr: 'auto',
                         },
-                  ]}
-                >
-                  {text  == 'Users'&& <PeopleIcon />}
-                  {text  == 'Analytics'&& <EqualizerIcon />}
-                  {text  == 'Logout'&& <LogoutIcon />}
+                    ]}
+                  >
+                    {text == 'Users' && <PeopleIcon />}
+                    {text == 'Analytics' && <EqualizerIcon />}
 
-                    
+                  </ListItemIcon>
 
-                </ListItemIcon>
-
-                <ListItemText
-                  primary={text}
-                  sx={[
-                    open
-                      ? {
+                  <ListItemText
+                    primary={text}
+                    sx={[
+                      open
+                        ? {
                           opacity: 1,
                         }
-                      : {
+                        : {
                           opacity: 0,
                         },
-                  ]}
-                /> 
+                    ]}
+                  />
 
 
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-       
-      </Drawer>
-      <>
-      {index === 0 && <Box  sx={{ flexGrow: 1, p: 3 }}>
-        <DrawerHeader/>
-        <UserTable></UserTable>
-       
-      </Box>}
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
 
-      {index === 1 && <Box  sx={{ flexGrow: 1, p: 3 }}>
-        <DrawerHeader/>
-        <AdminAnalytics></AdminAnalytics>
-       
-      </Box>}
+        </Drawer>
+        <>
+          {index === 0 && <Box sx={{ flexGrow: 1, p: 3 }}>
+            <DrawerHeader />
+            <UT></UT>
 
+          </Box>}
 
+          {index === 1 && <Box sx={{ flexGrow: 1, p: 3 }}>
+            <DrawerHeader />
+            <AdminAnalytics></AdminAnalytics>
 
-      </>
-    </Box>
-    
-  );
-}
-
-else if(IsLoading)
-{
-
-  return (<><LoadingSpinner /></>);
+          </Box>}
 
 
-}
+
+        </>
+      </Box>
+
+    );
+  }
+
+  else if (IsLoading) {
+
+    return (<><LoadingSpinner /></>);
+
+
+  }
 }

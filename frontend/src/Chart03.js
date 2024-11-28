@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import {LineChart ,ScatterChart, Scatter,Area,AreaChart,BarChart, Bar, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend,ComposedChart,Line } from 'recharts';
-import { graphcontext } from './Dashboard';
+import { graphcontext } from './Dashboard3';
 const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', 'red', 'pink'];
 
 const getPath = (x, y, width, height) => {
@@ -26,13 +26,27 @@ function Chart03() {
 
     return (
         <div style={{ width: '350px', height: '320px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-      <LineChart  data={vms}>
-      <XAxis dataKey="name" />
-      <YAxis dataKey="cpu" scale="auto" />
-        <Line type="monotone" dataKey="cpu" stroke="#8884d8" strokeWidth={2} />
-      </LineChart>
-    </ResponsiveContainer>
+        <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart
+          width={500}
+          height={400}
+          data={vms}
+          margin={{
+            top: 20,
+            right: 20,
+            bottom: 20,
+            left: 20,
+          }}
+        >
+          <CartesianGrid stroke="#f5f5f5" />
+          <XAxis dataKey="NAME" label={{ value: 'Virtual Machine Name', position: 'bottom', offset: 5 }} scale="band" />
+          <YAxis  />
+          <Tooltip />
+          <Legend layout="horizontal" verticalAlign="top" align="center" />
+          <Bar dataKey="CPU" name="CPU Usage" barSize={20} fill="#413ea0" />
+          <Line type="monotone" dataKey="CPU" name="CPU Trend" stroke="#ff7300" />
+        </ComposedChart>
+      </ResponsiveContainer>
       </div>
     );
 }
@@ -77,5 +91,3 @@ const aggregateData = (vms, disks) => {
 };
 
 export default Chart03;
-
-
