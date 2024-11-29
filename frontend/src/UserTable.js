@@ -1,15 +1,17 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { DataContext } from './contexts/DashboardContext';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, TablePagination, IconButton, Button, Dialog, DialogTitle,
-  DialogContent, DialogActions, TextField, Stack
+  DialogContent, DialogActions, TextField, Stack, Select, MenuItem
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 export default function UT() {
   const navigate = useNavigate();
@@ -53,8 +55,39 @@ export default function UT() {
   }, [navigate]);
 
   const handleEdit = (user) => {
-    setEditUser(user);
+    setEditUser({
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phoneNumber: user.phoneNumber,
+      CNIC: user.CNIC,
+      email: user.email,
+      userName: user.userName,
+      userType: user.userType
+    });
     setOpenDialog(true);
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const response = await axios.put(`http://localhost:8080/api/update_user/${editUser.id}`, editUser, { withCredentials: true });
+      if (response.status === 200) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'User updated successfully!'
+        });
+        setOpenDialog(false);
+        fetchUsers();
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to update user'
+      });
+    }
   };
 
   const handleDelete = async (userId) => {
@@ -63,16 +96,6 @@ export default function UT() {
       fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
-    }
-  };
-
-  const handleSaveEdit = async () => {
-    try {
-      await axios.put(`http://localhost:8080/api/update_user/${editUser.id}`, editUser, { withCredentials: true });
-      setOpenDialog(false);
-      fetchUsers();
-    } catch (error) {
-      console.error('Error updating user:', error);
     }
   };
 
@@ -129,12 +152,19 @@ export default function UT() {
                 <TableCell>{user.userName}</TableCell>
                 <TableCell>{user.userType}</TableCell>
                 <TableCell>
+
+                  <Stack direction="row" spacing={1}>
                   <IconButton onClick={() => handleEdit(user)}>
                     <EditIcon />
                   </IconButton>
+
                   <IconButton onClick={() => handleDelete(user.id)}>
                     <DeleteIcon />
                   </IconButton>
+
+              
+          </Stack>
+                  
                 </TableCell>
               </TableRow>
             ))}
@@ -161,34 +191,57 @@ export default function UT() {
           <Stack spacing={2} sx={{ mt: 2 }}>
             <TextField
               label="First Name"
-              value={editUser?.firstName || ''}
-              onChange={(e) => setEditUser({...editUser, firstName: e.target.value})}
+              value={editUser.firstName}
+              onChange={(e) => setEditUser({ ...editUser, firstName: e.target.value })}
+              fullWidth
             />
             <TextField
               label="Last Name"
-              value={editUser?.lastName || ''}
-              onChange={(e) => setEditUser({...editUser, lastName: e.target.value})}
+              value={editUser.lastName}
+              onChange={(e) => setEditUser({ ...editUser, lastName: e.target.value })}
+              fullWidth
             />
             <TextField
-              label="Phone"
-              value={editUser?.phoneNumber || ''}
-              onChange={(e) => setEditUser({...editUser, phoneNumber: e.target.value})}
+              label="Phone Number"
+              value={editUser.phoneNumber}
+              onChange={(e) => setEditUser({ ...editUser, phoneNumber: e.target.value })}
+              fullWidth
             />
             <TextField
               label="CNIC"
-              value={editUser?.CNIC || ''}
-              onChange={(e) => setEditUser({...editUser, CNIC: e.target.value})}
+              value={editUser.CNIC}
+              onChange={(e) => setEditUser({ ...editUser, CNIC: e.target.value })}
+              fullWidth
             />
             <TextField
               label="Email"
-              value={editUser?.email || ''}
-              onChange={(e) => setEditUser({...editUser, email: e.target.value})}
+              value={editUser.email}
+              onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
+              fullWidth
             />
+            <TextField
+              label="Username"
+              value={editUser.userName}
+              onChange={(e) => setEditUser({ ...editUser, userName: e.target.value })}
+              fullWidth
+            />
+            <Select
+              value={editUser.userType}
+              onChange={(e) => setEditUser({ ...editUser, userType: e.target.value })}
+              fullWidth
+            >
+              <MenuItem value="Admin">Admin</MenuItem>
+              <MenuItem value="SuperUser">Super User</MenuItem>
+              <MenuItem value="Premium">Premium</MenuItem>
+              <MenuItem value="Standard">Standard</MenuItem>
+            </Select>
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleSaveEdit} variant="contained">Save</Button>
+          <Button onClick={handleUpdate} variant="contained" color="primary">
+            Update
+          </Button>
         </DialogActions>
       </Dialog>
 

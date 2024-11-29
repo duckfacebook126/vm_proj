@@ -210,7 +210,7 @@ function Dashboard3() {
     }
 
     return (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', zIndex: '1201' }}>
             <CssBaseline />
             <AppBar position="fixed" open={open}>
            <Toolbar>
@@ -457,7 +457,7 @@ function Dashboard3() {
             </Box>
 
             {showForm && (
-                <div className="overlay">
+                <div style={{zIndex: 2001}}>
                    <AddVMForm 
     onClose={() => {
         setShowForm(false);

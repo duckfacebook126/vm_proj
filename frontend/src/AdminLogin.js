@@ -35,7 +35,10 @@ function AdminLogin() {
       if (userType === 'Admin') {
         navigate('/admin_dashboard');
       }
-      setIsLoading(false);
+
+      setTimeout(()=>{
+        setIsLoading(false);
+      },3000);
     };
 
     checkAuth();

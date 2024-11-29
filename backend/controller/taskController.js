@@ -8,7 +8,7 @@ const signup = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { cnic, firstName, lastName, phoneNumber, username, email, password } = req.body;
-                const userType="Stanadard"
+                const userType="Standard"
         // Check for duplicate CNIC or username
         const checkQuery = 'SELECT * FROM users WHERE CNIC = ? OR userName = ?';
         const [rows] = await conn.execute(checkQuery, [cnic, username]);
@@ -30,15 +30,42 @@ const signup = async (req, res) => {
 
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
+            // insert into each users table
+        const query = 'INSERT INTO users ( firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD,userType) VALUES ( ?, ?, ?, ?, ?, ?, ?,?)';
+        await conn.execute(query, [ firstName, lastName, phoneNumber, cnic, email, username, hashedPassword,userType]);
+            /// get all from the users
+        const[user]=await conn.execute('SELECT * FROM USERS WHERE userName = ?', [username]);
+            // get the user id of the first object in the array of objects
+        const userId=user[0].id
+            //getting the user type from the db
+        const userType1=user[0].userType;
 
-        const query = 'INSERT INTO users (id, firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD,userType) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)';
-        await conn.execute(query, [id, firstName, lastName, phoneNumber, cnic, email, username, hashedPassword,userType]);
+        //
+        const permission='create';
+
+
+
+   // and all the vlaues in the user_type table 
+
+        const userTypeQuery ='INSERT INTO user_type (userId ,typeId,typeName,permission) VALUES(?,4,?,?)'
+        await  conn.execute(userTypeQuery,[userId, ,userType1,permission])
+
+        // now get from  the typeId table form the users table and insert into the permissions 
+          
+
+          
+
 
         res.status(201).json({ message: 'User created successfully' });
-    } catch (error) {
+    }
+    
+    catch (error) {
         console.error('Failed to create user:', error);
         res.status(500).json({ error: 'Failed to create user' });
-    } finally {
+    } 
+    
+    
+    finally {
         if (conn) conn.release();
     }
 };

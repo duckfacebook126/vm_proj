@@ -1,3 +1,8 @@
+
+SELECT * FROM users
+SELECT * FROM users
+ SELECT * FROM user_type
+
 `users`-- Create the users table
 CREATE TABLE users (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -54,39 +59,29 @@ CREATE TABLE DISK (
     FOREIGN KEY (vmId) REFERENCES virtual_machine(id) ON DELETE CASCADE
 );
 
-CREATE TABLE user_Type(
-userId INT NOT NULL,
-typeId INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-typeName VARCHAR (255) NOT NULL,
-FOREIGN KEY (userId) REFERENCES users(id)
-
-
-
-);
-
-CREATE TABLE permissions(
-userId INT NOT NULL,
-typeId INT NOT NULL,
-permission_id INT PRIMARY KEY,
-permission VARCHAR(255) NOT NULL,
-
-FOREIGN KEY (userId) REFERENCES users(id),
-FOREIGN KEY (typeId) REFERENCES user_Type(typeId)
-
- 
-
-
-
-
-
+CREATE TABLE user_type (
+    userId INT NOT NULL PRIMARY KEY,
+    typeId INT NOT NULL,
+    typeName VARCHAR(255) NOT NULL,
+    permission VARCHAR(255) NOT NULL,
+    FOREIGN KEY (userId) REFERENCES users(id)
+    
+    
 );
 
 
-SET FOREIGN_KEY_CHECKS = 0;
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 DROP TABLE virtual_machine;
 DROP TABLE DISK;
 DROP TABLE users;
 DROP TABLE operating_system;
-DROP TABLE disk_flavor;
+DROP TABLE disk_flavor
+
+DROP TABLE permissions;
+DROP TABLE user_type;
+
+
+
 
