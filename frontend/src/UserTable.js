@@ -21,7 +21,11 @@ export default function UT() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openDialog, setOpenDialog] = useState(false);
-  const [editUser, setEditUser] = useState(null);
+  const [editUser, setEditUser] = useState({
+
+    firstName: '', lastName: '', phoneNumber: '', 
+    CNIC: '', email: '', userName: '', userType: 'Standard'
+  });
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [newUser, setNewUser] = useState({
     firstName: '', lastName: '', phoneNumber: '', 

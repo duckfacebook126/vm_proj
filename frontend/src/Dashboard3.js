@@ -43,6 +43,11 @@ import VMTable from './VmTable';
 import { DataContext } from './contexts/DashboardContext';
 import { useContext } from 'react';
 import './Dashboard3.css';
+import TextField from '@mui/material/TextField';
+import EditIcon from '@mui/icons-material/Edit';
+import Slider from '@mui/material/Slider';
+import { useAuth } from './contexts/AuthContext';
+
 import {
 
 
@@ -124,8 +129,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 function Dashboard3() {
 
-        const{dashboardData,fetchDashboardData} = useContext(DataContext);
-        
+        const{dashboardData,fetchDashboardData,refreshData} = useContext(DataContext);
+        const{user}=useAuth();
 
 
         useEffect(() => {
@@ -140,7 +145,6 @@ function Dashboard3() {
     
 
 
-    const { refreshData } = useContext(DataContext);
     const theme = useTheme();
     const [open, setOpen] = useState(true);
     const [showForm, setShowForm] = useState(false);
@@ -153,7 +157,9 @@ function Dashboard3() {
     const [openDialogDisk, setOpenDialogDisk] = useState(false);
     const [VmViewMode, setVmViewMode] = useState('Vmscard');
     const [DiskViewMode, setDiskViewMode] = useState('Diskscard');
-
+    const [openEditDialog,setOpenEditDialog] = useState(false);
+    const [editVm, setEditVm] = useState();
+    const [DiskToEdit, setDiskToEdit] = useState();
 
 
     const handleDrawerOpen = () => {
@@ -174,6 +180,38 @@ function Dashboard3() {
                 console.error('Failed to delete VM:', err);
             });
     };
+
+const setVmToEdit = (vm) =>{
+    if (!user) return;
+    setEditVm(
+        {
+            id:vm.id,
+
+            NAME:vm.NAME,
+            osName:vm.osName,
+            cpu:vm.cpu,
+            cores:vm.cores,
+            ram:vm.ram,
+            size:vm.size,
+            flavorName:vm.flavorName,
+            userType:user.userType
+
+
+        }
+    );
+}
+
+    const handleEditvm = async (editVm) => {
+        axios.put(`http://localhost:8080/api/update_vm/${editVm.id}`, editVm,{ withCredentials: true })
+            .then(res => {
+                console.log(res.data);
+                refreshData();  // Use refreshData instead of fetchDashboardData
+            })
+            .catch(err => {
+                console.error('Failed to update VM:', err);
+            });
+    };
+
     
     const handleDeleteDisk = async (Diskid) => {
         axios.delete(`http://localhost:8080/api/delete_Disk/${Diskid}`, { withCredentials: true })
@@ -210,6 +248,11 @@ function Dashboard3() {
     }
 
     return (
+
+        
+
+
+
         <Box sx={{ display: 'flex', zIndex: '1201' }}>
             <CssBaseline />
             <AppBar position="fixed" open={open}>
@@ -327,9 +370,38 @@ function Dashboard3() {
                                                         setVmToDelete(vm.id);
                                                         setOpenDialog(true);
                                                     }}
+                                                    disabled={!user || user.userType === 'Standard'}
+                                                    sx={{
+                                                        '&.Mui-disabled': {
+                                                            opacity: 0.5,
+                                                            cursor: 'not-allowed'
+                                                        }
+                                                    }}
                                                 >
                                                     <DeleteIcon />
                                                 </IconButton>
+
+                                             <IconButton
+                                                    aria-label="delete"
+                                                    onClick={() => {
+                                                        setVmToEdit(vm);
+                                                        setOpenEditDialog(true);
+                                                           }}
+                                                        disabled={!user || user.userType === 'Standard'}
+                                                                sx={{
+                                                  // Optional: Make it visually clear when disabled
+                                                                        '&.Mui-disabled': {
+                                                                        opacity: 0.5,
+                                         // You can add a tooltip to explain why it's disabled
+                                                                            cursor: 'not-allowed'
+                                                                                            }
+                                                                                  }}
+                                                >
+                                                    <EditIcon />
+                                                </IconButton>
+
+
+
                                             </CardActionArea>
                                         </Card>
                                     ))}
@@ -340,8 +412,129 @@ function Dashboard3() {
                                     setOpenDialog(true);
                                 }} />
                             )}
+
+<Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+    <DialogTitle>Edit VM</DialogTitle>
+    <DialogContent>
+        <Stack spacing={2} sx={{ mt: 2 }}>
+            <TextField
+                label="VM Name"
+                name="NAME"
+                value={editVm?.NAME || ''}
+                onChange={(e) => setEditVm({...editVm, NAME: e.target.value})}
+                fullWidth
+            />
+            <TextField
+                label="OS Name"
+                name="osName"
+                value={editVm?.osName || ''}
+                onChange={(e) => setEditVm({...editVm, osName: e.target.value})}
+                fullWidth
+            />
+            
+            {/* Flavor Slider */}
+            <Typography gutterBottom>Flavor Type</Typography>
+            <Slider
+                name="flavorName"
+                value={editVm?.flavorName === 'Light' ? 0 : editVm?.flavorName === 'Medium' ? 1 : 2}
+                onChange={(e, newValue) => {
+                    const flavorMap = {
+                        0: 'Light',
+                        1: 'Medium',
+                        2: 'Heavy'
+                    };
+                    const newFlavor = flavorMap[newValue];
+                    // Set default RAM based on flavor
+                    const ramDefaults = {
+                        'Light': 2,
+                        'Medium': 8,
+                        'Heavy': 16
+                    };
+                    setEditVm({
+                        ...editVm, 
+                        flavorName: newFlavor,
+                        ram: ramDefaults[newFlavor]
+                    });
+                }}
+                min={0}
+                max={2}
+                marks={[
+                    { value: 0, label: 'Light' },
+                    { value: 1, label: 'Medium' },
+                    { value: 2, label: 'Heavy' }
+                ]}
+                step={1}
+                valueLabelDisplay="auto"
+                valueLabelFormat={(value) => ['Light', 'Medium', 'Heavy'][value]}
+            />
+            
+            {/* CPU Count Slider */}
+            <Typography gutterBottom>CPU Count</Typography>
+            <Slider
+                name="cpu"
+                value={editVm?.cpu || 1}
+                onChange={(e, newValue) => setEditVm({...editVm, cpu: newValue})}
+                min={1}
+                max={4}
+                marks
+                valueLabelDisplay="auto"
+            />
+            
+            {/* CPU Cores Slider */}
+            <Typography gutterBottom>CPU Cores</Typography>
+            <Slider
+                name="cores"
+                value={editVm?.cores || 2}
+                onChange={(e, newValue) => setEditVm({...editVm, cores: newValue})}
+                min={1}
+                max={8}
+                marks
+                valueLabelDisplay="auto"
+            />
+            
+            {/* RAM Slider - Dynamic range based on flavor */}
+            <Typography gutterBottom>RAM (GB)</Typography>
+            <Slider
+                name="ram"
+                value={editVm?.ram || 2}
+                onChange={(e, newValue) => setEditVm({...editVm, ram: newValue})}
+                min={editVm?.flavorName === 'Light' ? 2 : 
+                     editVm?.flavorName === 'Medium' ? 8 : 16}
+                max={editVm?.flavorName === 'Light' ? 8 : 
+                     editVm?.flavorName === 'Medium' ? 16 : 64}
+                marks
+                step={2}
+                valueLabelDisplay="auto"
+                disabled={!editVm?.flavorName}  // Disable if no flavor selected
+            />
+            
+            {/* Disk Size Slider */}
+            <Typography gutterBottom>Disk Size (GB)</Typography>
+            <Slider
+                name="size"
+                value={editVm?.size || 50}
+                onChange={(e, newValue) => setEditVm({...editVm, size: newValue})}
+                min={50}
+                max={500}
+                step={50}
+                marks
+                valueLabelDisplay="auto"
+            />
+        </Stack>
+    </DialogContent>
+    <DialogActions>
+        <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
+        <Button onClick={() => {
+            handleEditvm(editVm);
+            setOpenEditDialog(false);
+        }}>Save Changes</Button>
+    </DialogActions>
+</Dialog>
                         </>
-                    )}
+                   
+                                
+                   
+                   )}
 {activeTab === 'disks' && (
     <>
         <Typography variant="h5" gutterBottom>
@@ -510,6 +703,9 @@ function Dashboard3() {
                 </DialogActions>
             </Dialog>
         </Box>
+
+
+
     );
 }
 

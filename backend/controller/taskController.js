@@ -77,7 +77,6 @@ const login = async (req, res) => {
         conn = await db.getConnection();
         const { username, password } = req.body;
 const notUserType="Admin";
-const userType="Standard" 
 
         // Find admin by username
         const [users] = await conn.execute(
@@ -97,9 +96,12 @@ const userType="Standard"
         }
 
         // Set session data
-    
+
+
+
+
         req.session.username = user.userName;
-        req.session.userType = userType;
+        req.session.userType = user.userType;
         req.session.uId = user.id;
         
         // Save the session
@@ -556,10 +558,54 @@ const createUser = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         
+
+    //FIRST INERT INTO USERRS
         const query = 'INSERT INTO users (firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD, userType) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
         const values = [firstName, lastName, phoneNumber, CNIC, email, userName, hashedPassword, userType || 'Standard'];
-        
         const [result] = await conn.execute(query, values);
+
+        //THEN EXTRACT THE USER DATA FROM THE USERS AND EXTRACT RELEVANT DATA TO THE USER_TYPE TABLE
+        const [users]=await conn.execute('SELECT * FROM USERS WHERE userName=?',[userName]);
+        const userId = users[0].id;
+
+        const userType_=users[0].userType;
+        let typeId;
+        let permission;
+
+        if (userType_==='Admin')
+        {
+            typeId=1;
+            permission='create/update/delete';
+        }
+
+        else if(userType_==='SuperUser')
+        {
+             typeId=2;
+            permission='create/update/delete';
+
+        }
+
+        else if(userType_==='Premium')
+            {
+                 typeId=3;
+                permission='create/update'
+    
+            }
+
+
+            else if(userType_==='Standard')
+                {
+                     typeId=4;
+                    permission='create'
+        
+                }
+            
+
+//insert the user typ nad id baseed on the selections
+
+        const query2 = 'INSERT INTO user_type (userId,  typeId,  typeName,  permission) VALUES (?, ?,?,?)';
+        const values2 = [userId, typeId, userType_,permission];
+        const [result2] = await conn.execute(query2, values2);
         res.status(201).json({ message: 'User created successfully', userId: result.insertId });
     } catch (error) {
         console.error('Error creating user:', error);
@@ -574,7 +620,7 @@ const updateUser = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { userId } = req.params;
-        const { firstName, lastName, phoneNumber, CNIC, email } = req.body;
+        const { firstName, lastName, phoneNumber, CNIC, email,userName,userType } = req.body;
         
         // Check if user exists
         const [user] = await conn.execute('SELECT * FROM users WHERE id = ?', [userId]);
@@ -583,30 +629,66 @@ const updateUser = async (req, res) => {
         }
 
         // Check if CNIC is already taken by another user
-        if (CNIC) {
-            const [existingUser] = await conn.execute(
-                'SELECT * FROM users WHERE CNIC = ? AND id != ?',
-                [CNIC, userId]
-            );
-            if (existingUser.length > 0) {
-                return res.status(400).json({ error: 'CNIC is already in use' });
-            }
-        }
+       
         
-        const query = 'UPDATE users SET firstName = ?, lastName = ?, phoneNumber = ?, CNIC = ?, email = ? WHERE id = ?';
-        const values = [firstName, lastName, phoneNumber, CNIC, email, userId];
+        const query = 'UPDATE users SET firstName = ?, lastName = ?, phoneNumber = ?, CNIC = ?, email = ?,userName = ?,userType = ? WHERE id = ?';
+        const values =                 [firstName,     lastName,     phoneNumber,     CNIC,     email,    userName,   userType,          userId];
         
         const [result] = await conn.execute(query, values);
+
+        let typeId;
+        let permission;
+
+        if (userType==='Admin')
+        {
+            typeId=1;
+            permission='create/update/delete';
+        }
+
+        else if(userType==='SuperUser')
+        {
+             typeId=2;
+            permission='create/update/delete';
+
+        }
+
+        else if(userType==='Premium')
+            {
+                 typeId=3;
+                permission='create/update'
+    
+            }
+
+
+            else if(userType==='Standard')
+                {
+                     typeId=4;
+                    permission='create'
+        
+                }
+
+
+
+   //GET ALL THE USER TYPES AND THEIR PERMISSIONS
+        const query1='UPDATE user_type SET typeId=?,typeName=? ,permission=? WHERE userId=?';
+        const values1=[typeId,userType,permission,userId];
+
+        const [result2]=await conn.execute(query1,values1)
         
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'User not found or no changes made' });
         }
         
-        res.json({ message: 'User updated successfully' });
-    } catch (error) {
+        res.status(200).json({ message: 'User updated successfully' });
+    }
+    
+    catch (error) {
         console.error('Error updating user:', error);
         res.status(500).json({ error: 'Failed to update user' });
-    } finally {
+    } 
+    
+    
+    finally {
         if (conn) conn.release();
     }
 };
@@ -643,6 +725,63 @@ const deleteUser = async (req, res) => {
     }
 };
 
+
+
+const updateVm = async (req, res) => {
+    let conn;
+    const { NAME, osName, cpu, cores, ram, size, flavorName, userType } = req.body;
+    const { vmId } = req.params;
+
+    // Validate required fields
+    if (!NAME || !vmId) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    try {
+        conn = await db.getConnection();
+
+        if (userType === 'Premium' || userType === 'SuperUser') {
+            const query1 = 'UPDATE virtual_machine SET NAME=?, cpu=?, cores=?, ram=?, size=? WHERE id=?';
+            const values1 = [
+                NAME || null,           // Use null if undefined
+                cpu || 1,              // Default to 1 if undefined
+                cores || 2,            // Default to 2 if undefined
+                ram || 2,              // Default to 2 if undefined
+                size || 50,            // Default to 50 if undefined
+                vmId
+            ];
+
+            const [result1] = await conn.execute(query1, values1);
+
+            const query2='UPDATE operating_system SET NAME=? WHERE id=?';
+            
+            if (result1.affectedRows === 0) {
+                return res.status(404).json({ error: 'VM not found or no changes made' });
+            }
+            
+            res.status(200).json({ message: 'VM updated successfully' });
+        } else {
+            res.status(403).json({ error: 'Unauthorized: Only Premium or SuperUser can update VMs' });
+        }
+
+    } catch (error) {
+        console.error('Error updating VM:', error);
+        res.status(500).json({ error: 'Failed to update VM' });
+
+    } finally {
+        if (conn) {
+            try {
+                await conn.release();
+            } catch (err) {
+                console.error('Error releasing connection:', err);
+            }
+        }
+    }
+};
+
+
+
+
 module.exports = {
     signup,
     login,
@@ -658,5 +797,6 @@ module.exports = {
     fetchAdminData,
     createUser,
     updateUser,
-    deleteUser
-};
+    deleteUser,
+    updateVm
+}

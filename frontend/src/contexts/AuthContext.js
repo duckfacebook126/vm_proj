@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
     // Check auth status on mount
     useEffect(() => {
         checkAuthStatus();
-    }, []);
+    }, [user]);
 
     const checkAuthStatus = async () => {
         try {
@@ -23,7 +23,8 @@ export const AuthProvider = ({ children }) => {
                 setUser({
                     username: response.data.username,
                     userType: response.data.userType,
-                    userId: response.data.userId
+                    userId: response.data.userId,
+                    login: response.data.login
                 });
             }
         } catch (err) {
@@ -36,7 +37,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            const logoutEndpoint = user?.userType === 'Admin' 
+            const logoutEndpoint = user?.userType =='Admin' 
                 ? '/api/admin_logout' 
                 : '/api/logout';
             

@@ -32,6 +32,9 @@ import AdminAnalytics from './AdminAnalytics';
 import UT from './UserTable';
 import { Button } from '@mui/material';
 import { useUser } from './contexts/UserContext';
+import Swal from 'sweetalert2';
+import { useAuth } from './contexts/AuthContext';
+
 
 const drawerWidth = 240;
 const openedMixin = (theme) => ({
@@ -48,7 +51,7 @@ const closedMixin = (theme) => ({
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  overflowX: 'hidden',
+  overflowX: 'hidden',  
   width: `calc(${theme.spacing(7)} + 1px)`,
   [theme.breakpoints.up('sm')]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
@@ -118,7 +121,10 @@ export default function Sidebar() {
   const [index, setIndex] = React.useState(0);
   const [IsLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const { checkUserType } = useUser();
+  const { checkUserType , userType} = useUser();
+  const [alertLoading,setrAlertLoading]=useState(true);
+  const{user,loading}=useAuth();
+
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -140,14 +146,58 @@ export default function Sidebar() {
     }
   };
 
+//authorize if the user is of admin type or not 
+  const authAdmin=()=>{
+
+      if(user.userType==='Admin')
+      {
+
+
+
+      }
+
+      else if(user.userType!=='Admin')
+      {
+        Swal.fire({
+          icon: 'error',
+          title: 'Unaurhorised accessed',
+          text: 'You are not an admin!',
+          confirmButtonText:'ok'
+        }).then((result)=>
+        {
+           if(result.isConfirmed)
+           {
+
+            navigate('/admin_login');
+           }
+          
+          
+        });
+
+      }
+
+  }
+
+//rendering first time of the component
   useEffect(() => {
 
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
+  
+if(!loading){
+      authAdmin();
 
-    return () => clearTimeout(timer);
-  }, []);
+}
+
+        const timer = setTimeout(() => {
+          setIsLoading(false);
+    
+        }, 3000);
+        return () => clearTimeout(timer);
+
+  
+
+  }, [user,loading]);
+
+
 
   if (!IsLoading) {
     return (

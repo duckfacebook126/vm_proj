@@ -58,20 +58,11 @@ CREATE TABLE DISK (
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (vmId) REFERENCES virtual_machine(id) ON DELETE CASCADE
 );
-
-CREATE TABLE user_type (
-    userId INT NOT NULL PRIMARY KEY,
-    typeId INT NOT NULL,
-    typeName VARCHAR(255) NOT NULL,
-    permission VARCHAR(255) NOT NULL,
-    FOREIGN KEY (userId) REFERENCES users(id)
-    
-    
-);
+`users`
 
 
 
-SET FOREIGN_KEY_CHECKS = 1;
+SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE virtual_machine;
 DROP TABLE DISK;

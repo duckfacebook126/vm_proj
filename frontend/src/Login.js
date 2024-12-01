@@ -7,28 +7,26 @@ import { useFormik } from 'formik';
 import { LoginValidaitonSchema } from './LoginValidation';
 import Swal from 'sweetalert2';
 import LoadingSpinner from './components/Loading';
-
+import { useContext } from 'react';
+import { useAuth } from './contexts/AuthContext';
 function Login() {
+    const {user,checkAuthStatus}=useAuth();
     const navigate = useNavigate();
 const [IsLoading,setIsLoading]=useState(true)
     useEffect(() => {
         // Check if the user is already logged in
 
        
-            axios.get('http://localhost:8080', { withCredentials: true })
-            .then(res => {
-                if (res.data.login) {
-                    
-                        navigate('/dashboard');
-                    
-                }
-                
+          
+        if(user)
+        {
+           if(user.login&&user.userType==='Admin')
+            {
+                navigate('/admin_login')
+            }
 
-               
-            })
-            .catch(err => {
-                console.error(err);
-            });
+
+        }
             
             const timer = setTimeout(() => {
                 setIsLoading(false);
@@ -46,14 +44,15 @@ const [IsLoading,setIsLoading]=useState(true)
             password: ''
         },
         
-        onSubmit: (values, { setErrors, setSubmitting }) => {
+        onSubmit: async (values, { setErrors, setSubmitting }) => {
             setSubmitting(true);
             console.log('Submitting login with values:', values);
             axios.post('http://localhost:8080/api/login',values, { withCredentials: true })
-                .then((res) => {
+                .then(async (res) => {
                     console.log('Login response:', res.data);
                     setSubmitting(false);
                     if (res.data.login) {
+                        await checkAuthStatus(); 
                         navigate('/dashboard');
                     }
                 })

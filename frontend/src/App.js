@@ -13,11 +13,13 @@ import Sidebar from './Sidebar';
 import Dashboard3 from './Dashboard3';
 
 import { UserProvider } from './contexts/UserContext';
+import { AuthProvider } from './contexts/AuthContext';
 function App() {
     return (
-        <UserProvider>
-            <DataProvider>
-                <BrowserRouter>
+        <AuthProvider>
+            <UserProvider>
+                <DataProvider>
+                    <BrowserRouter>
                     <Routes>
                         <Route path="/" element={<LoadingSpinner><Home /></LoadingSpinner>} />
                         <Route path="/signup" element={<Signup />} />
@@ -32,7 +34,7 @@ function App() {
             
             </DataProvider>
         </UserProvider>
-            
+        </AuthProvider>
     );
 }
 

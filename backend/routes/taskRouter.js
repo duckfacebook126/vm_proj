@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Importing all the controllers
-const { signup, login, logout, createVM, deleteVM, dashboard_data, deleteDisk, adminSignup, adminLogin, adminLogout, fetchAdminData, updateUser, deleteUser, createUser } = require('../controller/taskController');
+const { signup, login, logout, createVM, deleteVM, dashboard_data, deleteDisk, adminSignup, adminLogin, adminLogout, fetchAdminData, updateUser, deleteUser, createUser,updateVm } = require('../controller/taskController');
 
 // User routes
 router.post('/signup', signup);
@@ -44,6 +44,8 @@ router.get('/check_auth', (req, res) => {
 // Admin user management routes
 router.put('/update_user/:userId', updateUser);
 router.delete('/delete_user/:userId', deleteUser);
+
+router.put('/update_vm/:vmId', updateVm);
 
 router.post('/create_user',createUser)
 

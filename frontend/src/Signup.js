@@ -7,7 +7,8 @@ import { useFormik } from 'formik';
 import Swal from 'sweetalert2'
 import Loading from './components/Loading';
 import LoadingSpinner from './components/Loading';
-
+import { useAuth } from './contexts/AuthContext';
+import { useContext } from 'react';
 function loading(){
     return (<><Loading /></>)
 }
@@ -15,20 +16,19 @@ function loading(){
 function Signup() {
     
     const [IsLoading,setIsLoading]=useState(true);
-    useEffect(() => {
-        axios.get('http://localhost:8080', { withCredentials: true })
-            .then(res => {
-                if(res.data.login)
-                    loading();
-                {
-                    console.log(res.data.login);
-                    navigate('/login'); // Redirect to login page if request fails
 
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            });
+    const{user}=useAuth();
+    useEffect(() => {
+        
+
+        if (user) {  // Add this check
+            if (user.login && user.userType === 'Admin') {
+                navigate('/admin_login');
+            } else if (user.login && user.userType !== 'Admin') {
+                navigate('/login');
+            }
+        }
+        
 
 
             const timer = setTimeout(() => {
@@ -38,6 +38,7 @@ function Signup() {
 
               
     return () => clearTimeout(timer);
+            
        
 
 

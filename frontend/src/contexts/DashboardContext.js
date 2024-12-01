@@ -25,6 +25,8 @@ export const DataProvider = ({ children }) => {
         setRefreshTrigger(prev => prev + 1);
     };
 
+
+    
     useEffect(() => {
         fetchDashboardData();
     }, [refreshTrigger]);

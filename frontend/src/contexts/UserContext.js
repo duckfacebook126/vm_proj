@@ -2,16 +2,11 @@ import axios from 'axios';
 import React from 'react';
 import { useContext, createContext, useState, useEffect } from 'react';
 
-const UserContext = createContext({
-    userType: null,
-    isAdmin: false,
-    error: null
-});
+const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
     const [userType, setUserType] = useState(null);
     const [error, setError] = useState(null);
-    const [isAdmin, setIsAdmin] = useState(false);
 
     const checkUserType = async () => {
         try {
@@ -19,12 +14,11 @@ export const UserProvider = ({ children }) => {
                 withCredentials: true
             });
             setUserType(response.data.userType);
-            setIsAdmin(response.data.isAdmin);
+
         } catch (error) {
             console.error('Error checking user type:', error);
             setError(error);
             setUserType(null);
-            setIsAdmin(false);
         }
     };
 
@@ -34,7 +28,6 @@ export const UserProvider = ({ children }) => {
 
     const value = {
         userType,
-        isAdmin,
         error,
         checkUserType
     };
