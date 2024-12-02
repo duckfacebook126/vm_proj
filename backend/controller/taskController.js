@@ -481,22 +481,25 @@ const adminLogout=(req,res)=>{
 const fetchAdminData = async (req, res) => {
     let conn;
     try {
+
+        const{value}=req.body
+        const userId= value;
         // Check if user is authenticated and is an admin
-        if (!req.session || !req.session.uId) {
-            return res.status(401).json({ error: 'Not authenticated' });
-        }
+        // if (!req.session || !req.session.uId) {
+        //     return res.status(401).json({ error: 'Not authenticated' });
+        // }
 
         conn = await db.getConnection();
 
         // First, verify if the user is an admin
         const [adminCheck] = await conn.execute(
             'SELECT userType FROM users WHERE id = ?',
-            [req.session.uId]
+            [value]
         );
 
-        if (!adminCheck.length || adminCheck[0].userType !== 'Admin') {
-            return res.status(403).json({ error: 'Not authorized as admin' });
-        }
+        // if (!adminCheck.length || adminCheck[0].userType !== 'Admin') {
+        //     return res.status(403).json({ error: 'Not authorized as admin' });
+        // }
 
         // Fetch users that are not admin
         const [users] = await conn.execute(
@@ -672,8 +675,8 @@ const updateUser = async (req, res) => {
    //GET ALL THE USER TYPES AND THEIR PERMISSIONS
         const query1='UPDATE user_type SET typeId=?,typeName=? ,permission=? WHERE userId=?';
         const values1=[typeId,userType,permission,userId];
-
-        const [result2]=await conn.execute(query1,values1)
+/// now update the diks flavor table
+        const [result1]=await conn.execute(query1,values1)
         
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'User not found or no changes made' });
@@ -753,14 +756,43 @@ const updateVm = async (req, res) => {
 
             const [result1] = await conn.execute(query1, values1);
 
-            const query2='UPDATE operating_system SET NAME=? WHERE id=?';
+            const query2='SELECT  osId from virtual_machine  WHERE id=?';
+            const values2=[vmId];
+            const [result2] = await conn.execute(query2, values2);
             
+            const osId=result2[0].osId;
+
+
+            //now insert into os table
+            const query3='UPDATE operating_system SET name=? WHERE id=?';
+            const values3=[osName,osId];
+            const [result3] = await conn.execute(query3, values3);
+            
+            const query4='SELECT flavorId from virtual_machine  WHERE id=?';
+            const values4=[vmId];
+            const [result4] = await conn.execute(query4, values4);
+            
+            const flavorId=result4[0].flavorId;
+                //now insert into disk flavors
+
+                const query5='UPDATE disk_flavor SET size=? WHERE id=?';
+                const values5=[size,flavorId];
+                const [result5] = await conn.execute(query5, values5);
+                //now insert into disks table
+
+                const query6='UPDATE disk SET  NAME=?,size=? WHERE flavorId=?';
+                const values6=[flavorName,size,flavorId];
+                const [result6] = await conn.execute(query6, values6);
+
+
             if (result1.affectedRows === 0) {
-                return res.status(404).json({ error: 'VM not found or no changes made' });
+                return res.status(404).json({ error: 'VM not found or no changes made due to unauthorized user' });
             }
             
             res.status(200).json({ message: 'VM updated successfully' });
-        } else {
+        } 
+        
+        else {
             res.status(403).json({ error: 'Unauthorized: Only Premium or SuperUser can update VMs' });
         }
 

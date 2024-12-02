@@ -9,6 +9,8 @@ import Loading from './components/Loading';
 import LoadingSpinner from './components/Loading';
 import { useAuth } from './contexts/AuthContext';
 import { useContext } from 'react';
+
+import { Link } from 'react-router-dom';
 function loading(){
     return (<><Loading /></>)
 }
@@ -207,7 +209,15 @@ function Signup() {
                     </div>
                     {/* Display server error */}
                     <button type="submit" className="btn btn-primary btn-block w-100">Register</button>
+
+                    <Link to="/login" className="btn btn-link">
+                        Already have an account? Login up
+                    </Link>
+
+                
                 </form>
+
+
             </div>
         </div>
     );

@@ -50,7 +50,7 @@ const vms=adminDashboardData?.vms||[];
 
   // Transform VM data for the chart
   const chartData =[
-    {name: ' nukber of VMs', value: adminDashboardData.vms.length} 
+    {name: ' number of VMs', value: adminDashboardData.vms.length} 
   ]
 
   return (
@@ -63,7 +63,7 @@ const vms=adminDashboardData?.vms||[];
           <YAxis />
           <Tooltip />
           <Legend />
-          <Bar dataKey="value" fill="#8884d8" name="num of vams" />
+          <Bar dataKey="value" fill="#8884d8" name="num of vams" barSize={20} />
          
         </BarChart>
       </ResponsiveContainer>

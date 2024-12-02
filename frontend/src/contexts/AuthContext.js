@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
-//creatig a context
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -9,16 +8,16 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Check auth status on mount
-    useEffect(() => {
-        checkAuthStatus();
-    }, [user]);
+    // Configure axios defaults
+    axios.defaults.withCredentials = true;
 
     const checkAuthStatus = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/check_auth', { 
-                withCredentials: true 
+            setLoading(true);
+            const response = await axios.get('http://localhost:8080/api/check_auth', {
+                withCredentials: true
             });
+
             if (response.data.login) {
                 setUser({
                     username: response.data.username,
@@ -26,10 +25,14 @@ export const AuthProvider = ({ children }) => {
                     userId: response.data.userId,
                     login: response.data.login
                 });
+                setError(null);
+            } else {
+                setUser(null);
             }
         } catch (err) {
             console.error('Auth check failed:', err);
-            setError(err.message);
+            setUser(null);
+            setError(err.response?.data?.error || 'Authentication failed');
         } finally {
             setLoading(false);
         }
@@ -37,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            const logoutEndpoint = user?.userType =='Admin' 
+            const logoutEndpoint = user?.userType === 'Admin' 
                 ? '/api/admin_logout' 
                 : '/api/logout';
             
@@ -50,6 +53,11 @@ export const AuthProvider = ({ children }) => {
             setError(err.message);
         }
     };
+
+    // Check auth status on mount
+    useEffect(() => {
+        checkAuthStatus();
+    }, []);
 
     return (
         <AuthContext.Provider value={{ 
@@ -64,4 +72,4 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-export const useAuth = () => useContext(AuthContext); 
+export const useAuth = () => useContext(AuthContext);

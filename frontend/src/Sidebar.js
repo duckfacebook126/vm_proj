@@ -34,8 +34,8 @@ import { Button } from '@mui/material';
 import { useUser } from './contexts/UserContext';
 import Swal from 'sweetalert2';
 import { useAuth } from './contexts/AuthContext';
-
-
+import { AdminDataContext } from './contexts/AdminDashboardContext';
+import { useContext } from 'react';
 const drawerWidth = 240;
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -116,6 +116,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function Sidebar() {
+  const{refreshData}=useContext(AdminDataContext)
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
   const [index, setIndex] = React.useState(0);
@@ -147,45 +148,32 @@ export default function Sidebar() {
   };
 
 //authorize if the user is of admin type or not 
-  const authAdmin=()=>{
+  const authAdmin = () => {
+    if (!user) {
+      navigate('/admin_login');
+      return;
+    }
 
-      if(user.userType==='Admin')
-      {
+    if (user.userType === 'Admin') {
+      return; // Admin is authorized, continue
+    }
 
-
-
+    Swal.fire({
+      icon: 'error',
+      title: 'Unauthorized Access',
+      text: 'You are not an admin!',
+      confirmButtonText: 'OK'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate('/admin_login');
       }
-
-      else if(user.userType!=='Admin')
-      {
-        Swal.fire({
-          icon: 'error',
-          title: 'Unaurhorised accessed',
-          text: 'You are not an admin!',
-          confirmButtonText:'ok'
-        }).then((result)=>
-        {
-           if(result.isConfirmed)
-           {
-
-            navigate('/admin_login');
-           }
-          
-          
-        });
-
-      }
-
-  }
+    });
+  };
 
 //rendering first time of the component
   useEffect(() => {
 
-  
-if(!loading){
-      authAdmin();
 
-}
 
         const timer = setTimeout(() => {
           setIsLoading(false);
@@ -193,9 +181,11 @@ if(!loading){
         }, 3000);
         return () => clearTimeout(timer);
 
+
+        refreshData();
   
 
-  }, [user,loading]);
+  }, []);
 
 
 

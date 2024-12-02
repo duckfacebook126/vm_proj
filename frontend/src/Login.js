@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Login.css';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 import { useFormik } from 'formik';
@@ -13,30 +13,25 @@ function Login() {
     const {user,checkAuthStatus}=useAuth();
     const navigate = useNavigate();
 const [IsLoading,setIsLoading]=useState(true)
-    useEffect(() => {
-        // Check if the user is already logged in
-
-       
-          
-        if(user)
-        {
-           if(user.login&&user.userType==='Admin')
-            {
-                navigate('/admin_login')
-            }
-
-
+useEffect(() => {
+    if (user) {
+        // If user is logged in as an admin, go to admin dashboard
+        if (user.userType === 'Admin') {
+            navigate('/admin_dashboard');
         }
-            
-            const timer = setTimeout(() => {
-                setIsLoading(false);
-                return 
-              }, 3000); 
+        // If user is a regular user, go to regular dashboard
+        else if (user.userType === 'User') {
+            navigate('/dashboard');
+        }
+    }
 
-              
+    const timer = setTimeout(() => {
+        setIsLoading(false);
+    }, 3000);
+
     return () => clearTimeout(timer);
-       
-    }, [navigate]);
+}, [user, navigate]);
+
 
     const formik = useFormik({
         initialValues: {
@@ -107,6 +102,20 @@ if(!IsLoading){
                     <button type="submit" className="btn btn-primary btn-block w-100" disabled={formik.isSubmitting}>
                         {formik.isSubmitting ? 'Logging in...' : 'Login'}
                     </button>
+
+                    <Link to="/signup" className="btn btn-link">
+                        Don't have an account? Sign up
+                    </Link>
+
+                    <strong>OR</strong>
+                    <br/>
+
+                        <Link to="/admin_login" className="btn btn-link">
+                            Log in as Admin
+                            </Link>
+
+
+
                 </form>
             </div>
         </div>

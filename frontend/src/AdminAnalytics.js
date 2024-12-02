@@ -1,8 +1,8 @@
 import React from 'react';
-import { useContext, createContext } from 'react';
-import { DataContext } from './contexts/DashboardContext';
-import { Grid, Container, Box, Card, CardContent, Typography } from '@mui/material';
-
+import { useContext } from 'react';
+import { AdminDataContext } from './contexts/AdminDashboardContext';
+import { Grid, Container, Box, Card, CardContent, Typography, CircularProgress } from '@mui/material';
+import { createContext } from 'react';
 import UsersChart from './admincharts/usersChart';
 import AdminPieChartComponent from './admincharts/PieChartComponent';
 import DiskChart from './admincharts/DiskChart';
@@ -11,7 +11,23 @@ import VmChart from './admincharts/VmChart';
 export const graphcontext = createContext();
 
 export default function AdminAnalytics() {
-  const { dashboardData } = useContext(DataContext);
+  const { adminDashboardData, loading, error } = useContext(AdminDataContext);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -23,7 +39,7 @@ export default function AdminAnalytics() {
                 <Typography variant="h5" component="div">
                   Overview
                 </Typography>
-                <graphcontext.Provider value={dashboardData}>
+                <graphcontext.Provider value={adminDashboardData}>
                   <AdminPieChartComponent />
                 </graphcontext.Provider>
               </CardContent>

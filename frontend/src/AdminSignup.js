@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { AdminSignupSchema } from './schemas/AdminSignupSchema';
 import { useNavigate } from 'react-router-dom';
@@ -158,6 +159,10 @@ function AdminSignup() {
           >
             Sign Up
           </Button>
+
+          <Link to="/admin_login" className="btn btn-link">
+                 already an Admin? Login as Admin here
+                            </Link>
         </form>
       </Paper>
     </Container>

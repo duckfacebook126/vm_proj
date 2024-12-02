@@ -21,8 +21,15 @@ function Chart03() {
     const vms = dashboard_data.vms;
     const disks = dashboard_data.disks;
 
-    // Aggregate the data
-    const aggregatedData = aggregateData(vms, disks);
+    // Format the VMs data for the chart
+    const formattedVMData = vms.map(vm => ({
+        NAME: vm.NAME || 'Unknown',
+        CPU: vm.CPU || 0,
+        RAM: vm.RAM || 0,
+        FLAVOR: vm.FLAVOR || 'N/A'
+    }));
+
+    console.log('Formatted VM Data:', formattedVMData);
 
     return (
         <div style={{ width: '350px', height: '320px' }}>
@@ -30,7 +37,7 @@ function Chart03() {
         <ComposedChart
           width={500}
           height={400}
-          data={vms}
+          data={formattedVMData}
           margin={{
             top: 20,
             right: 20,
@@ -43,8 +50,8 @@ function Chart03() {
           <YAxis  />
           <Tooltip />
           <Legend layout="horizontal" verticalAlign="top" align="center" />
-          <Bar dataKey="CPU" name="CPU Usage" barSize={20} fill="#413ea0" />
-          <Line type="monotone" dataKey="CPU" name="CPU Trend" stroke="#ff7300" />
+          <Bar dataKey="CPU" name="CPUs" barSize={20} fill="#413ea0" />
+          <Line type="monotone" dataKey="RAM" name="RAM (GB)" stroke="#ff7300" />
         </ComposedChart>
       </ResponsiveContainer>
       </div>

@@ -7,7 +7,7 @@ const session = require('express-session');
 const taskRouter = require('./routes/taskRouter');
 
 app.use(cors({
-    origin: 'http://localhost:3000',  // Replace with your frontend URL
+    origin: 'http://localhost:3000',  // Correct base URL
     credentials: true
 }));
 app.use(express.json());
@@ -44,4 +44,3 @@ app.get('/', (req, res) => {
 
 const port = 8080;
 app.listen(port, () => console.log(`Listening on port ${port}`));
- 

@@ -48,6 +48,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import Slider from '@mui/material/Slider';
 import { useAuth } from './contexts/AuthContext';
 
+import Swal from 'sweetalert2';
+
 import {
 
 
@@ -135,7 +137,7 @@ function Dashboard3() {
 
         useEffect(() => {
             handle_login_change();
-        // Use refreshData instead of fetchDashboardData
+            fetchDashboardData(); // Add this line to fetch data on mount
             const timer = setTimeout(() => {
                 setIsLoading(false);
             }, 3000);
@@ -160,6 +162,10 @@ function Dashboard3() {
     const [openEditDialog,setOpenEditDialog] = useState(false);
     const [editVm, setEditVm] = useState();
     const [DiskToEdit, setDiskToEdit] = useState();
+
+    const userType = user?.userType || 'Standard';
+  const canEdit = userType === 'Premium' || userType === 'SuperUser';
+  const canDelete = userType === 'SuperUser';
 
 
     const handleDrawerOpen = () => {
@@ -205,11 +211,44 @@ const setVmToEdit = (vm) =>{
         axios.put(`http://localhost:8080/api/update_vm/${editVm.id}`, editVm,{ withCredentials: true })
             .then(res => {
                 console.log(res.data);
-                refreshData();  // Use refreshData instead of fetchDashboardData
-            })
-            .catch(err => {
-                console.error('Failed to update VM:', err);
-            });
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'VM updated successfully!',
+                        confirmButtonText: 'OK',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                refreshData();
+                            }
+                        });
+
+
+
+                // Use refreshData instead of fetchDashboardData
+            }).catch(err => {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong!',
+                    confirmButtonText:'Ok'
+                }).then((result) => {
+
+                    if(result.isConfirmed)
+                    {
+                        console.error('Failed to update VM:', err);
+
+                        console.log(err);
+                        refreshData();
+
+                    }
+                        } )
+                      
+                });
+            
+
+
     };
 
     
@@ -370,7 +409,7 @@ const setVmToEdit = (vm) =>{
                                                         setVmToDelete(vm.id);
                                                         setOpenDialog(true);
                                                     }}
-                                                    disabled={!user || user.userType === 'Standard'}
+                                                    disabled={!user || user.userType === 'Standard'|| !canDelete}
                                                     sx={{
                                                         '&.Mui-disabled': {
                                                             opacity: 0.5,
@@ -387,7 +426,7 @@ const setVmToEdit = (vm) =>{
                                                         setVmToEdit(vm);
                                                         setOpenEditDialog(true);
                                                            }}
-                                                        disabled={!user || user.userType === 'Standard'}
+                                                        disabled={!user || user.userType === 'Standard' || !canEdit}
                                                                 sx={{
                                                   // Optional: Make it visually clear when disabled
                                                                         '&.Mui-disabled': {

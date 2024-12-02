@@ -1,9 +1,10 @@
-import React, { useContext, useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { AdminLoginSchema } from './schemas/AdminLoginSchema';
 import axios from 'axios';
 import LoadingSpinner from './components/Loading';
+import { Link } from 'react-router-dom'
 import {
   Box,
   TextField,
@@ -15,38 +16,20 @@ import {
 } from '@mui/material';
 import Swal from 'sweetalert2';
 import { useUser } from './contexts/UserContext';
-
-
-
-const handleLogout=() => {
-
-
-
-};
+import { useAuth } from './contexts/AuthContext';
 
 function AdminLogin() {
-  const [IsLoading, setIsLoading] = useState(true);
-  const { userType, checkUserType } = useUser();
+  const [isLoading, setIsLoading] = useState(true);
+  const { checkAuthStatus } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      await checkUserType();
-      if (userType === 'Admin') {
-        navigate('/admin_dashboard');
-      }
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
 
-      setTimeout(()=>{
-        setIsLoading(false);
-      },3000);
-    };
-
-    checkAuth();
-  }, [userType, navigate, checkUserType]);
-
-
-
-  const [error, setError] = useState('');
+    return () => clearTimeout(timer);
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -54,28 +37,52 @@ function AdminLogin() {
       password: ''
     },
     validationSchema: AdminLoginSchema,
-    onSubmit: async (values, { setSubmitting }) => {
+    onSubmit: async (values, { setSubmitting, setErrors }) => {
       try {
         const response = await axios.post('http://localhost:8080/api/admin_login', values, {
           withCredentials: true
         });
-        if (response.data) {
-          console.log(`user type is ${response.data.userType}`);
-          navigate('/admin_dashboard');
+
+        if (response.data.login) {
+          // Trigger auth status check to update user context
+          await checkAuthStatus();
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Login Successful',
+            text: 'Redirecting to Admin Dashboard',
+            timer: 1500,
+            showConfirmButton: false
+          });
+
+          // Small delay to show success message
+          setTimeout(() => {
+            navigate('/admin_dashboard');
+          }, 1600);
         }
       } catch (err) {
-        const backendError = err.response?.data?.error;
+        const backendError = err.response?.data?.error || 'Login failed';
+        
         Swal.fire({
           icon: 'error',
-          title: 'Oops...',
-          text: backendError || 'Login failed',
+          title: 'Login Error',
+          text: backendError,
+        });
+
+        // Optional: set form errors
+        setErrors({
+          submit: backendError
         });
       } finally {
         setSubmitting(false);
       }
     }
   });
-if(!IsLoading){
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <Container component="main" maxWidth="xs">
       <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
@@ -83,7 +90,11 @@ if(!IsLoading){
           Admin Login
         </Typography>
         
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {formik.errors.submit && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {formik.errors.submit}
+          </Alert>
+        )}
         
         <form onSubmit={formik.handleSubmit}>
           <TextField
@@ -118,17 +129,13 @@ if(!IsLoading){
           >
             Login
           </Button>
+          <Link to="/admin_signup" className="btn btn-link">
+            Don't have an account? Signup as Admin
+          </Link>
         </form>
       </Paper>
     </Container>
   );
-}
-
-else if(IsLoading)
-  {
-
-    return(<><LoadingSpinner></LoadingSpinner></>)
-  } 
 }
 
 export default AdminLogin;
