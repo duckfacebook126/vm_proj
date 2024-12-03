@@ -9,15 +9,14 @@ export const AdminDataProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
-    const { user } = useAuth();
+    const { user,checkAuthStatus } = useAuth();
 
-    const value=user.userId
 
     const fetchAdminDashboardData = async () => {
         try {
            
 
-            const response = await axios.get('http://localhost:8080/api/admin_dashboard_data', value,{ 
+            const response = await axios.get('http://localhost:8080/api/admin_dashboard_data', 1,{ 
                 withCredentials: true 
             });
             

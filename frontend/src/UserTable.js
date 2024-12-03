@@ -12,6 +12,7 @@ import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import DialogContentText from '@mui/material/DialogContentText';
 
 export default function UT() {
   const navigate = useNavigate();
@@ -21,8 +22,11 @@ export default function UT() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openDialog, setOpenDialog] = useState(false);
-  const [editUser, setEditUser] = useState({
+  const [userId, setUserId] = useState();
+const[userToDelete,setUserToDelete]=useState()
+  const [openDeleteDialog,setOpenDelteDialog]=useState(false)
 
+  const [editUser, setEditUser] = useState({
     firstName: '', lastName: '', phoneNumber: '', 
     CNIC: '', email: '', userName: '', userType: 'Standard'
   });
@@ -32,9 +36,40 @@ export default function UT() {
     CNIC: '', email: '', userName: '', password: '', userType: 'Standard'
   });
 
+
+const getsSessionData = async () => {
+try{
+
+const response = axios.get('http://localhost:8080/', { withCredentials: true });
+
+if(response.data.login)
+{
+setUserId(response.data.userId);
+
+}
+
+}
+catch(error)
+{
+console.log('failed to fetch session data');
+
+}
+
+
+}
+
+
+
+
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/admin_dashboard_data', { withCredentials: true });
+      const response = await axios.get('http://localhost:8080/api/admin_dashboard_data', {
+        
+        params:{value:userId},
+        withCredentials: true 
+
+
+      });
       console.log('API Response:', response.data);
       if (response.status === 200) {
         // Ensure we always set an array
@@ -55,7 +90,10 @@ export default function UT() {
   };
 
   useEffect(() => {
+    
+    getsSessionData().then(()=>{
     fetchUsers();
+    });
   }, [navigate]);
 
   const handleEdit = (user) => {
@@ -94,10 +132,27 @@ export default function UT() {
     }
   };
 
-  const handleDelete = async (userId) => {
+  const handleDelete = async (userToDelete) => {
     try {
-      await axios.delete(`http://localhost:8080/api/delete_user/${userId}`, { withCredentials: true });
-      fetchUsers();
+      await axios.delete(`http://localhost:8080/api/delete_user/${userToDelete}`, { withCredentials: true });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'User deleted successfully!',
+        confirmButtonText: 'OK'
+      }).then((result)=>
+      {
+
+       if(result.isConfirmed)
+        {
+
+          fetchUsers();
+        } 
+      })
+      
+      
+      
     } catch (error) {
       console.error('Error deleting user:', error);
     }
@@ -162,7 +217,7 @@ export default function UT() {
                     <EditIcon />
                   </IconButton>
 
-                  <IconButton onClick={() => handleDelete(user.id)}>
+                  <IconButton onClick={() => {setUserToDelete(user.id);setOpenDelteDialog(true)}}>
                     <DeleteIcon />
                   </IconButton>
 
@@ -297,6 +352,24 @@ export default function UT() {
           <Button onClick={handleCreateUser} variant="contained">Create</Button>
         </DialogActions>
       </Dialog>
+      {/*//delete user dialog*/}
+
+      <Dialog open={openDeleteDialog} onClose={() => setOpenDelteDialog(false)}>
+              
+              <DialogTitle>Delete User</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                          Are you sure you want to delete this user?
+                        </DialogContentText>
+                    </DialogContent>
+
+
+                      <DialogActions>
+                            <Button onClick={() => setOpenDelteDialog(false)}>Cancel</Button>
+                            <Button onClick={() => {handleDelete(userToDelete).then(() => setOpenDelteDialog(false))}} variant="contained">Delete</Button>                      </DialogActions>
+      </Dialog>
+
+
     </>
   );
 }

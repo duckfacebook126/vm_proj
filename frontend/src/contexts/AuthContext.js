@@ -25,12 +25,14 @@ export const AuthProvider = ({ children }) => {
                     userId: response.data.userId,
                     login: response.data.login
                 });
+                console.log('Authenticated user:', user);
                 setError(null);
             } else {
                 setUser(null);
             }
         } catch (err) {
             console.error('Auth check failed:', err);
+            
             setUser(null);
             setError(err.response?.data?.error || 'Authentication failed');
         } finally {

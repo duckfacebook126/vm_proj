@@ -406,7 +406,6 @@ const adminLogin = async (req, res) => {
                 userType: req.session.userType
             });
             res.status(200).json({ 
-                message: "Admin login successful", 
                 login: true, 
                 username: req.session.username, 
                 userId: req.session.uId, 
@@ -480,10 +479,11 @@ const adminLogout=(req,res)=>{
 
 const fetchAdminData = async (req, res) => {
     let conn;
+
+    
+
     try {
 
-        const{value}=req.body
-        const userId= value;
         // Check if user is authenticated and is an admin
         // if (!req.session || !req.session.uId) {
         //     return res.status(401).json({ error: 'Not authenticated' });
@@ -494,7 +494,7 @@ const fetchAdminData = async (req, res) => {
         // First, verify if the user is an admin
         const [adminCheck] = await conn.execute(
             'SELECT userType FROM users WHERE id = ?',
-            [value]
+            [1]
         );
 
         // if (!adminCheck.length || adminCheck[0].userType !== 'Admin') {
@@ -775,13 +775,13 @@ const updateVm = async (req, res) => {
             const flavorId=result4[0].flavorId;
                 //now insert into disk flavors
 
-                const query5='UPDATE disk_flavor SET size=? WHERE id=?';
-                const values5=[size,flavorId];
+                const query5='UPDATE disk_flavor SET size=?,NAME=? WHERE id=?';
+                const values5=[size,flavorName,flavorId];
                 const [result5] = await conn.execute(query5, values5);
                 //now insert into disks table
 
-                const query6='UPDATE disk SET  NAME=?,size=? WHERE flavorId=?';
-                const values6=[flavorName,size,flavorId];
+                const query6='UPDATE disk SET  size=? WHERE flavorId=?';
+                const values6=[size,flavorId];
                 const [result6] = await conn.execute(query6, values6);
 
 
