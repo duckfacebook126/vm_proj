@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './Login.css';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { encryptData } from '../utils/encryption';
 
 import { useFormik } from 'formik';
 import { LoginValidaitonSchema } from './LoginValidation';
@@ -9,6 +10,10 @@ import Swal from 'sweetalert2';
 import LoadingSpinner from './components/Loading';
 import { useContext } from 'react';
 import { useAuth } from './contexts/AuthContext';
+
+
+
+
 function Login() {
     const {user,checkAuthStatus}=useAuth();
     const navigate = useNavigate();
@@ -41,8 +46,14 @@ useEffect(() => {
         
         onSubmit: async (values, { setErrors, setSubmitting }) => {
             setSubmitting(true);
+
+                const encryptedData=encryptData({
+                           username: values.username,
+                            password: values.password
+                })
+
             console.log('Submitting login with values:', values);
-            axios.post('http://localhost:8080/api/login',values, { withCredentials: true })
+            axios.post('http://localhost:8080/api/login',encryptedData, { withCredentials: true })
                 .then(async (res) => {
                     console.log('Login response:', res.data);
                     setSubmitting(false);

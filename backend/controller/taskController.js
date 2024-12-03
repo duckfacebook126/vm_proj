@@ -1,3 +1,6 @@
+
+
+const { decryptData } = require('../utils/encryption');
 const db = require('../db');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
@@ -89,9 +92,18 @@ const signup = async (req, res) => {
 // Login Function
 const login = async (req, res) => {
     let conn;
+
+
     try {
+
+
+
         conn = await db.getConnection();
-        const { username, password } = req.body;
+        const {encryptedData, username, password } = req.body;
+
+
+
+
 const notUserType="Admin";
 
         // Find admin by username
@@ -632,8 +644,22 @@ const createUser = async (req, res) => {
             return res.status(400).json({ error: errorMsg });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
+           // AES ENCRYPTED PASSWORDS
+     //initialization
+     const encMethod = 'aes-256-cbc';//encoding method
+     //actual computed key and vectors
+      const key = crypto.createHash('sha512').update(secretKey).digest('hex').substring(0,32);  ///computed secret vector  
+      const encIv = crypto.createHash('sha512').update(secretIv).digest('hex').substring(0,16);//computed secret initialization vector
+     //encryption of the data password
+      function encryptData (password) {
+          const cipher = crypto.createCipheriv(encMethod, key, encIv)/// creating the cipher for encryption
+          const encrypted = cipher.update(password, 'utf8', 'hex') + cipher.final('hex')//final encryption of the data
+          return Buffer.from(encrypted).toString('base64')// returning the encypted string
+      }
+
+      // Hash password
+      const hashedPassword = encryptData(password);
+
 
     //FIRST INERT INTO USERRS
         const query = 'INSERT INTO users (firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD, userType) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
