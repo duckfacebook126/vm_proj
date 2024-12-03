@@ -1,6 +1,11 @@
 const db = require('../db');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
+const crypto= require('crypto')
+
+
+const secretKey = 'AESEncryptionKey@2024!SecurePassword';// initial KEY 32 bytes
+const secretIv = 'AESEncryption123$';// initail iv  16 bytes
 
 // Signup Function
 const signup = async (req, res) => {
@@ -25,11 +30,22 @@ const signup = async (req, res) => {
             return res.status(400).json({ error: errorMsg });
         }
 
-        // Generate a unique user ID
-        const id = uuidv4();
+        // AES ENCRYPTED PASSWORDS
+     //initialization
+        const encMethod = 'aes-256-cbc';//encoding method
+            //actual computed key and vectors
+        const key = crypto.createHash('sha512').update(secretKey).digest('hex').substring(0,32);  ///computed secret vector  
+        const encIv = crypto.createHash('sha512').update(secretIv).digest('hex').substring(0,16);//computed secret initialization vector
+
+        function encryptData (password) {
+            const cipher = crypto.createCipheriv(encMethod, key, encIv)/// creating the cipher for encryption
+            const encrypted = cipher.update(password, 'utf8', 'hex') + cipher.final('hex')//final encryption of the data
+            return Buffer.from(encrypted).toString('base64')// returning the encypted string
+        }
+
 
         // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = encryptData(password);
             // insert into each users table
         const query = 'INSERT INTO users ( firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD,userType) VALUES ( ?, ?, ?, ?, ?, ?, ?,?)';
         await conn.execute(query, [ firstName, lastName, phoneNumber, cnic, email, username, hashedPassword,userType]);
@@ -88,10 +104,34 @@ const notUserType="Admin";
             return res.status(401).json({ login: false, error: 'Username does not exist' });
         }
 
-        const user =users[0];
-        const passwordMatch = await bcrypt.compare(password, user.PASSWORD);
 
-        if (!passwordMatch) {
+         
+
+
+
+        const user =users[0];
+
+        const storedEncrptedPassword = user.PASSWORD;
+
+           //checking passwords using aes aes encryption
+    //initialization
+           const encMethod = 'aes-256-cbc';//encoding method
+               //actual computed key and vectors
+           const key = crypto.createHash('sha512').update(secretKey).digest('hex').substring(0,32);  ///computed secret vector  
+           const encIv = crypto.createHash('sha512').update(secretIv).digest('hex').substring(0,16);//computed secret initialization vector
+   //
+           function decryptData(encryptedData) {
+            const buff = Buffer.from(encryptedData, 'base64')
+            encryptedData = buff.toString('utf-8')
+            const decipher = crypto.createDecipheriv(encMethod, key, encIv)
+            return decipher.update(encryptedData, 'hex', 'utf8') + decipher.final('utf8')
+        }
+
+        const decryptedPassword= decryptData(storedEncrptedPassword);
+        
+            
+
+        if (decryptedPassword !== password) {
             return res.status(401).json({ login: false, error: 'Wrong password' });
         }
 
@@ -345,8 +385,22 @@ const adminSignup = async (req, res) => {
             });
         }
 
+
+          // AES ENCRYPTED PASSWORDS
+     //initialization
+         const encMethod = 'aes-256-cbc';//encoding method
+       //actual computed key and vectors
+        const key = crypto.createHash('sha512').update(secretKey).digest('hex').substring(0,32);  ///computed secret vector  
+        const encIv = crypto.createHash('sha512').update(secretIv).digest('hex').substring(0,16);//computed secret initialization vector
+       //encryption of the data password
+        function encryptData (password) {
+            const cipher = crypto.createCipheriv(encMethod, key, encIv)/// creating the cipher for encryption
+            const encrypted = cipher.update(password, 'utf8', 'hex') + cipher.final('hex')//final encryption of the data
+            return Buffer.from(encrypted).toString('base64')// returning the encypted string
+        }
+
         // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = encryptData(password);
 
         // Insert new admin
         await conn.execute(
@@ -383,9 +437,28 @@ const adminLogin = async (req, res) => {
         }
 
         const user = users[0];
-        const passwordMatch = await bcrypt.compare(password, user.PASSWORD);
 
-        if (!passwordMatch) {
+
+        const storedEncrptedPassword = user.PASSWORD;
+
+
+        const encMethod = 'aes-256-cbc';//encoding method
+               //actual computed key and vectors
+           const key = crypto.createHash('sha512').update(secretKey).digest('hex').substring(0,32);  ///computed secret vector  
+           const encIv = crypto.createHash('sha512').update(secretIv).digest('hex').substring(0,16);//computed secret initialization vector
+   //
+           function decryptData(encryptedData) {
+            const buff = Buffer.from(encryptedData, 'base64')
+            encryptedData = buff.toString('utf-8')
+            const decipher = crypto.createDecipheriv(encMethod, key, encIv)
+            return decipher.update(encryptedData, 'hex', 'utf8') + decipher.final('utf8')
+        }
+
+        const decryptedPassword= decryptData(storedEncrptedPassword);
+        
+
+
+        if (decryptedPassword !== password) {
             return res.status(401).json({ login: false, error: 'Wrong password' });
         }
 

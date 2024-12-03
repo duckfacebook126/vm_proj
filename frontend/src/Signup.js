@@ -9,8 +9,15 @@ import Loading from './components/Loading';
 import LoadingSpinner from './components/Loading';
 import { useAuth } from './contexts/AuthContext';
 import { useContext } from 'react';
-
+import crypto from 'crypto';
 import { Link } from 'react-router-dom';
+
+
+
+const secretKey = 'AESEncryptionKey@2024!SecurePassword';// initial KEY 32 bytes
+const secretIv = 'AESEncryption123$';//16 bytes iv
+
+       
 function loading(){
     return (<><Loading /></>)
 }

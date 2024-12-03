@@ -25,7 +25,7 @@ function Chart03() {
     const formattedVMData = vms.map(vm => ({
         NAME: vm.NAME || 'Unknown',
         CPU: vm.CPU || 0,
-        RAM: vm.RAM || 0,
+        RAM: vm.ram || 0,
         FLAVOR: vm.FLAVOR || 'N/A'
     }));
 
