@@ -4,6 +4,8 @@ import { useFormik } from 'formik';
 import { AdminSignupSchema } from './schemas/AdminSignupSchema';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
+import { encryptData } from './utils/encryption';
 import LoadingSpinner from './components/Loading';
 import {
   Box,
@@ -44,8 +46,8 @@ function AdminSignup() {
     },
     validationSchema: AdminSignupSchema,
     onSubmit: async (values, { setSubmitting }) => {
-      
-         await axios.post('http://localhost:8080/api/admin_signup', values)
+      const encryptedData = encryptData(values);
+         await axios.post('http://localhost:8080/api/admin_signup', {encryptedData})
         .then(res=>{
                 if(res.data.success){
             navigate('/admin_login');

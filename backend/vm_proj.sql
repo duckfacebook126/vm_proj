@@ -1,7 +1,7 @@
 
-	SELECT * FROM users
+	SELECT * FROM user_type
 	SELECT * FROM DISK
-	
+		SELECT * FROM users
 		
 	
 	
@@ -75,9 +75,9 @@
 	    
 	);
 
+s
 
-
-	SET FOREIGN_KEY_CHECKS = 1;
+	SET FOREIGN_KEY_CHECKS = 0;
 
 	DROP TABLE virtual_machine;
 	DROP TABLE DISK;

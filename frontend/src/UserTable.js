@@ -13,7 +13,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import DialogContentText from '@mui/material/DialogContentText';
-
+import { encryptData, decryptData } from './utils/encryption';
 export default function UT() {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
@@ -160,7 +160,9 @@ console.log('failed to fetch session data');
 
   const handleCreateUser = async () => {
     try {
-      await axios.post('http://localhost:8080/api/create_user', newUser, { withCredentials: true });
+
+      const encryptedData = encryptData(newUser);
+      await axios.post('http://localhost:8080/api/create_user', {encryptedData}, { withCredentials: true });
       setOpenCreateDialog(false);
       fetchUsers();
       setNewUser({

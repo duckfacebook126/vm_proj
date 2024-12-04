@@ -9,13 +9,17 @@ import Loading from './components/Loading';
 import LoadingSpinner from './components/Loading';
 import { useAuth } from './contexts/AuthContext';
 import { useContext } from 'react';
-import crypto from 'crypto';
 import { Link } from 'react-router-dom';
 
+import  {encryptData} from './utils/encryption';
+import { decryptData } from './utils/decryption';
+
+const secretKey = 'aelwfhlaef';
+const secretIV = 'aifjaoeifjo';
+const encMethod = 'aes-256-cbc';
 
 
-const secretKey = 'AESEncryptionKey@2024!SecurePassword';// initial KEY 32 bytes
-const secretIv = 'AESEncryption123$';//16 bytes iv
+
 
        
 function loading(){
@@ -30,10 +34,10 @@ function Signup() {
     useEffect(() => {
         
 
-        if (user) {  // Add this check
-            if (user.login && user.userType === 'Admin') {
+        if (user===null && user.login) {  
+            if (user.userType === 'Admin') {
                 navigate('/admin_login');
-            } else if (user.login && user.userType !== 'Admin') {
+            } else {
                 navigate('/login');
             }
         }
@@ -65,7 +69,8 @@ function Signup() {
         validationSchema: SignUpSchema,
         onSubmit:(values ,{setSubmitting,setErrors})=>{
             setSubmitting(true);
-            axios.post('http://localhost:8080/api/signup', values).then(res => {
+            const encryptedData=encryptData(values);
+            axios.post('http://localhost:8080/api/signup', { encryptedData }).then(res => {
                 
                 navigate('/login'); // Navigate to the home page on successful signup
             }

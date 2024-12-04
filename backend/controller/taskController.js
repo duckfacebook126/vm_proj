@@ -1,90 +1,104 @@
 
 
-const { decryptData } = require('../utils/encryption');
+const { decryptData } = require('../utils/decryption');
 const db = require('../db');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const crypto= require('crypto')
+//import the functionns of encrypting and decrypting
+const { encryptPassword, decryptPassword } = require('../utils/passwordEncryptionDecryption');
 
-
-const secretKey = 'AESEncryptionKey@2024!SecurePassword';// initial KEY 32 bytes
-const secretIv = 'AESEncryption123$';// initail iv  16 bytes
 
 // Signup Function
 const signup = async (req, res) => {
     let conn;
     try {
         conn = await db.getConnection();
-        const { cnic, firstName, lastName, phoneNumber, username, email, password } = req.body;
-                const userType="Standard"
-        // Check for duplicate CNIC or username
+        const { encryptedData } = req.body;
+        
+        // Decrypt the incoming data
+        const decryptedData = decryptData(encryptedData);
+
+        console.log(`${decryptedData}`);
+        const {
+            firstName, 
+            lastName, 
+            phoneNumber, 
+            cnic, 
+            email, 
+            username, 
+            password,
+            userType = "Standard"  // default value
+        } = decryptedData;
+
+        // Validate data types before database insertion
+        const validatedData = {
+            firstName: String(firstName),
+            lastName: String(lastName),
+            phoneNumber: BigInt(phoneNumber),
+            CNIC: BigInt(cnic),
+            email: String(email),
+            userName: String(username),
+            password: String(password),
+    
+            userType: String(userType)
+        };
+
+        // Check for duplicates
         const checkQuery = 'SELECT * FROM users WHERE CNIC = ? OR userName = ?';
-        const [rows] = await conn.execute(checkQuery, [cnic, username]);
+        const [rows] = await conn.execute(checkQuery, [validatedData.CNIC, validatedData.userName]);
 
         if (rows.length > 0) {
-            // Determine the type of duplicate error
-            let errorMsg = '';
-            if (rows.some(row => row.CNIC === cnic)) {
-                errorMsg = 'CNIC is already in use';
-            }
-            if (rows.some(row => row.userName === username)) {
-                errorMsg = errorMsg ? `${errorMsg} and username is already in use` : 'Username is already in use';
-            }
+            let errorMsg = rows.some(row => row.CNIC === validatedData.CNIC) 
+                ? 'CNIC is already in use' 
+                : 'Username is already in use';
             return res.status(400).json({ error: errorMsg });
+
+
         }
 
-        // AES ENCRYPTED PASSWORDS
-     //initialization
-        const encMethod = 'aes-256-cbc';//encoding method
-            //actual computed key and vectors
-        const key = crypto.createHash('sha512').update(secretKey).digest('hex').substring(0,32);  ///computed secret vector  
-        const encIv = crypto.createHash('sha512').update(secretIv).digest('hex').substring(0,16);//computed secret initialization vector
+        const encryptedPassword= encryptPassword(password);
 
-        function encryptData (password) {
-            const cipher = crypto.createCipheriv(encMethod, key, encIv)/// creating the cipher for encryption
-            const encrypted = cipher.update(password, 'utf8', 'hex') + cipher.final('hex')//final encryption of the data
-            return Buffer.from(encrypted).toString('base64')// returning the encypted string
-        }
+        // Insert into users table
+        const query = `INSERT INTO users (
+            firstName, lastName, phoneNumber, CNIC, 
+            email, userName, PASSWORD, userType
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
+        const [result] = await conn.execute(query, [
+            validatedData.firstName,
+            validatedData.lastName,
+            validatedData.phoneNumber,
+            validatedData.CNIC,
+            validatedData.email,
+            validatedData.userName,
+            encryptedPassword,
+            validatedData.userType
+        ]);
 
-        // Hash the password
-        const hashedPassword = encryptData(password);
-            // insert into each users table
-        const query = 'INSERT INTO users ( firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD,userType) VALUES ( ?, ?, ?, ?, ?, ?, ?,?)';
-        await conn.execute(query, [ firstName, lastName, phoneNumber, cnic, email, username, hashedPassword,userType]);
-            /// get all from the users
-        const[user]=await conn.execute('SELECT * FROM USERS WHERE userName = ?', [username]);
-            // get the user id of the first object in the array of objects
-        const userId=user[0].id
-            //getting the user type from the db
-        const userType1=user[0].userType;
-
-        //
-        const permission='create';
+         const getCorrectUserIdQuery='SELECT * FROM users WHERE userName=?';
+            const [user]= await conn.execute(getCorrectUserIdQuery,[validatedData.userName])
 
 
+            const userId=user[0].id;
 
-   // and all the vlaues in the user_type table 
 
-        const userTypeQuery ='INSERT INTO user_type (userId ,typeId,typeName,permission) VALUES(?,4,?,?)'
-        await  conn.execute(userTypeQuery,[userId, ,userType1,permission])
+        // Insert into user_type table
+        const userTypeQuery = `INSERT INTO user_type (
+            userId, typeId, typeName, permission
+        ) VALUES (?, 4, ?, ?)`;
 
-        // now get from  the typeId table form the users table and insert into the permissions 
-          
-
-          
-
+        await conn.execute(userTypeQuery, [
+            userId,
+            validatedData.userType,
+            'create'
+        ]);
 
         res.status(201).json({ message: 'User created successfully' });
-    }
-    
-    catch (error) {
+    } catch (error) {
         console.error('Failed to create user:', error);
         res.status(500).json({ error: 'Failed to create user' });
-    } 
-    
-    
-    finally {
+    } finally {
         if (conn) conn.release();
     }
 };
@@ -99,17 +113,25 @@ const login = async (req, res) => {
 
 
         conn = await db.getConnection();
-        const {encryptedData, username, password } = req.body;
+        const {encryptedData } = req.body;
+
+        const decryptedData = decryptData(encryptedData);
+        const{username,password}=decryptedData;
+
+        // Validate data types before database insertion
+
+        const validatedData = {
+            userName: String(username),
+            PASSWORD: String(password)
+        };
 
 
+        const notUserType="Admin";
 
-
-const notUserType="Admin";
-
-        // Find admin by username
+        // Find user by username
         const [users] = await conn.execute(
             'SELECT * FROM users WHERE userName =? AND userType !=?',
-            [username,notUserType]
+            [validatedData.userName,notUserType]
         );
 
         if (users.length === 0) {
@@ -126,22 +148,10 @@ const notUserType="Admin";
         const storedEncrptedPassword = user.PASSWORD;
 
            //checking passwords using aes aes encryption
-    //initialization
-           const encMethod = 'aes-256-cbc';//encoding method
-               //actual computed key and vectors
-           const key = crypto.createHash('sha512').update(secretKey).digest('hex').substring(0,32);  ///computed secret vector  
-           const encIv = crypto.createHash('sha512').update(secretIv).digest('hex').substring(0,16);//computed secret initialization vector
-   //
-           function decryptData(encryptedData) {
-            const buff = Buffer.from(encryptedData, 'base64')
-            encryptedData = buff.toString('utf-8')
-            const decipher = crypto.createDecipheriv(encMethod, key, encIv)
-            return decipher.update(encryptedData, 'hex', 'utf8') + decipher.final('utf8')
-        }
+    
+        //decrypting the password
+            const decryptedPassword=decryptPassword(storedEncrptedPassword);
 
-        const decryptedPassword= decryptData(storedEncrptedPassword);
-        
-            
 
         if (decryptedPassword !== password) {
             return res.status(401).json({ login: false, error: 'Wrong password' });
@@ -381,14 +391,37 @@ const adminSignup = async (req, res) => {
     let conn;
     try {
         conn = await db.getConnection();
-        const { firstName, lastName, phoneNumber, cnic, email, username, password } = req.body;
+        const { encryptedData} = req.body;
         const userType = "Admin";
-        const id = uuidv4();
+        const decryptedData = decryptData(encryptedData);
+        const{
+
+            firstName ,
+            lastName,
+            phoneNumber,
+            cnic,
+            email,
+            username,
+            password
+        }=decryptedData;
+
+
+        const validatedData = {
+            firstName: String(firstName),
+            lastName: String(lastName),
+            phoneNumber: BigInt(phoneNumber),
+            CNIC: BigInt(cnic),
+            email: String(email),
+            userName: String(username),
+            password: String(password),
+    
+            userType: String(userType)
+        };
 
         // Check if admin already exists
         const [existingAdmin] = await conn.execute(
             'SELECT * FROM users WHERE (userName = ? OR email = ? OR CNIC = ?) AND userType = ?',
-            [username, email, cnic, userType]
+            [validatedData.userName, validatedData.email, validatedData.CNIC,   userType]
         );
 
         if (existingAdmin.length > 0) {
@@ -398,26 +431,15 @@ const adminSignup = async (req, res) => {
         }
 
 
-          // AES ENCRYPTED PASSWORDS
-     //initialization
-         const encMethod = 'aes-256-cbc';//encoding method
-       //actual computed key and vectors
-        const key = crypto.createHash('sha512').update(secretKey).digest('hex').substring(0,32);  ///computed secret vector  
-        const encIv = crypto.createHash('sha512').update(secretIv).digest('hex').substring(0,16);//computed secret initialization vector
-       //encryption of the data password
-        function encryptData (password) {
-            const cipher = crypto.createCipheriv(encMethod, key, encIv)/// creating the cipher for encryption
-            const encrypted = cipher.update(password, 'utf8', 'hex') + cipher.final('hex')//final encryption of the data
-            return Buffer.from(encrypted).toString('base64')// returning the encypted string
-        }
 
-        // Hash password
-        const hashedPassword = encryptData(password);
+
+      
+        const encryptedPassword= encryptPassword(password);
 
         // Insert new admin
         await conn.execute(
             'INSERT INTO users (firstName, lastName, phoneNumber, CNIC, email, userName, password, userType) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)',
-            [firstName, lastName, phoneNumber, cnic, email, username, hashedPassword, userType]
+            [validatedData.firstName, validatedData.lastName, validatedData.phoneNumber, validatedData.CNIC, validatedData.email, validatedData.userName, encryptedPassword, userType]
         );
 
         res.status(201).json({ success: true, message: 'Admin user registered successfully' });
@@ -435,13 +457,24 @@ const adminLogin = async (req, res) => {
     let conn;
     try {
         conn = await db.getConnection();
-        const { username, password } = req.body;
+        const { encryptedData} = req.body;
         const adminUserType = "Admin";
+
+
+        const decryptedData = decryptData(encryptedData);
+        const{username,password}=decryptedData;
+
+//validate the types before insertion i the database
+        const validatedData = {
+            userName: String(username),
+            PASSWORD: String(password)
+        };
+
 
         // Find admin by username and userType
         const [users] = await conn.execute(
             'SELECT * FROM users WHERE userName = ? AND userType = ?',
-            [username, adminUserType]  // Check for Admin users
+            [validatedData.userName, adminUserType]  // Check for Admin users
         );
 
         if (users.length === 0) {
@@ -454,20 +487,11 @@ const adminLogin = async (req, res) => {
         const storedEncrptedPassword = user.PASSWORD;
 
 
-        const encMethod = 'aes-256-cbc';//encoding method
-               //actual computed key and vectors
-           const key = crypto.createHash('sha512').update(secretKey).digest('hex').substring(0,32);  ///computed secret vector  
-           const encIv = crypto.createHash('sha512').update(secretIv).digest('hex').substring(0,16);//computed secret initialization vector
+      
    //
-           function decryptData(encryptedData) {
-            const buff = Buffer.from(encryptedData, 'base64')
-            encryptedData = buff.toString('utf-8')
-            const decipher = crypto.createDecipheriv(encMethod, key, encIv)
-            return decipher.update(encryptedData, 'hex', 'utf8') + decipher.final('utf8')
-        }
 
-        const decryptedPassword= decryptData(storedEncrptedPassword);
         
+           const decryptedPassword=decryptPassword(storedEncrptedPassword);
 
 
         if (decryptedPassword !== password) {
@@ -621,53 +645,73 @@ const fetchAdminData = async (req, res) => {
 
 // Add to module exports
 
+
+//create user by admin task controller
+
 const createUser = async (req, res) => {
     let conn;
     try {
         conn = await db.getConnection();
-        const { firstName, lastName, phoneNumber, CNIC, email, userName, password, userType } = req.body;
+        const { encryptedData } = req.body;
+        
+        // Decrypt the incoming data
+        const decryptedData = decryptData(encryptedData);
+        const {
+            firstName,
+            lastName,
+            phoneNumber,
+            CNIC,
+            email,
+            userName,
+            password,
+            userType = 'Standard'
+        } = decryptedData;
 
-        // Check for duplicate CNIC or username
+        // Validate data types
+        const validatedData = {
+            firstName: String(firstName),
+            lastName: String(lastName),
+            phoneNumber: BigInt(phoneNumber),
+            CNIC: BigInt(CNIC),
+            email: String(email),
+            userName: String(userName),
+            password: String(password),
+            userType: String(userType)
+        };
+
+        // Check for duplicates using validated data
         const [existingUser] = await conn.execute(
             'SELECT * FROM users WHERE CNIC = ? OR userName = ?',
-            [CNIC, userName]
+            [validatedData.CNIC, validatedData.userName]
         );
 
         if (existingUser.length > 0) {
-            let errorMsg = '';
-            if (existingUser.some(user => user.CNIC === CNIC)) {
-                errorMsg = 'CNIC is already in use';
-            }
-            if (existingUser.some(user => user.userName === userName)) {
-                errorMsg = errorMsg ? `${errorMsg} and username is already in use` : 'Username is already in use';
-            }
+            let errorMsg = existingUser.some(user => user.CNIC === validatedData.CNIC)
+                ? 'CNIC is already in use'
+                : 'Username is already in use';
             return res.status(400).json({ error: errorMsg });
         }
 
-           // AES ENCRYPTED PASSWORDS
-     //initialization
-     const encMethod = 'aes-256-cbc';//encoding method
-     //actual computed key and vectors
-      const key = crypto.createHash('sha512').update(secretKey).digest('hex').substring(0,32);  ///computed secret vector  
-      const encIv = crypto.createHash('sha512').update(secretIv).digest('hex').substring(0,16);//computed secret initialization vector
-     //encryption of the data password
-      function encryptData (password) {
-          const cipher = crypto.createCipheriv(encMethod, key, encIv)/// creating the cipher for encryption
-          const encrypted = cipher.update(password, 'utf8', 'hex') + cipher.final('hex')//final encryption of the data
-          return Buffer.from(encrypted).toString('base64')// returning the encypted string
-      }
+        // Encrypt password using the utility
+        const encryptedPassword = encryptPassword(validatedData.password);
 
-      // Hash password
-      const hashedPassword = encryptData(password);
+        // Insert into users table
+        const [result] = await conn.execute(
+            'INSERT INTO users (firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD, userType) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [
+                validatedData.firstName,
+                validatedData.lastName,
+                validatedData.phoneNumber,
+                validatedData.CNIC,
+                validatedData.email,
+                validatedData.userName,
+                encryptedPassword,
+                validatedData.userType
+            ]
+        );
 
 
-    //FIRST INERT INTO USERRS
-        const query = 'INSERT INTO users (firstName, lastName, phoneNumber, CNIC, email, userName, PASSWORD, userType) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-        const values = [firstName, lastName, phoneNumber, CNIC, email, userName, hashedPassword, userType || 'Standard'];
-        const [result] = await conn.execute(query, values);
-
-        //THEN EXTRACT THE USER DATA FROM THE USERS AND EXTRACT RELEVANT DATA TO THE USER_TYPE TABLE
-        const [users]=await conn.execute('SELECT * FROM USERS WHERE userName=?',[userName]);
+        const [users]=await conn.execute('SELECT * FROM USERS WHERE userName=?',[validatedData.userName]);
         const userId = users[0].id;
 
         const userType_=users[0].userType;
@@ -709,6 +753,12 @@ const createUser = async (req, res) => {
         const values2 = [userId, typeId, userType_,permission];
         const [result2] = await conn.execute(query2, values2);
         res.status(201).json({ message: 'User created successfully', userId: result.insertId });
+
+
+
+
+
+
     } catch (error) {
         console.error('Error creating user:', error);
         res.status(500).json({ error: 'Failed to create user' });
@@ -716,6 +766,7 @@ const createUser = async (req, res) => {
         if (conn) conn.release();
     }
 };
+       
 
 const updateUser = async (req, res) => {
     let conn;
