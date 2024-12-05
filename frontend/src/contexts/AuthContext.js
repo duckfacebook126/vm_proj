@@ -19,16 +19,18 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (response.data.login) {
-                setUser({
+                const userData = {
                     username: response.data.username,
                     userType: response.data.userType,
                     userId: response.data.userId,
                     login: response.data.login
-                });
-                console.log('Authenticated user:', user);
+                };
+                setUser(userData);
+                console.log('Authentication successful:', userData);
                 setError(null);
             } else {
                 setUser(null);
+                console.log('Not authenticated');
             }
         } catch (err) {
             console.error('Auth check failed:', err);

@@ -26,6 +26,8 @@ export default function UT() {
 const[userToDelete,setUserToDelete]=useState()
   const [openDeleteDialog,setOpenDelteDialog]=useState(false)
 
+
+  const{refreshData}=useContext(DataContext);
   const [editUser, setEditUser] = useState({
     firstName: '', lastName: '', phoneNumber: '', 
     CNIC: '', email: '', userName: '', userType: 'Standard'
@@ -121,6 +123,7 @@ console.log('failed to fetch session data');
         });
         setOpenDialog(false);
         fetchUsers();
+        refreshData();
       }
     } catch (error) {
       console.error('Error updating user:', error);
@@ -148,6 +151,7 @@ console.log('failed to fetch session data');
         {
 
           fetchUsers();
+          refreshData();
         } 
       })
       
@@ -165,6 +169,7 @@ console.log('failed to fetch session data');
       await axios.post('http://localhost:8080/api/create_user', {encryptedData}, { withCredentials: true });
       setOpenCreateDialog(false);
       fetchUsers();
+      refreshData();
       setNewUser({
         firstName: '', lastName: '', phoneNumber: '', 
         CNIC: '', email: '', userName: '', password: '', userType: 'Standard'

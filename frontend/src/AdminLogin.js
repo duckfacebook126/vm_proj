@@ -22,16 +22,28 @@ import { useAuth } from './contexts/AuthContext';
 
 function AdminLogin() {
   const [isLoading, setIsLoading] = useState(true);
-  const { checkAuthStatus } = useAuth();
+  const { user,checkAuthStatus } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
 
-    return () => clearTimeout(timer);
-  }, []);
+  useEffect(() => {
+    if (user) {
+      // If user is logged in as an admin, go to admin dashboard
+      if (user.userType === 'Admin') {
+          navigate('/admin_dashboard');
+      }
+      // If user is a regular user, go to regular dashboard
+     
+  }
+
+  const timer = setTimeout(() => {
+      setIsLoading(false);
+  }, 3000);
+
+  return () => clearTimeout(timer);
+  
+  
+  }, [user, navigate]);
 
   const formik = useFormik({
     initialValues: {
@@ -136,6 +148,19 @@ function AdminLogin() {
           <Link to="/admin_signup" className="btn btn-link">
             Don't have an account? Signup as Admin
           </Link>
+
+                
+                  <Box
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                  <strong>OR</strong>
+                  </Box>
+
+          <Link to="/login" className="btn btn-link">
+            Want to login as a user? login as a user here
+          </Link>
+
+
+
         </form>
       </Paper>
     </Container>

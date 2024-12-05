@@ -70,7 +70,7 @@
 	    typeId INT NOT NULL,
 	    typeName VARCHAR(255) NOT NULL,
 	    permission VARCHAR(255) NOT NULL,
-	    FOREIGN KEY (userId) REFERENCES users(id)
+	    FOREIGN KEY (userId) REFERENCES users(id) ON CASCADE DELETE
 	    
 	    
 	);

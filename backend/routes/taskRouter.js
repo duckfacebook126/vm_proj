@@ -9,7 +9,7 @@ router.post('/signup', signup);
 router.post('/login', login);
 
 router.post('/logout', logout);
-router.post('/admin_logout', adminLogout);
+router.post('/admin_logout', logout);
 
 // VM routes
 router.post('/create_vm', createVM);
@@ -30,6 +30,9 @@ router.get('/test', (req, res) => {
 // Add this route
 router.get('/check_auth', (req, res) => {
     if (req.session && req.session.uId) {
+
+console.log(` the authenticated user id is ${req.session.uId}`);
+
         res.json({
             login: true,
             username: req.session.username,

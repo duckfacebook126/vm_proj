@@ -24,7 +24,7 @@ useEffect(() => {
             navigate('/admin_dashboard');
         }
         // If user is a regular user, go to regular dashboard
-        else if (user.userType === 'User') {
+        else if (user.userType === 'Standard'||'Premium'||'SuperUser') {
             navigate('/dashboard');
         }
     }

@@ -132,16 +132,34 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 function Dashboard3() {
 
         const{dashboardData,fetchDashboardData,refreshData} = useContext(DataContext);
-        const{user}=useAuth();
+        const{user, checkAuthStatus}=useAuth();
 
 
         useEffect(() => {
-            handle_login_change();
-            fetchDashboardData(); // Add this line to fetch data on mount
-            const timer = setTimeout(() => {
+            
+            const checkAuth = async () => {
+                try {
+                  await checkAuthStatus();  // First check auth status
+                  await refreshData();      // Then refresh data
+                  
+                  if (user===null || user.userType !== 'Standard'|| user.userType !== 'Premium'  || user.userType !== 'SuperUser') {
+                    navigate('/login');
+                  }
+                } catch (error) {
+                  console.error('Error:', error);
+                  navigate('/admin_login');
+                }
+              };
+          
+              checkAuth();
+          
+              const timer = setTimeout(() => {
                 setIsLoading(false);
-            }, 3000);
-            return () => clearTimeout(timer);
+              }, 3000);
+              
+              return () => clearTimeout(timer)
+
+
         }, []);
 
     
@@ -387,9 +405,9 @@ const setVmToEdit = (vm) =>{
                                 </Button>
                             </Stack>
                             {VmViewMode === 'Vmscard' ? (
-                                <div className="vm-grid">
+                                <div className="vm-cards">
                                     {dashboardData.vms.map(vm => (
-                                        <Card key={vm.id} sx={{ maxWidth: 345, m: 1 }}>
+                                        <Card key={vm.id} sx={{ minWidth: 300, m: 2 }}>
                                             <CardActionArea>
                                                 <CardContent>
                                                     <Typography gutterBottom variant="h5" component="div">
@@ -554,7 +572,7 @@ const setVmToEdit = (vm) =>{
                 value={editVm?.size || 50}
                 onChange={(e, newValue) => setEditVm({...editVm, size: newValue})}
                 min={50}
-                max={500}
+                max={5000}
                 step={50}
                 marks
                 valueLabelDisplay="auto"
@@ -594,9 +612,9 @@ const setVmToEdit = (vm) =>{
             </Button>
         </Stack>
         {DiskViewMode === 'Diskscard' ? (
-            <div className="disk-grid">
+            <div className="vm-cards">
                 {dashboardData.disks.map(disk => (
-                    <Card key={disk.id} sx={{ maxWidth: 345, m: 1 }}>
+                    <Card key={disk.id} sx={{ minWidth: 300, m: 1 }}>
                         <CardActionArea>
                             <CardContent>
                                 <Typography gutterBottom variant="h5" component="div">

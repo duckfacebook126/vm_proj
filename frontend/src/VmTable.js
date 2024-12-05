@@ -318,7 +318,7 @@ export default function VMTable({ onEdit, onDelete }) {
                 value={editVm?.size || 50}
                 onChange={(e, newValue) => setEditVm({...editVm, size: newValue})}
                 min={50}
-                max={500}
+                max={5000}
                 step={50}
                 marks
                 valueLabelDisplay="auto"

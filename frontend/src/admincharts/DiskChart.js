@@ -5,11 +5,17 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { AdminDataContext } from '../contexts/AdminDashboardContext';
+import { DataContext } from '../contexts/DashboardContext';
 
 export default function DiskAreaChart() {
-  const { adminDashboardData, loading, error } = useContext(AdminDataContext);
+  const { adminDashboardData, loading, error, refreshData } = useContext(AdminDataContext);
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    refreshData();
+    
+  }, []);
 
   // Transform disk data for the chart
   const chartData = adminDashboardData.disks.map(disk => ({

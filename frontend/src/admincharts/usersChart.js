@@ -2,8 +2,14 @@ import React, { useContext } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { DataContext } from '../contexts/DashboardContext';
 import { Paper, Typography } from '@mui/material';
-
+import { useEffect } from 'react';
 export default function UsersLineChart() {
+const{refreshData}= useContext(DataContext);
+useEffect(()=>{
+  refreshData();
+},[]);
+
+
   const { dashboardData } = useContext(DataContext);
   const users = dashboardData?.users || [];
 
@@ -12,6 +18,8 @@ export default function UsersLineChart() {
     acc[user.userType] = (acc[user.userType] || 0) + 1;
     return acc;
   }, {});
+
+
 
   const chartData = Object.entries(userTypes).map(([type, count], index) => ({
     name: type,

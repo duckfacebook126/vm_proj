@@ -124,7 +124,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const { checkUserType , userType} = useUser();
   const [alertLoading,setrAlertLoading]=useState(true);
-  const{user,loading}=useAuth();
+  const{user,loading,  checkAuthStatus} =useAuth()
 
 
   const handleDrawerOpen = () => {
@@ -172,22 +172,28 @@ export default function Sidebar() {
 
 //rendering first time of the component
   useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await checkAuthStatus();  // First check auth status
+        await refreshData();      // Then refresh data
+        
+        if (user===null || user.userType !== 'Admin') {
+          navigate('/admin_login');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        navigate('/admin_login');
+      }
+    };
 
+    checkAuth();
 
-
-        const timer = setTimeout(() => {
-          setIsLoading(false);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
     
-        }, 3000);
-        return () => clearTimeout(timer);
-
-
-        refreshData();
-  
-
-  }, []);
-
-
+    return () => clearTimeout(timer);
+  }, []);  // Empty dependency array for initial mount only
 
   if (!IsLoading) {
     return (
