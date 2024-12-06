@@ -32,6 +32,13 @@ function AdminLogin() {
       if (user.userType === 'Admin') {
           navigate('/admin_dashboard');
       }
+
+      else if(user.userType!==null || user.userType!=='Admin')
+      {
+
+          navigate('/admin_login');
+
+      }
       // If user is a regular user, go to regular dashboard
      
   }
@@ -63,18 +70,12 @@ function AdminLogin() {
           // Trigger auth status check to update user context
           await checkAuthStatus();
           
-          Swal.fire({
-            icon: 'success',
-            title: 'Login Successful',
-            text: 'Redirecting to Admin Dashboard',
-            timer: 1500,
-            showConfirmButton: false
-          });
+       
 
           // Small delay to show success message
           setTimeout(() => {
             navigate('/admin_dashboard');
-          }, 1600);
+          }, 3000);
         }
       } catch (err) {
         const backendError = err.response?.data?.error || 'Login failed';

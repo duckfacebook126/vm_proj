@@ -18,22 +18,26 @@ function Login() {
     const navigate = useNavigate();
 const [IsLoading,setIsLoading]=useState(true)
 useEffect(() => {
-    if (user) {
-        // If user is logged in as an admin, go to admin dashboard
-        if (user.userType === 'Admin') {
-            navigate('/admin_dashboard');
+    const checkAndRedirect = async () => {
+        if (user) {
+            // If user is logged in as an admin, go to admin dashboard
+            if (user.userType === 'Admin') {
+                navigate('/admin_dashboard');
+            }
+            // If user is a regular user, go to regular dashboard
+            else if (['Standard', 'Premium', 'SuperUser'].includes(user.userType)) {
+                navigate('/dashboard');
+            }
         }
-        // If user is a regular user, go to regular dashboard
-        else if (user.userType === 'Standard'||'Premium'||'SuperUser') {
-            navigate('/dashboard');
-        }
-    }
+    };
+
+    checkAndRedirect();
 
     const timer = setTimeout(() => {
         setIsLoading(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
+      }, 3000);
+      
+      return () => clearTimeout(timer)
 }, [user, navigate]);
 
 

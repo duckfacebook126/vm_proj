@@ -132,7 +132,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 function Dashboard3() {
 
         const{dashboardData,fetchDashboardData,refreshData} = useContext(DataContext);
-        const{user, checkAuthStatus}=useAuth();
+        const{user, checkAuthStatus,logout} = useAuth();
 
 
         useEffect(() => {
@@ -142,7 +142,7 @@ function Dashboard3() {
                   await checkAuthStatus();  // First check auth status
                   await refreshData();      // Then refresh data
                   
-                  if (user===null || user.userType !== 'Standard'|| user.userType !== 'Premium'  || user.userType !== 'SuperUser') {
+                  if (user===null ) {
                     navigate('/login');
                   }
                 } catch (error) {
@@ -284,17 +284,13 @@ const setVmToEdit = (vm) =>{
 
  
 
-    const handle_login_change = async () => {
-        const res = await axios.get('http://localhost:8080/', { withCredentials: true });
-        console.log(res.data);
-    };
+    
 
     const handleLogout = async () => {
         try {
-            const res = await axios.post('http://localhost:8080/api/logout', {}, { withCredentials: true });
-            if (res.data.message) {
-                navigate('/login');
-            }
+            await logout(); // Call the logout function from auth context
+            await checkAuthStatus(); // Verify the auth state is cleared
+            navigate('/login');
         } catch (err) {
             console.error('Logout failed:', err);
         }
@@ -407,7 +403,7 @@ const setVmToEdit = (vm) =>{
                             {VmViewMode === 'Vmscard' ? (
                                 <div className="vm-cards">
                                     {dashboardData.vms.map(vm => (
-                                        <Card key={vm.id} sx={{ minWidth: 300, m: 2 }}>
+                                        <Card key={vm.id} sx={{ minWidth: 300, m: 1 }}>
                                             <CardActionArea>
                                                 <CardContent>
                                                     <Typography gutterBottom variant="h5" component="div">
@@ -470,7 +466,19 @@ const setVmToEdit = (vm) =>{
                                 }} />
                             )}
 
-<Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+<Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}
+    
+      
+    PaperProps={{
+
+        style:{
+
+          width:'400px',
+
+          height:'600px'
+        }
+      }}
+      >
     <DialogTitle>Edit VM</DialogTitle>
     <DialogContent>
         <Stack spacing={2} sx={{ mt: 2 }}>
@@ -713,6 +721,8 @@ const setVmToEdit = (vm) =>{
         setShowForm(false);
         refreshData();
     }}
+
+    onOpen={() => setShowForm(true)}
     onSuccess={() => refreshData()} 
 />
                 </div>
@@ -721,6 +731,11 @@ const setVmToEdit = (vm) =>{
             <Dialog
                 open={openDialogvm}
                 onClose={() => setOpenDialog(false)}
+
+
+                  
+     
+          
             >
                 <DialogTitle>Confirm Delete</DialogTitle>
                 <DialogContent>

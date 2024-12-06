@@ -203,7 +203,13 @@ export default function VMTable({ onEdit, onDelete }) {
           rowsPerPageOptions={[5, 10, 15]}
         />
       </TableContainer>
-      <Dialog open={openDeleteDialog} onClose={()=>setOpenDeleteDialog(false)}>
+      <Dialog open={openDeleteDialog} onClose={()=>setOpenDeleteDialog(false)}
+
+
+
+        
+        
+        >
         <DialogTitle> Confirm Deletion</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -216,7 +222,19 @@ export default function VMTable({ onEdit, onDelete }) {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}
+        
+        PaperProps={{
+
+          style:{
+        
+            width:'400px',
+        
+            height:'600px'
+          }
+        }}
+        
+        >
     <DialogTitle>Edit VM</DialogTitle>
     <DialogContent>
         <Stack spacing={2} sx={{ mt: 2 }}>

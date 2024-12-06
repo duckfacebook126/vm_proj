@@ -251,7 +251,19 @@ console.log('failed to fetch session data');
       </TableContainer>
 
       {/* Edit Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}
+        
+          
+        PaperProps={{
+
+          style:{
+
+            width:'400px',
+
+            height:'600px'
+          }
+        }}
+        >
         <DialogTitle>Edit User</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 2 }}>
@@ -312,9 +324,23 @@ console.log('failed to fetch session data');
       </Dialog>
 
       {/* Create User Dialog */}
-      <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)}>
+      <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)}
+        
+        PaperProps={{
+
+          style:{
+
+            width:'400px',
+
+            height:'600px'
+          }
+        }}
+        
+        >
         <DialogTitle>Create New User</DialogTitle>
-        <DialogContent>
+        <DialogContent    
+       
+        >
           <Stack spacing={2} sx={{ mt: 2 }}>
             <TextField
               label="First Name"

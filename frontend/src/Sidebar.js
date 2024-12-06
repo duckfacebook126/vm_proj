@@ -124,7 +124,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const { checkUserType , userType} = useUser();
   const [alertLoading,setrAlertLoading]=useState(true);
-  const{user,loading,  checkAuthStatus} =useAuth()
+  const{user,loading,  checkAuthStatus, logout} =useAuth()
 
 
   const handleDrawerOpen = () => {
@@ -137,13 +137,13 @@ export default function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      const res = await axios.post('http://localhost:8080/api/admin_logout', {}, { withCredentials: true });
-      if (res.status === 200) {
-        await checkUserType(); // Update user context
-        navigate('/admin_login');
-      }
+      const wasAdmin = user?.userType === 'Admin';  // Store the user type before logout
+      await logout(); // Use the auth context logout function
+      await checkAuthStatus(); // Verify auth state is cleared
+      navigate(wasAdmin ? '/admin_login' : '/login');  // Redirect based on previous user type
     } catch (err) {
       console.error('Logout failed:', err);
+      navigate('/admin_login');  // Default to admin login on error
     }
   };
 
