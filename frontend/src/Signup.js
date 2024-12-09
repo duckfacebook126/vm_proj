@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Signup.css';
-import SignUpValidation, { SignUpSchema } from './SignUpValidation';
+import  { SignUpSchema } from './SignUpValidation';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useFormik } from 'formik';
@@ -29,12 +29,12 @@ function loading(){
 function Signup() {
     
     const [IsLoading,setIsLoading]=useState(true);
-
+    const navigate = useNavigate();
     const{user}=useAuth();
     useEffect(() => {
         
 
-        if (user===null && user.login) {  
+        if (user && user.login) {  
             if (user.userType === 'Admin') {
                 navigate('/admin_login');
             } else {
@@ -102,8 +102,6 @@ function Signup() {
 
     console.log(formik.errors);
     
-    const navigate = useNavigate();
-
    if(!IsLoading){
 
     return (

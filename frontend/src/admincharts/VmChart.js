@@ -4,6 +4,8 @@ import { DataContext } from '../contexts/DashboardContext';
 import { Paper, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
+import { addUserSchema } from './addUserValidation';
 export default function VMBarChart() {
   const [adminDashboardData, setAdminDashboardData] = useState({ users: [], vms: [], disks: [] });
   const disks = adminDashboardData?.disks || [];
@@ -50,22 +52,23 @@ const vms=adminDashboardData?.vms||[];
 
   // Transform VM data for the chart
   const chartData =[
-    {name: ' number of VMs', value: adminDashboardData.vms.length} 
+    {name: ' number of VMs', value: adminDashboardData.vms.length},
+  
   ]
 
   return (
     <Paper elevation={3} sx={{ p: 2, height: 400, width: '100%' }}>
       <Typography variant="h6" gutterBottom>VM Resources Distribution</Typography>
-      <ResponsiveContainer width="100%" height="90%">
-        <BarChart data={chartData}>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart width={500} height={300} data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
+          <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
           <YAxis />
           <Tooltip />
           <Legend />
-          <Bar dataKey="value" fill="#8884d8" name="num of vams" barSize={20} />
-         
-        </BarChart>
+          <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
+          <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
+        </LineChart>
       </ResponsiveContainer>
     </Paper>
   );

@@ -77,7 +77,16 @@ function AdminPieChartComponent() {
   }
 
   return (
-    <div style={{ width: '350px', height: '320px' }}>
+    <Box
+      sx={{
+        width: '100%',
+        height: 320,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative'
+      }}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -86,7 +95,7 @@ function AdminPieChartComponent() {
             cy="50%"
             labelLine={false}
             label={renderCustomizedLabel}
-            outerRadius={150}
+            outerRadius={100}
             fill="#8884d8"
             dataKey="value"
           >
@@ -97,7 +106,7 @@ function AdminPieChartComponent() {
           <Tooltip />
         </PieChart>
       </ResponsiveContainer>
-    </div>
+    </Box>
   );
 }
 

@@ -1,6 +1,10 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { DataContext } from './contexts/DashboardContext';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import { addUserSchema } from './addUserValidation';
+
+import { useFormik } from 'formik';
+
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, TablePagination, IconButton, Button, Dialog, DialogTitle,
@@ -12,6 +16,7 @@ import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import SignUpValidation, { SignUpSchema } from './SignUpValidation';
 import DialogContentText from '@mui/material/DialogContentText';
 import { encryptData, decryptData } from './utils/encryption';
 export default function UT() {
@@ -179,6 +184,49 @@ console.log('failed to fetch session data');
     }
   };
 
+
+  //formik and ypu validation in the user add  and edit forms
+
+
+const formik= useFormik({
+
+  initialValues:{
+    firstName: '',
+    lastName:'',
+    phoneNumber: '',
+    CNIC: '',
+    email: '',
+    userName: '',
+    password: '',
+    
+
+  },
+  validationSchema:addUserSchema,
+
+  onSubmit:async (values,{setSubmitting,setErrors})=>{
+
+    try {
+
+      const encryptedData = encryptData(values);
+      await axios.post('http://localhost:8080/api/create_user', {encryptedData}, { withCredentials: true });
+      setOpenCreateDialog(false);
+      fetchUsers();
+      refreshData();
+      setNewUser({
+        firstName: '', lastName: '', phoneNumber: '', 
+        CNIC: '', email: '', userName: '', password: '', userType: 'Standard'
+      });
+    } catch (error) {
+      console.error('Error creating user:', error);
+    }
+
+
+
+  }
+}
+)
+
+
   return (
     <>
       <Stack direction="row" justifyContent="flex-end" mb={2}>
@@ -338,53 +386,113 @@ console.log('failed to fetch session data');
         
         >
         <DialogTitle>Create New User</DialogTitle>
+
+        <form onSubmit={formik.handleSubmit}>
+
         <DialogContent    
        
         >
           <Stack spacing={2} sx={{ mt: 2 }}>
             <TextField
-              label="First Name"
-              value={newUser.firstName}
-              onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
+             type="text"
+             className={formik.errors.firstName&& formik.touched.firstName?'form-control danger':'form-control'}
+             id="firstName"
+             placeholder="Enter First Name"
+             name="firstName"
+             onChange={formik.handleChange}
+             value={formik.values.firstName}
+             onBlur={formik.handleBlur}
             />
+        {  formik.touched.firstName&& formik.errors.firstName&&<p className={formik.errors.firstName&& formik.touched.firstName?'form-control danger':'form-control'}>{formik.errors.firstName}</p>}
+
             <TextField
-              label="Last Name"
-              value={newUser.lastName}
-              onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
+            type="text"
+            className={formik.errors.lastName&& formik.touched.lastName?'form-control danger':'form-control'}
+            id="lastName"
+            placeholder="Enter Last Name"
+            name="lastName"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.lastName}
             />
+        { formik.touched.lastName&& formik.errors.lastName&&<p className={formik.errors.lastName&& formik.touched.lastName?'form-control danger':'form-control'}>{formik.errors.lastName}</p>}
             <TextField
-              label="Phone"
-              value={newUser.phoneNumber}
-              onChange={(e) => setNewUser({...newUser, phoneNumber: e.target.value})}
+            type="tel"
+            className={formik.errors.phoneNumber&& formik.touched.phoneNumber?'form-control danger':'form-control'}
+            id="phoneNumber"
+            placeholder="Enter Phone Number"
+            name="phoneNumber"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.phoneNumber}
             />
+        { formik.touched.phoneNumber&& formik.errors.phoneNumber&&<p className={formik.errors.phoneNumber&& formik.touched.phoneNumber?'form-control danger':'form-control'}>{formik.errors.phoneNumber}</p>}
             <TextField
-              label="CNIC"
-              value={newUser.CNIC}
-              onChange={(e) => setNewUser({...newUser, CNIC: e.target.value})}
+          type="text"
+          className={formik.touched.CNIC && formik.errors.CNIC ? 'danger form-control':'form-control'}
+          id="CNIC"
+          placeholder="Enter CNIC"
+          name="CNIC"
+          onChange={formik.handleChange}
+          value={formik.values.CNIC}
+          onBlur={formik.handleBlur}
+
             />
+
+
+        { formik.touched.CNIC&& formik.errors.CNIC&&<p className={formik.errors.CNIC&& formik.touched.CNIC?'form-control danger':'form-control'}>{formik.errors.CNIC}</p>}
             <TextField
-              label="Email"
-              value={newUser.email}
-              onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+               type="email"
+             className={formik.touched.email && formik.errors.email ? ' form-control danger':"form-control"}
+              id="email"
+              placeholder="Enter Email"
+              name="email"
+              onChange={formik.handleChange}
+              value={formik.values.email}
+              onBlur={formik.handleBlur}
             />
+         {formik.touched.email&&formik.errors.email&&<p className={formik.touched.email && formik.errors.email ? ' form-control danger':"form-control"}>{formik.errors.email}</p>}
+
             <TextField
-              label="Username"
-              value={newUser.userName}
-              onChange={(e) => setNewUser({...newUser, userName: e.target.value})}
-            />
+               type="text"
+               className={formik.touched.userName && formik.errors.userName ? 'form-control danger':"form-control"}
+               id="userName"
+               placeholder="Enter Username"
+               name="userName"
+               onChange={formik.handleChange}
+               value={formik.values.userName}
+               onBlur={formik.handleBlur}/>
+
+
             <TextField
-              label="Password"
               type="password"
-              value={newUser.password}
-              onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+              className={formik.touched.password && formik.errors.password ? 'form-control danger':"form-control"}
+              id="password"
+              placeholder="Enter Password"
+              name="password"
+              onChange={formik.handleChange}
+              value={formik.values.password}
+              onBlur={formik.handleBlur}
             />
+            {formik.touched.password&&formik.errors.password&&<p className={formik.touched.password && formik.errors.password ? 'form-control danger':"form-control"}>{formik.errors.password}</p>}
           </Stack>
         </DialogContent>
-        <DialogActions>
+        
+<DialogActions>
           <Button onClick={() => setOpenCreateDialog(false)}>Cancel</Button>
-          <Button onClick={handleCreateUser} variant="contained">Create</Button>
-        </DialogActions>
+          <Button type="submit" >Create</Button>
+       
+     </DialogActions>
+
+
+      </form>
       </Dialog>
+
+
+
+
+
+
       {/*//delete user dialog*/}
 
       <Dialog open={openDeleteDialog} onClose={() => setOpenDelteDialog(false)}>

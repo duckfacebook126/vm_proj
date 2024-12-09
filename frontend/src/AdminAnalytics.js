@@ -31,9 +31,10 @@ export default function AdminAnalytics() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Box sx={{ minWidth: 375 }}>
+      <Grid container spacing={2}>
+        {/* First card */}
+        <Grid item xs={4}>
+          <Box sx={{ minWidth: 275 }}>
             <Card variant="outlined">
               <CardContent>
                 <Typography variant="h5" component="div">
@@ -46,13 +47,16 @@ export default function AdminAnalytics() {
             </Card>
           </Box>
         </Grid>
-        <Grid item xs={12} md={6}>
+        {/* Second card */}
+        <Grid item xs={4}>
           <VmChart />
         </Grid>
-        <Grid item xs={12} md={6}>
+        {/* Third card */}
+        <Grid item xs={4}>
           <UsersChart />
         </Grid>
-        <Grid item xs={12} md={6}>
+        {/* Fourth card */}
+        <Grid item xs={4}>
           <DiskChart />
         </Grid>
       </Grid>

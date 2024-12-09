@@ -32,7 +32,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 
 
-import Swal from 'sweetalert2';
+import {
+  Swal
+} from 'sweetalert2';
 
 export default function VMTable({ onEdit, onDelete }) {
   const {  refreshData } = useContext(DataContext);
@@ -182,9 +184,9 @@ export default function VMTable({ onEdit, onDelete }) {
                     {canDelete && (
                       <IconButton 
                         onClick={() => {setVmToDelete(vm.id); setOpenDeleteDialog(true);}}
-                        color="error"
+                      
                       >
-                        <DeleteIcon />
+                        <DeleteIcon sx={{ color: 'red' }} />
                       </IconButton>
                     )}
                   </Stack>

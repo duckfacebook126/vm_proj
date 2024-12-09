@@ -1,5 +1,4 @@
-
-
+const express = require('express');
 const { decryptData } = require('../utils/decryption');
 const db = require('../db');
 const bcrypt = require('bcrypt');
@@ -57,7 +56,16 @@ const signup = async (req, res) => {
 
         }
 
-        const encryptedPassword= encryptPassword(password);
+        // const encryptedPassword= encryptPassword(password);
+                //using bcrypt to to hash and store the password again in the data base
+
+
+        const saltRounds = 10;
+//hahsing the user inpput password and saving it iniside the
+        const encryptedPassword= await bcrypt.hash(validatedData.password, saltRounds);
+        
+
+
 
         // Insert into users table
         const query = `INSERT INTO users (
@@ -145,17 +153,18 @@ const login = async (req, res) => {
 
         const user =users[0];
 
-        const storedEncrptedPassword = user.PASSWORD;
-
-           //checking passwords using aes aes encryption
-    
-        //decrypting the password
-            const decryptedPassword=decryptPassword(storedEncrptedPassword);
+            //using bcrypt to heck the  stored passwords hash with the user entered password
 
 
-        if (decryptedPassword !== password) {
-            return res.status(401).json({ login: false, error: 'Wrong password' });
-        }
+            //stored hashed password in the adatbase
+            const hashedUserpasssword=user.PASSWORD;
+
+            //now chwcking the paassword using using bcrypt compare
+            const isPasswordMatch = await bcrypt.compare(validatedData.PASSWORD, hashedUserpasssword);
+
+            if (!isPasswordMatch) {
+                return res.status(401).json({login: false, error: 'Invalid password'});
+            }
 
         // Set session data
 
@@ -431,10 +440,14 @@ const adminSignup = async (req, res) => {
         }
 
 
+    //using bcrypt to encrypt the password here
+
+
+    //encrypted password
+    const encryptedPassword=await bcrypt.hash(validatedData.password,10);
 
 
       
-        const encryptedPassword= encryptPassword(password);
 
         // Insert new admin
         await conn.execute(
@@ -484,19 +497,31 @@ const adminLogin = async (req, res) => {
         const user = users[0];
 
 
-        const storedEncrptedPassword = user.PASSWORD;
+                //using bcrrypt to encrypt the password here
 
+                //stored user password
+        const hashedUserPassword = user.PASSWORD;
+
+        // checking the password using bcrypt
+
+        const isPasswordMatch= await bcrypt.compare(validatedData.PASSWORD,hashedUserPassword);
+            //check if the password matches if ot return an error
+                    if(isPasswordMatch)
+                        
+                        {
+                      return res.status(401).json({error:'wrong password',});
+
+
+                        }
+        
 
       
    //
 
         
-           const decryptedPassword=decryptPassword(storedEncrptedPassword);
 
 
-        if (decryptedPassword !== password) {
-            return res.status(401).json({ login: false, error: 'Wrong password' });
-        }
+      
 
         // Set session data
         req.session.username = user.userName;

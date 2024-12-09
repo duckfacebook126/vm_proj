@@ -2,6 +2,21 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AddVMForm.css';
+import {
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    Button,
+    Stack,
+    FormControl,
+    InputLabel,
+    Slider,
+    Select,
+    MenuItem,
+    Grid
+} from '@mui/material';
 
 function AddVMForm({ onClose, onSuccess }) {
     const navigate = useNavigate();
@@ -90,123 +105,149 @@ function AddVMForm({ onClose, onSuccess }) {
     };
 
     return (
-        <div className="add-vm-form-container">
-            <form className="add-vm-form" onSubmit={handleSubmit}>
-                <h2>Add New VM</h2>
-                <div className="form-sections">
-                    <div className="form-left">
-                        <div className="form-group ">
-                            <label htmlFor="osName">OS Name</label>
-                            <input
-                                type="text"
-                                id="osName"
-                                name="osName"
-                                value={formData.osName}
-                                onChange={handleInput}
-                                required
-                                className='form-control dark-outline'
-                            />
-                            {vmError.osName && <span className="error ">{vmError.osName}</span>}
+        <Dialog 
+            open={true} 
+            onClose={onClose}
+            maxWidth="md"
+            fullWidth
+        >
+            <DialogTitle>Add New VM</DialogTitle>
+            <form onSubmit={handleSubmit}>
+                <DialogContent>
+                    <Grid container spacing={3}>
+                        <Grid item xs={6}>
+                            <Stack spacing={3}>
+                                <TextField
+                                    fullWidth
+                                    label="OS Name"
+                                    name="osName"
+                                    value={formData.osName}
+                                    onChange={handleInput}
+                                    required
+                                    error={!!vmError.osName}
+                                    helperText={vmError.osName}
+                                />
+                                <TextField
+                                    fullWidth
+                                    label="VM Name"
+                                    name="vmName"
+                                    value={formData.vmName}
+                                    onChange={handleInput}
+                                    required
+                                    error={!!vmError.vmName}
+                                    helperText={vmError.vmName}
+                                />
+                                <FormControl fullWidth>
+                                    <InputLabel>CPU Cores</InputLabel>
+                                    <Slider
+                                        name="cpuCores"
+                                        value={formData.cpuCores}
+                                        onChange={handleSliderChange}
+                                        min={2}
+                                        max={8}
+                                        valueLabelDisplay="auto"
+                                        marks
+                                        aria-label="CPU Cores"
+                                    />
+                                    <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                                        CPU Cores: {formData.cpuCores}
+                                    </div>
+                                </FormControl>
+                                <FormControl fullWidth>
+                                    <InputLabel>CPU Count</InputLabel>
+                                    <Slider
+                                        name="cpuCount"
+                                        value={formData.cpuCount}
+                                        onChange={handleSliderChange}
+                                        min={1}
+                                        max={4}
+                                        valueLabelDisplay="auto"
+                                        marks
+                                        aria-label="CPU Count"
+                                    />
+                                    <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                                        CPU Count: {formData.cpuCount}
+                                    </div>
+                                </FormControl>
+                            </Stack>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Stack spacing={3}>
+                                <FormControl fullWidth>
+                                    <InputLabel>Disk Flavor</InputLabel>
+                                    <Select
+                                        name="diskFlavor"
+                                        value={formData.diskFlavor}
+                                        onChange={handleDiskFlavorChange}
+                                        label="Disk Flavor"
+                                    >
+                                        <MenuItem value="Light">Light</MenuItem>
+                                        <MenuItem value="Medium">Medium</MenuItem>
+                                        <MenuItem value="Heavy">Heavy</MenuItem>
+                                    </Select>
+                                </FormControl>
+                                <FormControl fullWidth>
+                                    <InputLabel>RAM Size</InputLabel>
+                                    <Slider
+                                        name="ram"
+                                        value={formData.ram}
+                                        onChange={handleSliderChange}
+                                        min={ramLimits[formData.diskFlavor].min}
+                                        max={ramLimits[formData.diskFlavor].max}
+                                        valueLabelDisplay="auto"
+                                        marks
+                                        aria-label="RAM Size"
+                                    />
+                                    <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                                        RAM Size: {formData.ram} GB
+                                    </div>
+                                </FormControl>
+                                <TextField
+                                    fullWidth
+                                    label="Disk Name"
+                                    name="diskName"
+                                    value={formData.diskName}
+                                    onChange={handleInput}
+                                    required
+                                    error={!!vmError.diskName}
+                                    helperText={vmError.diskName}
+                                />
+                                <FormControl fullWidth>
+                                    <InputLabel>Disk Size</InputLabel>
+                                    <Slider
+                                        name="diskSize"
+                                        value={formData.diskSize}
+                                        onChange={handleSliderChange}
+                                        min={50}
+                                        max={5000}
+                                        step={50}
+                                        valueLabelDisplay="auto"
+                                        marks
+                                        aria-label="Disk Size"
+                                    />
+                                    <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                                        Disk Size: {formData.diskSize} GB
+                                    </div>
+                                </FormControl>
+                            </Stack>
+                        </Grid>
+                    </Grid>
+                    {vmError.submit && (
+                        <div style={{ color: 'red', marginTop: '16px', textAlign: 'center' }}>
+                            {vmError.submit}
                         </div>
-                        <div className="form-group ">
-                            <label htmlFor="vmName">VM Name</label>
-                            <input
-                                type="text"
-                                id="vmName"
-                                name="vmName"
-                                value={formData.vmName}
-                                onChange={handleInput}
-                                required
-                                className='form-control dark-outline'
-                            />
-                            {vmError.vmName && <span className="error">{vmError.vmName}</span>}
-                        </div>
-                        <div className="form-group ">
-                            <label htmlFor="cpuCores">CPU Cores: {formData.cpuCores}</label>
-                            <input
-                                type="range"
-                                id="cpuCores"
-                                name="cpuCores"
-                                min="2"
-                                max="8"
-                                value={formData.cpuCores}
-                                onChange={handleSliderChange}
-                            />
-                        </div>
-                        <div className="form-group ">
-                            <label htmlFor="cpuCount">CPU Count: {formData.cpuCount}</label>
-                            <input
-                                type="range"
-                                id="cpuCount"
-                                name="cpuCount"
-                                min="1"
-                                max="4"
-                                value={formData.cpuCount}
-                                onChange={handleSliderChange}
-                            />
-                        </div>
-                    </div>
-                    <div className="form-right">
-                        <div className="form-group ">
-                            <label htmlFor="diskFlavor">Disk Flavor</label>
-                            <select
-                                id="diskFlavor"
-                                name="diskFlavor"
-                                value={formData.diskFlavor}
-                                onChange={handleDiskFlavorChange}
-                            >
-                                <option value="Light">Light</option>
-                                <option value="Medium">Medium</option>
-                                <option value="Heavy">Heavy</option>
-                            </select>
-                        </div>
-                        <div className="form-group ">
-                            <label htmlFor="ram">RAM Size: {formData.ram} GB</label>
-                            <input
-                                type="range"
-                                id="ram"
-                                name="ram"
-                                min={ramLimits[formData.diskFlavor].min}
-                                max={ramLimits[formData.diskFlavor].max}
-                                value={formData.ram}
-                                onChange={handleSliderChange}
-                            />
-                        </div>
-                        <div className="form-group ">
-                            <label htmlFor="diskName">Disk Name</label>
-                            <input
-                                type="text"
-                                id="diskName"
-                                name="diskName"
-                                value={formData.diskName}
-                                onChange={handleInput}
-                                required
-                                className='form-control dark-outline'
-                            />
-                            {vmError.diskName && <span className="error">{vmError.diskName}</span>}
-                        </div>
-                        <div className="form-group ">
-                            <label htmlFor="diskSize">Disk Size: {formData.diskSize} GB</label>
-                            <input
-                                type="range"
-                                id="diskSize"
-                                name="diskSize"
-                                min="50"
-                                max="5000"
-                                step="50"
-                                value={formData.diskSize}
-                                onChange={handleSliderChange}
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div className="form-buttons">
-                    <button type="button" className='btn btn-success' onClick={onClose}>Close</button>
-                    <button type="submit" className='btn btn-success'>Submit</button>
-                </div>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={onClose} color="primary">
+                        Cancel
+                    </Button>
+                    <Button type="submit" color="primary" variant="contained">
+                        Submit
+                    </Button>
+                </DialogActions>
             </form>
-            {vmError.submit && <div className="error">{vmError.submit}</div>}
-        </div>
+        </Dialog>
     );
 }
 

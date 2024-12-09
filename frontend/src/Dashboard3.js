@@ -323,7 +323,7 @@ const setVmToEdit = (vm) =>{
             Dashboard
             </Typography>
             <IconButton
-            color="inherit"
+            color="red"
             aria-label="logout"
             onClick={handleLogout}
             edge="end"
@@ -431,7 +431,7 @@ const setVmToEdit = (vm) =>{
                                                         }
                                                     }}
                                                 >
-                                                    <DeleteIcon />
+                                                    <DeleteIcon sx={{color:"red"}} />
                                                 </IconButton>
 
                                              <IconButton
