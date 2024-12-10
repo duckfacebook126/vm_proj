@@ -7,6 +7,21 @@ import UsersChart from './admincharts/usersChart';
 import AdminPieChartComponent from './admincharts/PieChartComponent';
 import DiskChart from './admincharts/DiskChart';
 import VmChart from './admincharts/VmChart';
+import { keyframes } from '@emotion/react';
+
+const fadeIn = keyframes`
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
+`;
+
+const colorChange = keyframes`
+  0% { color: #ff6f61; }
+  25% { color: #6b5b95; }
+  50% { color: #88b04b; }
+  75% { color: #f7cac9; }
+  100% { color: #ff6f61; }
+`;
+
 
 export const graphcontext = createContext();
 
@@ -32,9 +47,115 @@ export default function AdminAnalytics() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Grid container spacing={2}>
+
+
+ {/* total number of users with animations in texts below */}
+
+ <Grid item>
+      <Card variant="outlined" sx={{ minWidth: 275, minHeight: 175, padding: 2, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+        <Typography
+          variant="h5"
+          component="div"
+          sx={{
+            animation: `${fadeIn} 1s ease-out`,
+            color: '#333',
+            fontWeight: 'bold',
+            textAlign: 'center',
+          }}
+        >
+          Total Virtual Machines
+        </Typography>
+        <CardContent>
+          <Typography
+            variant="h3"
+            component="div"
+            sx={{
+              animation: `${colorChange} 3s ease-in-out infinite`,
+              textAlign: 'center',
+              fontWeight: 'bold',
+            }}
+          >
+            {adminDashboardData.users.length}
+          </Typography>
+        </CardContent>
+      </Card>
+    </Grid> 
+
+
+  {/* total number of vms with animations in texts below */}
+
+  <Grid item>
+      <Card variant="outlined" sx={{ minWidth: 275, minHeight: 175, padding: 2, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+        <Typography
+          variant="h5"
+          component="div"
+          sx={{
+            animation: `${fadeIn} 1s ease-out`,
+            color: '#333',
+            fontWeight: 'bold',
+            textAlign: 'center',
+          }}
+        >
+          Total Virtual Machines
+        </Typography>
+        <CardContent>
+          <Typography
+            variant="h3"
+            component="div"
+            sx={{
+              animation: `${colorChange} 3s ease-in-out infinite`,
+              textAlign: 'center',
+              fontWeight: 'bold',
+            }}
+          >
+            {adminDashboardData.vms.length}
+          </Typography>
+        </CardContent>
+      </Card>
+    </Grid> 
+
+
+{/* total number of disks with animations in texts below */}
+
+      <Grid item>
+      <Card variant="outlined" sx={{ minWidth: 275, minHeight: 175, padding: 2, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+        <Typography
+          variant="h5"
+          component="div"
+          sx={{
+            animation: `${fadeIn} 1s ease-out`,
+            color: '#333',
+            fontWeight: 'bold',
+            textAlign: 'center',
+          }}
+        >
+          Total Disks
+        </Typography>
+        <CardContent>
+          <Typography
+            variant="h3"
+            component="div"
+            sx={{
+              animation: `${colorChange} 3s ease-in-out infinite`,
+              textAlign: 'center',
+              fontWeight: 'bold',
+            }}
+          >
+            {adminDashboardData.disks.length}
+          </Typography>
+        </CardContent>
+      </Card>
+    </Grid> 
+
+
+      
+
+
+
+
         {/* First card */}
         <Grid item xs={4}>
-          <Box sx={{ minWidth: 275 }}>
+          <Box sx={{ maxWidth: 275 }}>
             <Card variant="outlined">
               <CardContent>
                 <Typography variant="h5" component="div">
@@ -58,8 +179,11 @@ export default function AdminAnalytics() {
         {/* Fourth card */}
         <Grid item xs={4}>
           <DiskChart />
-        </Grid>
+        </Grid>     
       </Grid>
+
+
+     
     </Container>
   );
 }

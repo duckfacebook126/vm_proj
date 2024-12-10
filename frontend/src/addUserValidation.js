@@ -18,7 +18,7 @@ export const addUserSchema = yup.object().shape({
     email: yup.string()
         .email('Invalid email format')
         .required('Email is required'),
-    username: yup.string()
+    userName: yup.string()
         .matches(/^(?=.*\d).{1,12}$/, 'Username must contain numbers and be no longer than 12 characters')
         .required('Username is required'),
     password: yup.string()

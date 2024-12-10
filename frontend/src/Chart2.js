@@ -28,7 +28,7 @@ function Chart02() {
     }));
 
     return (
-        <div style={{ width: '350px', height: '320px' }}>
+        <div style={{ width: '275px', height: '320px' }}>
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <Pie

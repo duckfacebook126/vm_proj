@@ -17,6 +17,7 @@ import {
     MenuItem,
     Grid
 } from '@mui/material';
+import Swal from 'sweetalert2';
 
 function AddVMForm({ onClose, onSuccess }) {
     const navigate = useNavigate();
@@ -90,6 +91,13 @@ function AddVMForm({ onClose, onSuccess }) {
             console.log('VM created successfully:', response.data);
             if (onSuccess) {
                 onSuccess();
+
+                Swal.fire({
+
+                    icon:'success',
+                    title:'VM Created Successfully',
+                    confirmButtonText:'OK'
+                })
             }
             onClose();
         } catch (err) {

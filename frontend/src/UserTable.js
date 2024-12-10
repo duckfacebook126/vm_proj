@@ -188,43 +188,56 @@ console.log('failed to fetch session data');
   //formik and ypu validation in the user add  and edit forms
 
 
-const formik= useFormik({
-
-  initialValues:{
-    firstName: '',
-    lastName:'',
-    phoneNumber: '',
-    CNIC: '',
-    email: '',
-    userName: '',
-    password: '',
-    
-
-  },
-  validationSchema:addUserSchema,
-
-  onSubmit:async (values,{setSubmitting,setErrors})=>{
-
-    try {
-
-      const encryptedData = encryptData(values);
-      await axios.post('http://localhost:8080/api/create_user', {encryptedData}, { withCredentials: true });
-      setOpenCreateDialog(false);
-      fetchUsers();
-      refreshData();
-      setNewUser({
-        firstName: '', lastName: '', phoneNumber: '', 
-        CNIC: '', email: '', userName: '', password: '', userType: 'Standard'
-      });
-    } catch (error) {
-      console.error('Error creating user:', error);
+  const formik = useFormik({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+      CNIC: '',
+      email: '',
+      userName: '',  // Make sure this matches the schema
+      password: '',
+      userType: 'Standard'
+    },
+    validationSchema: addUserSchema,
+    onSubmit: async (values, { setSubmitting, resetForm }) => {
+      try {
+        const encryptedData = encryptData(values);
+        console.log('Submitting form with values:', values);
+        
+        const response = await axios.post(
+          'http://localhost:8080/api/create_user', 
+          { encryptedData }, 
+          { withCredentials: true }
+        );
+  
+        if (response.status === 201) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'User created successfully!'
+          });
+          setOpenCreateDialog(false);
+          fetchUsers();
+          refreshData();
+          resetForm();
+        }
+      } catch (error) {
+        console.error('Error creating user:', error);
+        setOpenCreateDialog(false);
+        fetchUsers();
+        refreshData();
+        resetForm();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.response?.data?.error || 'Failed to create user'
+        });
+      } finally {
+        setSubmitting(false);
+      }
     }
-
-
-
-  }
-}
-)
+  });
 
 
   return (
@@ -273,7 +286,7 @@ const formik= useFormik({
                   </IconButton>
 
                   <IconButton onClick={() => {setUserToDelete(user.id);setOpenDelteDialog(true)}}>
-                    <DeleteIcon />
+                    <DeleteIcon sx={{color:'red'}} />
                   </IconButton>
 
               
@@ -453,15 +466,18 @@ const formik= useFormik({
             />
          {formik.touched.email&&formik.errors.email&&<p className={formik.touched.email && formik.errors.email ? ' form-control danger':"form-control"}>{formik.errors.email}</p>}
 
-            <TextField
-               type="text"
-               className={formik.touched.userName && formik.errors.userName ? 'form-control danger':"form-control"}
-               id="userName"
-               placeholder="Enter Username"
-               name="userName"
-               onChange={formik.handleChange}
-               value={formik.values.userName}
-               onBlur={formik.handleBlur}/>
+         <TextField
+               fullWidth
+              type="text"
+              label="Username"
+              name="userName"  // This should match the schema
+              value={formik.values.userName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.userName && Boolean(formik.errors.userName)}
+              helperText={formik.touched.userName && formik.errors.userName}
+              />
+         {formik.touched.userName&&formik.errors.userName&&<p className={formik.touched.userName && formik.errors.userName ? ' form-control danger':"form-control"}>{formik.errors.userName}</p>}
 
 
             <TextField
@@ -480,7 +496,14 @@ const formik= useFormik({
         
 <DialogActions>
           <Button onClick={() => setOpenCreateDialog(false)}>Cancel</Button>
-          <Button type="submit" >Create</Button>
+          <Button 
+  type="submit"
+  variant="contained"
+  color="primary"
+  disabled={formik.isSubmitting || !formik.isValid}
+>
+  {formik.isSubmitting ? 'Creating...' : 'Create'}
+</Button>
        
      </DialogActions>
 

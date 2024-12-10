@@ -198,6 +198,14 @@ function Dashboard3() {
         axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`, { withCredentials: true })
             .then(res => {
                 console.log(res.data);
+
+                Swal.fire({
+
+                    icon:'success',
+                    title:'VM Deleted Successfully',
+                    confirmButtonText:'OK'
+
+                });
                 refreshData();  // Use refreshData instead of fetchDashboardData
             })
             .catch(err => {
@@ -323,13 +331,18 @@ const setVmToEdit = (vm) =>{
             Dashboard
             </Typography>
             <IconButton
-            color="red"
-            aria-label="logout"
-            onClick={handleLogout}
-            edge="end"
-            sx={{ ml: 2 }}
-              >
-              <LogoutIcon />
+              sx={{
+                color: 'red !important',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 0, 0, 0.04) !important',
+                  color: 'red !important',
+                },
+              }}
+              aria-label="logout"
+              onClick={handleLogout}
+              edge="end"
+            >
+              <LogoutIcon   />
           </IconButton>
         </Toolbar>
         </AppBar>
@@ -481,7 +494,7 @@ const setVmToEdit = (vm) =>{
       >
     <DialogTitle>Edit VM</DialogTitle>
     <DialogContent>
-        <Stack spacing={2} sx={{ mt: 2 }}>
+        <Stack spacing={2} sx={{ mt: 2}}>
             <TextField
                 label="VM Name"
                 name="NAME"
@@ -499,7 +512,7 @@ const setVmToEdit = (vm) =>{
             
             {/* Flavor Slider */}
             <Typography gutterBottom>Flavor Type</Typography>
-            <Slider
+            <Slider  sx={{ mt: 10}} 
                 name="flavorName"
                 value={editVm?.flavorName === 'Light' ? 0 : editVm?.flavorName === 'Medium' ? 1 : 2}
                 onChange={(e, newValue) => {
@@ -532,9 +545,12 @@ const setVmToEdit = (vm) =>{
                 valueLabelDisplay="auto"
                 valueLabelFormat={(value) => ['Light', 'Medium', 'Heavy'][value]}
             />
+
+<Box sx={{ mt: 4 }} /> {/* Spacer */}
+
             
             {/* CPU Count Slider */}
-            <Typography gutterBottom>CPU Count</Typography>
+            <Typography >CPU Count</Typography>
             <Slider
                 name="cpu"
                 value={editVm?.cpu || 1}
@@ -641,7 +657,9 @@ const setVmToEdit = (vm) =>{
                                     setOpenDialogDisk(true);
                                 }}
                             >
-                                <DeleteIcon />
+                                <DeleteIcon
+                                
+                                sx={{color:'red'}} />
                             </IconButton>
                         </CardActionArea>
                     </Card>
@@ -753,6 +771,10 @@ const setVmToEdit = (vm) =>{
                     </Button>
                 </DialogActions>
             </Dialog>
+
+
+
+
 
             <Dialog
                 open={openDialogDisk}

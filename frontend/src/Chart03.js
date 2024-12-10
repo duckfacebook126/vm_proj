@@ -32,7 +32,7 @@ function Chart03() {
     console.log('Formatted VM Data:', formattedVMData);
 
     return (
-        <div style={{ width: '350px', height: '320px' }}>
+        <div style={{ width: '275px', height: '320px' }}>
         <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           width={500}
