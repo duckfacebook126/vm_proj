@@ -53,7 +53,7 @@ const vms=adminDashboardData?.vms||[];
   // Transform VM data for the chart
   console.log(`The VM data is: ${JSON.stringify(vms, null, 2)}`);
   return (
-    <Paper elevation={3} sx={{ p: 2, height: 400, width: 275 }}>
+    <Paper elevation={3} sx={{ p: 2, height: 400, width: '100%' }}>
       <Typography variant="h6" gutterBottom>VM Resources Distribution</Typography>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, CircularProgress } from '@mui/material';
+import { Box, Typography, CircularProgress, Paper } from '@mui/material';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
 
@@ -77,17 +77,11 @@ function AdminPieChartComponent() {
   }
 
   return (
-    <Box
-      sx={{
-        width: '100%',
-        height: 320,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative'
-      }}
-    >
+    <Paper elevation={3} sx={{ p: 2, height: 400, width: '100%' }}>
+      <Typography variant='h6' >Overiew</Typography>
       <ResponsiveContainer width="100%" height="100%">
+
+        
         <PieChart>
           <Pie
             data={pieData}
@@ -106,7 +100,7 @@ function AdminPieChartComponent() {
           <Tooltip />
         </PieChart>
       </ResponsiveContainer>
-    </Box>
+      </Paper>
   );
 }
 

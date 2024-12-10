@@ -51,7 +51,7 @@ export default function AdminAnalytics() {
 
  {/* total number of users with animations in texts below */}
 
- <Grid item>
+ <Grid item xs={4}>
       <Card variant="outlined" sx={{ minWidth: 275, minHeight: 175, padding: 2, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
         <Typography
           variant="h5"
@@ -84,7 +84,7 @@ export default function AdminAnalytics() {
 
   {/* total number of vms with animations in texts below */}
 
-  <Grid item>
+  <Grid item xs={4}>
       <Card variant="outlined" sx={{ minWidth: 275, minHeight: 175, padding: 2, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
         <Typography
           variant="h5"
@@ -117,7 +117,7 @@ export default function AdminAnalytics() {
 
 {/* total number of disks with animations in texts below */}
 
-      <Grid item>
+      <Grid item xs={4}>
       <Card variant="outlined" sx={{ minWidth: 275, minHeight: 175, padding: 2, boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
         <Typography
           variant="h5"
@@ -155,18 +155,13 @@ export default function AdminAnalytics() {
 
         {/* First card */}
         <Grid item xs={4}>
-          <Box sx={{ maxWidth: 275 }}>
-            <Card variant="outlined">
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  Overview
-                </Typography>
+          
+            
+                
                 <graphcontext.Provider value={adminDashboardData}>
                   <AdminPieChartComponent />
                 </graphcontext.Provider>
-              </CardContent>
-            </Card>
-          </Box>
+          
         </Grid>
         {/* Second card */}
         <Grid item xs={4}>
