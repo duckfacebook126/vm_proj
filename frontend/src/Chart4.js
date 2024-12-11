@@ -10,6 +10,7 @@ const getPath = (x, y, width, height) => {
     Z`;
   };
   
+  //custom bar chart styling
   const TriangleBar = (props) => {
     const { fill, x, y, width, height } = props;
   
@@ -39,9 +40,11 @@ function Chart04() {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 
             dataKey="NAME"
-            angle={-45}
+           
             textAnchor="end"
             interval={0}
+
+            text
           />
           <YAxis dataKey="size" />
           <Tooltip />

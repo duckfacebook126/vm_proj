@@ -26,7 +26,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import CardActionArea from '@mui/material/CardActionArea';
-import { Button, Stack } from '@mui/material';
+import { Button, Container, Grid, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import LoadingSpinner from './components/Loading';
@@ -60,10 +60,12 @@ import {
   }
   from '@mui/material';
 
-
+/// the exporting the graph context
 export const graphcontext = createContext();
 
 const drawerWidth = 240;
+
+//opening animation and style of the drawer
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -74,6 +76,8 @@ const openedMixin = (theme) => ({
   overflowX: 'hidden',
 });
 
+
+//closing of thrn closed drawer and its animation
 const closedMixin = (theme) => ({
   transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.sharp,
@@ -85,7 +89,7 @@ const closedMixin = (theme) => ({
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
 });
-
+//drawer Header 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -94,6 +98,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
+// app bar syling
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme, open }) => ({
@@ -111,6 +116,8 @@ const AppBar = styled(MuiAppBar, {
     }),
   }),
 }));
+
+//styling for the drawer
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
@@ -131,10 +138,11 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 function Dashboard3() {
 
+    // importing the dashboard context and authetication context
         const{dashboardData,fetchDashboardData,refreshData} = useContext(DataContext);
         const{user, checkAuthStatus,logout} = useAuth();
 
-
+        //will check auth on the use effect
         useEffect(() => {
             
             const checkAuth = async () => {
@@ -152,7 +160,7 @@ function Dashboard3() {
               };
           
               checkAuth();
-          
+          //set timer for loading screen and set the loading to true so the loading screen can be rendered
               const timer = setTimeout(() => {
                 setIsLoading(false);
               }, 3000);
@@ -180,38 +188,44 @@ function Dashboard3() {
     const [openEditDialog,setOpenEditDialog] = useState(false);
     const [editVm, setEditVm] = useState();
     const [DiskToEdit, setDiskToEdit] = useState();
-
+//setting the user permission on the frontend
     const userType = user?.userType || 'Standard';
   const canEdit = userType === 'Premium' || userType === 'SuperUser';
   const canDelete = userType === 'SuperUser';
 
-
+//set open drawer state to true for the visibility
     const handleDrawerOpen = () => {
         setOpen(true);
     };
-
+// cose drawer state for visibility to be false
     const handleDrawerClose = () => {
         setOpen(false);
     };
 
+    //dlete function for delting vm  by id
     const handleDeletevm = async (VMid) => {
+
+        //axios delte request
         axios.delete(`http://localhost:8080/api/delete_vm/${VMid}`, { withCredentials: true })
             .then(res => {
                 console.log(res.data);
-
-                Swal.fire({
+                    //succesfull alert fire so that thereis succesful deeletion
+                    Swal.fire({
 
                     icon:'success',
                     title:'VM Deleted Successfully',
                     confirmButtonText:'OK'
 
                 });
+                //refreshing datta after the  vm is deleted succcessfully
                 refreshData();  // Use refreshData instead of fetchDashboardData
             })
             .catch(err => {
                 console.error('Failed to delete VM:', err);
             });
     };
+
+    //function will handle the user to be edited
 
 const setVmToEdit = (vm) =>{
     if (!user) return;
@@ -232,7 +246,7 @@ const setVmToEdit = (vm) =>{
         }
     );
 }
-
+        //axios put requestfor updating the user with th
     const handleEditvm = async (editVm) => {
         axios.put(`http://localhost:8080/api/update_vm/${editVm.id}`, editVm,{ withCredentials: true })
             .then(res => {
@@ -277,8 +291,10 @@ const setVmToEdit = (vm) =>{
 
     };
 
-    
+        //delete disk by id    
     const handleDeleteDisk = async (Diskid) => {
+
+        //axios delte req with params vm id
         axios.delete(`http://localhost:8080/api/delete_Disk/${Diskid}`, { withCredentials: true })
             .then(res => {
                 console.log(res.data);
@@ -293,17 +309,19 @@ const setVmToEdit = (vm) =>{
  
 
     
-
+//this will handle the logout button request and event
     const handleLogout = async () => {
         try {
             await logout(); // Call the logout function from auth context
             await checkAuthStatus(); // Verify the auth state is cleared
-            navigate('/login');
+            navigate('/login');//logout back to the login page
         } catch (err) {
             console.error('Logout failed:', err);
         }
     };
 
+
+    // i f the loading visibiity is true show the loading screeen
     if (IsLoading) {
         return <LoadingSpinner />;
     }
@@ -312,10 +330,12 @@ const setVmToEdit = (vm) =>{
 
         
 
-
+// Main dashbaord rendering on the front end
 
         <Box sx={{ display: 'flex', zIndex: '1201' }}>
             <CssBaseline />
+
+            {/*  */}
             <AppBar position="fixed" open={open}>
            <Toolbar>
               <IconButton
@@ -677,49 +697,49 @@ const setVmToEdit = (vm) =>{
 {activeTab === 'analytics' && (
 
 <>
-<div className='card-container'>
-    <Card sx={{ maxWidth: 375, maxHeight: 450  }}>
-    <CardHeader
-        title="RAM Usage by VM"  // Descriptive title
-    />
-    <CardContent>
-        <Chart01 />
-    </CardContent>
-</Card>
+<Container>
+      <Grid container spacing={2}>
+        {/* Card for RAM Usage */}
+        <Grid item xs={12} sm={6} md={4} lg={4} xl={4}>
+          <Card sx={{ maxWidth: 375, height: 450, display: 'flex', flexDirection: 'column' }}>
+            <CardHeader title="RAM Usage by VM" />
+            <CardContent sx={{ flex: 1, minHeight: 0 }}>
+              <Chart01 />
+            </CardContent>
+          </Card>
+        </Grid>
 
- <Card sx={{ maxWidth: 375, maxHeight: 450  }}>
-    <CardHeader
-        title="number of cores by VM"  // Descriptive title
-        
-    />
-    <CardContent>
-        <Chart02 />
-    </CardContent>
-</Card>
+        {/* Card for Number of Cores by VM */}
+        <Grid item xs={4} sm={4} md={4} lg={4} xl={4}>
+          <Card sx={{ maxWidth: 375, height: 450, display: 'flex', flexDirection: 'column' }}>
+            <CardHeader title="Number of Cores by VM" />
+            <CardContent sx={{ flex: 1, minHeight: 0 }}>
+              <Chart02 />
+            </CardContent>
+          </Card>
+        </Grid>
 
+        {/* Card for Number of CPUs by VM */}
+        <Grid item xs={12} sm={6} md={4} lg={4} xl={4}>
+          <Card sx={{ maxWidth: 375, height: 450, display: 'flex', flexDirection: 'column' }}>
+            <CardHeader title="Number of CPUs by VM" />
+            <CardContent sx={{ flex: 1, minHeight: 0 }}>
+              <Chart03 />
+            </CardContent>
+          </Card>
+        </Grid>
 
-<Card sx={{ maxWidth: 375, maxHeight: 450  }}>
-    <CardHeader
-        title="number of CPUS by VM"  // Descriptive title
-    />
-    <CardContent>
-        <Chart03 />
-    </CardContent>
-</Card>
-
-
-
-
-<Card sx={{ maxWidth: 375, maxHeight: 450  }}>
-    <CardHeader
-        title="size of each VM"  // Descriptive title
-    />
-    <CardContent>
-        <Chart04 />
-    </CardContent>
-</Card>
-
-</div>
+        {/* Card for Displaying VM Size */}
+        <Grid item xs={4} sm={4} md={4} lg={4} xl={4}>
+          <Card sx={{ maxWidth: 375, height: 450, display: 'flex', flexDirection: 'column' }}>
+            <CardHeader title="Size of Each VM" />
+            <CardContent sx={{ flex: 1, minHeight: 0 }}>
+              <Chart04 />
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Container>
 
 
 
@@ -744,23 +764,24 @@ const setVmToEdit = (vm) =>{
     onSuccess={() => refreshData()} 
 />
                 </div>
+
+
+// dialog box for deleting the vm
             )}
 
             <Dialog
                 open={openDialogvm}
                 onClose={() => setOpenDialog(false)}
-
-
-                  
-     
-          
             >
                 <DialogTitle>Confirm Delete</DialogTitle>
+
                 <DialogContent>
+
                     <DialogContentText>
                         Are you sure you want to delete this VM?
                     </DialogContentText>
                 </DialogContent>
+
                 <DialogActions>
                     <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
                     <Button onClick={() => {
@@ -775,7 +796,7 @@ const setVmToEdit = (vm) =>{
 
 
 
-
+                    {/* Dialog box for deleting the disk  */}
             <Dialog
                 open={openDialogDisk}
                 onClose={() => setOpenDialogDisk(false)}

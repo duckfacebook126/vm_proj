@@ -1,15 +1,17 @@
 import axios from 'axios';
 import React from 'react';
 import { useContext, createContext, useState, useEffect } from 'react';
-
+//define the context
 const UserContext = createContext(null);
-
+// exportt the context
 export const UserProvider = ({ children }) => {
     const [userType, setUserType] = useState(null);
     const [error, setError] = useState(null);
 
+    //check the user typre from context
     const checkUserType = async () => {
         try {
+            //trhow a check auth request to backend
             const response = await axios.get("http://localhost:8080/api/check_auth", {
                 withCredentials: true
             });
@@ -21,7 +23,8 @@ export const UserProvider = ({ children }) => {
             setUserType(null);
         }
     };
-
+    
+    //on first render check the user type 
     useEffect(() => {
         checkUserType();
     }, []);
@@ -39,6 +42,7 @@ export const UserProvider = ({ children }) => {
     );
 };
 
+//export function for using the context outside this file
 export const useUser = () => {
     const context = useContext(UserContext);
     if (context === undefined) {

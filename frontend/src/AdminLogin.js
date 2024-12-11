@@ -43,6 +43,8 @@ function AdminLogin() {
      
   }
 
+
+  //setting loading to true for 3 secs
   const timer = setTimeout(() => {
       setIsLoading(false);
   }, 3000);
@@ -52,16 +54,22 @@ function AdminLogin() {
   
   }, [user, navigate]);
 
+
+  //formik vlaidation
   const formik = useFormik({
     initialValues: {
       username: '',
       password: ''
     },
+
+    //
     validationSchema: AdminLoginSchema,
     onSubmit: async (values, { setSubmitting, setErrors }) => {
       const encryptedData = encryptData(values);
 
       try {
+
+        // ogin request to backend
         const response = await axios.post('http://localhost:8080/api/admin_login', {encryptedData}, {
           withCredentials: true
         });
@@ -101,18 +109,24 @@ function AdminLogin() {
   }
 
   return (
+
+    // 
     <Container component="main" maxWidth="xs">
       <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
         <Typography component="h1" variant="h5" align="center" gutterBottom>
           Admin Login
         </Typography>
         
+
+
         {formik.errors.submit && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {formik.errors.submit}
           </Alert>
         )}
         
+
+        {/* form and fields */}
         <form onSubmit={formik.handleSubmit}>
           <TextField
             fullWidth
@@ -146,6 +160,8 @@ function AdminLogin() {
           >
             Login
           </Button>
+
+          {/* redirecting to signup */}
           <Link to="/admin_signup" className="btn btn-link">
             Don't have an account? Signup as Admin
           </Link>

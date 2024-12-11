@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 // The current SignUpSchema already ensures that firstName and lastName do not contain any numbers by using regex patterns.
-// No additional code is needed.
+
 
 export const SignUpSchema = yup.object().shape({
     firstName: yup.string()

@@ -66,8 +66,6 @@ console.log('failed to fetch session data');
 }
 
 
-
-
   const fetchUsers = async () => {
     try {
       const response = await axios.get('http://localhost:8080/api/admin_dashboard_data', {
@@ -85,6 +83,8 @@ console.log('failed to fetch session data');
         console.log('Processed user data:', userData);
         setUsers(userData);
       }
+
+      //errro handing for fetching the users
     } catch (error) {
       console.error('Error fetching users:', error);
       if (error.response?.status === 401) {
@@ -95,7 +95,7 @@ console.log('failed to fetch session data');
       setLoading(false);
     }
   };
-
+  // first time render , and will change as the user tries to navigate away
   useEffect(() => {
     
     getsSessionData().then(()=>{
@@ -103,6 +103,8 @@ console.log('failed to fetch session data');
     });
   }, [navigate]);
 
+
+  //function to store the handle the uder that is to be edited
   const handleEdit = (user) => {
     setEditUser({
       id: user.id,
@@ -117,21 +119,30 @@ console.log('failed to fetch session data');
     setOpenDialog(true);
   };
 
+
+  //function to jandle thethe user ti=o be updated
   const handleUpdate = async () => {
     try {
       const response = await axios.put(`http://localhost:8080/api/update_user/${editUser.id}`, editUser, { withCredentials: true });
       if (response.status === 200) {
+
+       // fires on succefull deletion
         Swal.fire({
           icon: 'success',
           title: 'Success',
           text: 'User updated successfully!'
         });
+        //closes the dialog box
         setOpenDialog(false);
+        //reloads the data
         fetchUsers();
+
         refreshData();
       }
     } catch (error) {
       console.error('Error updating user:', error);
+
+      //fires error if the user is not updated
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -140,10 +151,11 @@ console.log('failed to fetch session data');
     }
   };
 
+  //function to handle the deletion of the user
   const handleDelete = async (userToDelete) => {
     try {
       await axios.delete(`http://localhost:8080/api/delete_user/${userToDelete}`, { withCredentials: true });
-
+//succeful deletion fires an alert
       Swal.fire({
         icon: 'success',
         title: 'Success',
@@ -154,8 +166,10 @@ console.log('failed to fetch session data');
 
        if(result.isConfirmed)
         {
-
+          // if the delete opration is successful
+          //fires the fetchusers function
           fetchUsers();
+          //refreshes the data
           refreshData();
         } 
       })
@@ -167,25 +181,32 @@ console.log('failed to fetch session data');
     }
   };
 
+
+  //function to handle the creation of the user
   const handleCreateUser = async () => {
     try {
-
+      //sending axios reqiest to the backend for new user creation
       const encryptedData = encryptData(newUser);
       await axios.post('http://localhost:8080/api/create_user', {encryptedData}, { withCredentials: true });
+      //closing the dialog box
       setOpenCreateDialog(false);
+      //fetch the dashbaord
       fetchUsers();
+      //refresh the data
       refreshData();
+      //set default newuser values
       setNewUser({
         firstName: '', lastName: '', phoneNumber: '', 
         CNIC: '', email: '', userName: '', password: '', userType: 'Standard'
       });
     } catch (error) {
+      //error handling
       console.error('Error creating user:', error);
     }
   };
 
 
-  //formik and ypu validation in the user add  and edit forms
+  //formik and yupvalidation in the user add  and edit forms
 
 
   const formik = useFormik({
@@ -195,16 +216,18 @@ console.log('failed to fetch session data');
       phoneNumber: '',
       CNIC: '',
       email: '',
-      userName: '',  // Make sure this matches the schema
+      userName: '',  
       password: '',
       userType: 'Standard'
     },
     validationSchema: addUserSchema,
+
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
+        //encrypt data using the function from  utils that uses Aes
         const encryptedData = encryptData(values);
         console.log('Submitting form with values:', values);
-        
+        //axios post req with encrypted data
         const response = await axios.post(
           'http://localhost:8080/api/create_user', 
           { encryptedData }, 
@@ -495,7 +518,10 @@ console.log('failed to fetch session data');
         </DialogContent>
         
 <DialogActions>
-          <Button onClick={() => setOpenCreateDialog(false)}>Cancel</Button>
+          <Button onClick={() => {
+            setOpenCreateDialog(false);
+            formik.resetForm();
+          }}>Cancel</Button>
           <Button 
   type="submit"
   variant="contained"

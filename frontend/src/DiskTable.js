@@ -23,7 +23,7 @@ export default function DiskTable() {
   const{dashboardData,fetchDashboardData,refreshData} = useContext(DataContext);
 
   const disks = dashboardData?.disks || [];
-console.log(disks);
+  console.log(disks);
   // States for handling pagination
   const [page, setPage] = useState(0); // Current page index
   const [rowsPerPage, setRowsPerPage] = useState(5); // Number of rows per page
@@ -75,11 +75,14 @@ console.log(disks);
   return (
 
     <>
+
+
+    {/* table for the disks */}
     <TableContainer component={Paper} sx={{ border: '1px solid #ccc' }}>
       <Table sx={{ minWidth: 500 }} aria-label="simple table">
-      <TableHead>
+        <TableHead>
 
-<TableRow>
+          <TableRow>
 
   <TableCell sx={{ fontWeight: 'bold' }} component="th" scope="row">
 

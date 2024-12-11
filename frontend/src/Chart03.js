@@ -32,29 +32,34 @@ function Chart03() {
     console.log('Formatted VM Data:', formattedVMData);
 
     return (
-        <div style={{ width: '275px', height: '320px' }}>
-        <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart
-          width={500}
-          height={400}
-          data={formattedVMData}
-          margin={{
-            top: 20,
-            right: 20,
-            bottom: 20,
-            left: 20,
-          }}
-        >
-          <CartesianGrid stroke="#f5f5f5" />
-          <XAxis dataKey="NAME" label={{ value: 'Virtual Machine Name', position: 'bottom', offset: 5 }} scale="band" />
-          <YAxis  />
-          <Tooltip />
-          <Legend layout="horizontal" verticalAlign="top" align="center" />
-          <Bar dataKey="CPU" name="CPUs" barSize={20} fill="#413ea0" />
-          <Line type="monotone" dataKey="RAM" name="RAM (GB)" stroke="#ff7300" />
-        </ComposedChart>
-      </ResponsiveContainer>
-      </div>
+        <div style={{ width: '100%', height: '100%' }}>
+            <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                    data={formattedVMData}
+                    margin={{
+                        top: 0,
+                        right: 0,
+                        left: 10,
+                        bottom: 0
+                    }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                        dataKey="NAME"
+                        angle={-45}
+                        textAnchor="end"
+                        height={60}
+                        interval={0}
+                    />
+                    <YAxis
+                        label={{ value: 'Number of CPUs', angle: -90, position: 'insideLeft', offset: -5 }}
+                    />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="CPU" name="CPUs" fill="#8884d8" />
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
     );
 }
 

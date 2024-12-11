@@ -11,13 +11,19 @@ import LoadingSpinner from './components/Loading';
 import { useContext } from 'react';
 import { useAuth } from './contexts/AuthContext';
 
+// This function renders the login form for the user
 
 
 function Login() {
     const {user,checkAuthStatus}=useAuth();
     const navigate = useNavigate();
 const [IsLoading,setIsLoading]=useState(true)
+
+
+
 useEffect(() => {
+
+    // Function to check if user is logged in and redirect accordingly
     const checkAndRedirect = async () => {
         if (user) {
             // If user is logged in as an admin, go to admin dashboard
@@ -31,6 +37,7 @@ useEffect(() => {
         }
     };
 
+    //check and redirect on first render
     checkAndRedirect();
 
     const timer = setTimeout(() => {
@@ -40,20 +47,24 @@ useEffect(() => {
       return () => clearTimeout(timer)
 }, [user, navigate]);
 
-
+// formik validation    
     const formik = useFormik({
         initialValues: {
             username: '',
             password: ''
         },
-        
+        // on submitt handle function here
         onSubmit: async (values, { setErrors, setSubmitting }) => {
             setSubmitting(true);
-
+                    //encrypt  data
                 const encryptedData=encryptData(values)
 
             console.log('Submitting login with values:', values);
+
+            //send encrypted data request
             axios.post('http://localhost:8080/api/login',{encryptedData}, { withCredentials: true })
+
+            //throwing the alert on success
                 .then(async (res) => {
                     console.log('Login response:', res.data);
                     setSubmitting(false);
@@ -66,6 +77,8 @@ useEffect(() => {
                     console.error('Login error:', error.response?.data || error);
                     if (error.response) {
                         const backendError = error.response.data.error;
+
+                        //throwing the alert on the error
                         Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
@@ -78,6 +91,8 @@ useEffect(() => {
     });
 if(!IsLoading){
     return (
+
+        // Lojgin fform here
         <div className='login-container bg-white d-flex justify-content-center align-items-center'>
             <div className="login-form bg-white p-3 rounded dark-outline">
                 <form onSubmit={formik.handleSubmit}>
@@ -94,6 +109,7 @@ if(!IsLoading){
                             value={formik.values.username}
                             onBlur={formik.handleBlur}
                         />
+                            {/* formik errors  for username*/}
                         {formik.touched.username && formik.errors.username && <p className='danger'>{formik.errors.username}</p>}
                     </div>
                     <div className="form-group">
@@ -108,8 +124,12 @@ if(!IsLoading){
                             value={formik.values.password}
                             onBlur={formik.handleBlur}
                         />
+                              {/* formik errors  for password*/}
+
                         {formik.touched.password && formik.errors.password && <p className='danger'>{formik.errors.password}</p>}
                     </div>
+
+            {/* submitt button that handles the login */}
                     <button type="submit" className="btn btn-primary btn-block w-100" disabled={formik.isSubmitting}>
                         {formik.isSubmitting ? 'Logging in...' : 'Login'}
                     </button>
@@ -120,6 +140,8 @@ if(!IsLoading){
 
                     <strong>OR</strong>
                     <br/>
+
+                    {/* redirecting links to the */}
 
                         <Link to="/admin_login" className="btn btn-link">
                             Log in as Admin
@@ -133,6 +155,8 @@ if(!IsLoading){
 
 );}
    
+
+//show loading if loading is false
 
     else if(IsLoading)
     {

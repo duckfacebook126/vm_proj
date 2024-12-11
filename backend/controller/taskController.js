@@ -56,11 +56,13 @@ const signup = async (req, res) => {
 
         }
 
-        // const encryptedPassword= encryptPassword(password);
+       
                 //using bcrypt to to hash and store the password again in the data base
 
+                //using salt rounds 10 as  the default
 
         const saltRounds = 10;
+        
 //hahsing the user inpput password and saving it iniside the
         const encryptedPassword= await bcrypt.hash(validatedData.password, saltRounds);
         
@@ -395,7 +397,7 @@ const deleteDisk = async (req, res) => {
 
 }
 
-
+//signup function for the admin
 const adminSignup = async (req, res) => {
     let conn;
     try {
@@ -464,7 +466,7 @@ const adminSignup = async (req, res) => {
     }
 };
 
-
+//login function fo the admin
 
 const adminLogin = async (req, res) => {
     let conn;
@@ -561,28 +563,8 @@ const adminLogin = async (req, res) => {
     }
 };
 
-const userTableData=async(req,res)=>{
-    let conn;
 
-    try{
-
-        conn = await db.getConnection();
-
-    }
-
-    catch(error){
-
-        console.error('user fetching error:', error);
-        res.status(500).json({ error: 'failed to fetch user data', login: false });
-    }
-
-    finally{
-        if (conn) conn.release();
-
-    }
-
-};
-
+//logout function for admin
 
 const adminLogout=(req,res)=>{
 
@@ -792,7 +774,7 @@ const createUser = async (req, res) => {
     }
 };
        
-
+//upadte use rby the admin
 const updateUser = async (req, res) => {
     let conn;
     try {

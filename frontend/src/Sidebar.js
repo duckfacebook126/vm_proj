@@ -135,6 +135,8 @@ export default function Sidebar() {
     setOpen(false);
   };
 
+
+  //handel the log out on the logout button press
   const handleLogout = async () => {
     try {
       const wasAdmin = user?.userType === 'Admin';  // Store the user type before logout
@@ -176,7 +178,7 @@ export default function Sidebar() {
       try {
         await checkAuthStatus();  // First check auth status
         await refreshData();      // Then refresh data
-        
+        //if user is admin redirect to admin
         if (user===null || user.userType !== 'Admin') {
           navigate('/admin_login');
         }
@@ -199,7 +201,11 @@ export default function Sidebar() {
     return (
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
+
+        {/* //dashbaord appbar */}
         <AppBar position="fixed" open={open}>
+
+          {/* Toolbar */}
           <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <IconButton
@@ -214,6 +220,8 @@ export default function Sidebar() {
                   open && { display: 'none' },
                 ]}
               >
+
+                {/* menu icon */}
                 <MenuIcon />
               </IconButton>
               <Typography variant="h6" noWrap component="div">
@@ -228,18 +236,24 @@ export default function Sidebar() {
                 onClick={handleLogout}
                 edge="end"
               >
+
+                {/* Logout  */}
                 <LogoutIcon />
               </IconButton>
             </Box>
           </Toolbar>
 
         </AppBar>
+
+        {/* Drawere menu  */}
         <Drawer variant="permanent" open={open}>
           <DrawerHeader>
             <IconButton onClick={handleDrawerClose}>
               {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
             </IconButton>
           </DrawerHeader>
+
+          {/* List for menu items */}
           <List>
             {['Users', 'Analytics'].map((text, listindex) => (
               <ListItem key={text} disablePadding sx={{ display: 'block' }}>
@@ -324,7 +338,7 @@ export default function Sidebar() {
 
     );
   }
-
+// show the loaging screen is loading is true
   else if (IsLoading) {
 
     return (<><LoadingSpinner /></>);

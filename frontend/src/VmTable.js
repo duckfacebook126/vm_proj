@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Slider from '@mui/material/Slider';
 import { useAuth } from './contexts/AuthContext';
+import Swal from 'sweetalert2';
 
 import {
   Table,
@@ -30,11 +31,7 @@ import axios from 'axios';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-
-
-import {
-  Swal
-} from 'sweetalert2';
+// Main vm tabel functions
 
 export default function VMTable({ onEdit, onDelete }) {
   const {  refreshData } = useContext(DataContext);
@@ -49,6 +46,8 @@ export default function VMTable({ onEdit, onDelete }) {
   const [vmToDelete, setVmToDelete] = useState();
   const[openEditDialog,setOpenEditDialog]=useState(false)
 
+
+  // setting the vm to be edited
   const [editVm, setEditVm] = useState();
   const setVmToEdit = (vm) =>{
     if (!user) return;
@@ -70,16 +69,22 @@ export default function VMTable({ onEdit, onDelete }) {
     );
 }
 
+
+    //opendialog state variable
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
+  // change the page handiling page cureent index
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
+  // change the rows per page and make the page 0 to show the start fo the page
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+  // show loading screen while data is loading
 
   if (loading) {
     return (
@@ -89,27 +94,54 @@ export default function VMTable({ onEdit, onDelete }) {
     );
   }
 
+// setting user types which have access and features
+
   const userType = user?.userType || 'Standard';
   const canEdit = userType === 'Premium' || userType === 'SuperUser';
   const canDelete = userType === 'SuperUser';
 
+  //ends the deelte request to backend with  params vm id
   const handleDeletevm = async (vmToDelete) => {
     axios.delete(`http://localhost:8080/api/delete_vm/${vmToDelete}`, { withCredentials: true })
       .then(res => {
         console.log(res.data);
-        // refreshData();  // Use refreshData instead of fetchDashboardData
+          //if the request is successfull then show a deleteion succes
+        if(res.status===200){
+          Swal.fire({
+            title: 'Success',
+            text: 'VM deleted successfully',
+            icon: 'success',
+            confirmButtonText: 'OK'
+          });
+             /// refersh the dashbaord data
+              refreshData();
+        }
       })
+
+      //handdle the errors
       .catch(err => {
-        console.error('Failed to delete VM:', err);
+      console.error('Failed to delete VM:', err);
+
+      //throw the alert message so that there is  an error
+       Swal.fire({
+        title: 'Error',
+        text: 'Cannot delete VM',
+        icon: 'error',
+        confirmButtonText: 'OK'
       });
+      // then refesh the dashbaord data
+      refreshData();
+          })
   };
 
-
+    //handle the edit vm request
   const handleEditvm = async (editVm) => {
     axios.put(`http://localhost:8080/api/update_vm/${editVm.id}`, editVm,{ withCredentials: true })
         .then(res => {
-
+          //if the the request is successfull then show a successmessage on deletion
           if(res){
+
+            //fires a succes detion alert message
           Swal.fire({
             title: 'Success',
             text: 'VM updated successfully',
@@ -122,8 +154,12 @@ export default function VMTable({ onEdit, onDelete }) {
           });
         }
         })
+
+        //catches the errors
         .catch(err => {
             console.log(err);
+
+            //fires the error message in alert box
           Swal.fire(
             {
               title:' failed user Update',
@@ -140,6 +176,8 @@ export default function VMTable({ onEdit, onDelete }) {
 
   return (
     <>
+
+    {/* table for the vm data*/}
       <TableContainer component={Paper} sx={{ border: '1px solid #ccc' }}>
         <Table sx={{ minWidth: 500 }} aria-label="vm table">
           <TableHead>
@@ -156,6 +194,8 @@ export default function VMTable({ onEdit, onDelete }) {
             </TableRow>
           </TableHead>
           <TableBody>
+
+            {/* show the specific number of rows per page */}
             {vms.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((vm) => (
               <TableRow key={vm.id}>
                 <TableCell>{vm.NAME}</TableCell>
@@ -168,6 +208,8 @@ export default function VMTable({ onEdit, onDelete }) {
                 <TableCell>{vm.size}</TableCell>
                 <TableCell>
                   <Stack direction="row" spacing={1}>
+
+                {/* edit condition for only the premium and super user */}
                     {canEdit && (
                       <IconButton 
                         onClick={() => {
@@ -181,6 +223,9 @@ export default function VMTable({ onEdit, onDelete }) {
                         <EditIcon />
                       </IconButton>
                     )}
+
+                   {/* delete condition for only the super user */}
+
                     {canDelete && (
                       <IconButton 
                         onClick={() => {setVmToDelete(vm.id); setOpenDeleteDialog(true);}}
@@ -195,6 +240,8 @@ export default function VMTable({ onEdit, onDelete }) {
             ))}
           </TableBody>
         </Table>
+
+        {/* pagintion for the vm table */}
         <TablePagination
           component="div"
           count={vms.length}
@@ -205,24 +252,41 @@ export default function VMTable({ onEdit, onDelete }) {
           rowsPerPageOptions={[5, 10, 15]}
         />
       </TableContainer>
+
+              {/* Dialog for delteing avm */}
+
+
       <Dialog open={openDeleteDialog} onClose={()=>setOpenDeleteDialog(false)}
-
-
-
-        
-        
         >
+
+
+          {/* Delete dialogue here will pop out when the delete icon will be delted */}
         <DialogTitle> Confirm Deletion</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Are you sure you want to delete this item?
           </DialogContentText>
         </DialogContent>
+
+
         <DialogActions>
+
+
           <Button onClick={()=>setOpenDeleteDialog(false)}>Cancel</Button>
-          <Button onClick={()=>handleDeletevm(vmToDelete)}>Delete</Button>
+          <Button onClick={()=>{
+
+              //close the dialog with setting visibiity  to false
+            setOpenDeleteDialog(false);
+
+            //xecutes the   handleDeletevm function
+            handleDeletevm(vmToDelete);}}>Delete
+            </Button>
         </DialogActions>
+
+
       </Dialog>
+
+      {/* Open delete dialog */}
 
       <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}
         
@@ -235,6 +299,7 @@ export default function VMTable({ onEdit, onDelete }) {
             height:'600px'
           }
         }}
+
         
         >
     <DialogTitle>Edit VM</DialogTitle>

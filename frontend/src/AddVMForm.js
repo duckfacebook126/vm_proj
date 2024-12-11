@@ -75,20 +75,29 @@ function AddVMForm({ onClose, onSuccess }) {
         event.preventDefault();
 
         const errors = {};
+
+
+                // error handling and regex checks for the add vm form details
         if (!formData.osName) errors.osName = "OS name is required";
         if (!formData.vmName) errors.vmName = "VM name is required";
         if (!formData.diskName) errors.diskName = "Disk name is required";
+        if (!/^[a-zA-Z][a-zA-Z0-9 ]{0,19}$/.test(formData.osName)) errors.osName = "OS name should start with at least one alphabet, spaces allowed, and be of max 20 characters in length";
+        if (!/^[a-zA-Z][a-zA-Z0-9 ]{0,19}$/.test(formData.vmName)) errors.vmName = "VM name should start with at least one alphabet, spaces allowed, and be of max 20 characters in length";
+        if (!/^[a-zA-Z][a-zA-Z0-9 ]{0,19}$/.test(formData.diskName)) errors.diskName = "Disk name should start with at least one alphabet, spaces allowed, and be of max 20 characters in length";
 
-        if (Object.keys(errors).length > 0) {
+
+            //check if there are any key value pairs in error variable if yes then set them t the handled errors above
+            if (Object.keys(errors).length > 0) {
             setVmError(errors);
             return;
         }
-
+                        /// post the data to the backend end point with axios post request
         try {
             const response = await axios.post('http://localhost:8080/api/create_vm', formData, {
                 withCredentials: true  // This line is crucial for sending cookies
             });
-            console.log('VM created successfully:', response.data);
+
+            
             if (onSuccess) {
                 onSuccess();
 

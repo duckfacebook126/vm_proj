@@ -63,7 +63,7 @@ export default function AdminAnalytics() {
             textAlign: 'center',
           }}
         >
-          Total Virtual Machines
+          Total Users
         </Typography>
         <CardContent>
           <Typography
