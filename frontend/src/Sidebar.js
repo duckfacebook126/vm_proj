@@ -115,6 +115,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
+
+
 export default function Sidebar() {
   const{refreshData}=useContext(AdminDataContext)
   const theme = useTheme();
@@ -126,7 +128,7 @@ export default function Sidebar() {
   const [alertLoading,setrAlertLoading]=useState(true);
   const{user,loading,  checkAuthStatus, logout} =useAuth()
 
-
+//function for opening the drawer
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -346,3 +348,13 @@ export default function Sidebar() {
 
   }
 }
+
+/**
+ * @summary This component renders a sidebar which contains different options for the admin like view user, view admin analytics, view vms, view disks, edit profile, logout etc.
+ * @param {Object} props React props
+ * @param {boolean} props.IsLoading If true, the component shows the loading screen
+ * @param {number} props.index The index of the selected option in the sidebar
+ * @param {function} props.handleDrawerClose The function to close the drawer
+ * @returns {ReactElement} The rendered component
+ * @description This component renders a sidebar which contains different options for the admin. The options are view user, view admin analytics, view vms, view disks, edit profile, logout. The component also has a loading screen which is shown when the IsLoading prop is true. The index prop is used to determine which option is selected in the sidebar. The handleDrawerClose prop is used to close the drawer.
+ */

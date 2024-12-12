@@ -61,3 +61,22 @@ function Chart02() {
 }
 
 export default Chart02;
+
+
+/**
+ * Chart02 component
+ * 
+ * This component renders the pie chart of VMs' cores.
+ * 
+ * @summary
+ * - Renders the pie chart of VMs' cores.
+ * - Uses the graphcontext to fetch the VM data.
+ * - Transforms the VM data for the pie chart.
+ * - Renders the pie chart.
+ * 
+ * @workflow
+ * 1. The component fetches the VM data from the context.
+ * 2. It transforms the VM data for the pie chart.
+ * 3. It renders the pie chart.
+ */
+

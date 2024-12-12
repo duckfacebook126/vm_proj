@@ -26,7 +26,7 @@ function Chart04() {
     const aggregatedData = aggregateData(vms, disks);
 
     return (
-        <div style={{ width: '350px', height: '320px' }}>
+        <div style={{ width: '800px', height: '320px' }}>
              <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={vms}
@@ -95,3 +95,20 @@ const aggregateData = (vms, disks) => {
 };
 
 export default Chart04;
+
+/**
+ * Chart04 component
+ * 
+ * This component renders a bar chart with the aggregated data of number of VMs and disks
+ * 
+ * @summary
+ * - Renders a bar chart with the aggregated data of number of VMs and disks
+ * - Contains a custom tooltip that shows the VM and disk count for each user
+ * 
+ * @workflow
+ * 1. The component fetches the VM and disk data from the context.
+ * 2. It aggregates the data by user ID.
+ * 3. It renders the bar chart with the aggregated data.
+ * 4. The chart contains a custom tooltip that shows the VM and disk count for each user.
+ */
+

@@ -105,3 +105,21 @@ function AdminPieChartComponent() {
 }
 
 export default AdminPieChartComponent;
+
+/**
+ * AdminPieChartComponent component
+ * 
+ * This component renders a pie chart with a detailed overiew of the admin dashboard
+ * 
+ * @summary
+ * - Renders a pie chart with a detailed overiew of the admin dashboard
+ * - It fetches the admin data from the context
+ * - Transforms the admin data for the pie chart
+ * - Renders the pie chart
+ * 
+ * @workflow
+ * 1. The component fetches the admin data from the context.
+ * 2. It transforms the admin data for the pie chart.
+ * 3. It renders the pie chart.
+ */
+

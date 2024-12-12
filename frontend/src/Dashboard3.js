@@ -420,14 +420,17 @@ const setVmToEdit = (vm) =>{
                                 >
                                     Add VM
                                 </Button>
+
                                 <Button
-                                    variant={VmViewMode === 'Vmscard' ? 'contained' : 'outlined'}
+                                    variant={VmViewMode === 'Vmscard' ? 'outlined' : 'contained'}
                                     onClick={() => setVmViewMode('Vmscard')}
                                 >
                                     Card View
                                 </Button>
+
+
                                 <Button
-                                    variant={VmViewMode === 'Vmtable' ? 'contained' : 'outlined'}
+                                    variant={VmViewMode === 'Vmtable' ? 'outlined' : 'contained'}
                                     onClick={() => setVmViewMode('Vmtable')}
                                 >
                                     Table View
@@ -643,13 +646,13 @@ const setVmToEdit = (vm) =>{
         </Typography>
         <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
             <Button
-                variant={DiskViewMode === 'Diskscard' ? 'contained' : 'outlined'}
+                variant={DiskViewMode === 'Diskscard' ? 'outlined' : 'contained'}
                 onClick={() => setDiskViewMode('Diskscard')}
             >
                 Card View
             </Button>
             <Button
-                variant={DiskViewMode === 'Diskstable' ? 'contained' : 'outlined'}
+                variant={DiskViewMode === 'Diskstable' ? 'outlined' : 'contained'}
                 onClick={() => setDiskViewMode('Diskstable')}
             >
                 Table View
@@ -730,8 +733,8 @@ const setVmToEdit = (vm) =>{
         </Grid>
 
         {/* Card for Displaying VM Size */}
-        <Grid item xs={4} sm={4} md={4} lg={4} xl={4}>
-          <Card sx={{ maxWidth: 375, height: 450, display: 'flex', flexDirection: 'column' }}>
+        <Grid item  xs={10} md={10} sm={10}>
+          <Card sx={{ Width: 1000, height: 450, display: 'flex', flexDirection: 'column' }}>
             <CardHeader title="Size of Each VM" />
             <CardContent sx={{ flex: 1, minHeight: 0 }}>
               <Chart04 />
@@ -825,3 +828,30 @@ const setVmToEdit = (vm) =>{
 }
 
 export default Dashboard3;
+
+
+/**
+ * Dashboard3 component
+ * 
+ * This component renders the dashboard with all the VMs and Disks.
+ * 
+ * @summary
+ * - Renders the dashboard with all the VMs and Disks.
+ * - Handles the edit and delete operations of the VMs.
+ * - Handles the delete operations of the Disks.
+ * 
+ * @workflow
+ * 1. The component fetches the VM data from the context.
+ * 2. It renders the VM table with an edit option.
+ * 3. When the edit option is clicked, it opens a dialog with the VM details.
+ * 4. The dialog contains a form with the VM details that can be edited.
+ * 5. When the save button is clicked in the dialog, the component calls the
+ *    handleEditvm function to update the VM details.
+ * 6. The component also contains a delete button that calls the handleDeletVM
+ *    function when clicked.
+ * 7. The component also renders the Disks table with a delete option.
+ * 8. When the delete option is clicked, it opens a dialog with a confirmation
+ *    message.
+ * 9. When the delete button is clicked in the dialog, the component calls the
+ *    handleDeleteDisk function to delete the Disk.
+ */

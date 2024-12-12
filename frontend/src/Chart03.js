@@ -103,3 +103,22 @@ const aggregateData = (vms, disks) => {
 };
 
 export default Chart03;
+
+
+/**
+ * Chart03 component
+ * 
+ * This component renders the VM and Disk counts by user id.
+ * 
+ * @summary
+ * - Renders the VM and Disk counts by user id.
+ * - Fetches the VM data from the context.
+ * - Calls the aggregateData function to prepare the data for the chart.
+ * - Renders the chart with the aggregated data.
+ * 
+ * @workflow
+ * 1. The component fetches the VM data from the context.
+ * 2. It calls the aggregateData function to prepare the data for the chart.
+ * 3. The component renders the chart with the aggregated data.
+ */
+

@@ -81,3 +81,21 @@ const vms=adminDashboardData?.vms||[];
     </Paper>
   );
 }
+
+
+/**
+ * VmChart component
+ * 
+ * This component renders a composed chart with VM resources distribution.
+ * 
+ * @summary
+ * - Renders a composed chart with VM resources distribution.
+ * - Fetches the VM data from the context.
+ * - Transforms the VM data for the chart.
+ * - Renders the chart with the transformed data.
+ * 
+ * @workflow
+ * 1. The component fetches the VM data from the context.
+ * 2. It transforms the VM data for the chart.
+ * 3. It renders the chart with the transformed data.
+ */

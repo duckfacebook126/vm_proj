@@ -50,3 +50,18 @@ export const useUser = () => {
     }
     return context;
 };
+
+/**
+ * @summary
+ * User context provider for authentication. Handles checking user type on server.
+ * @workflow
+ * 1. When user navigates to the site, checkUserType is called.
+ * 2. If user is authenticated, server will return the user type (Admin/User) and set context userType.
+ * 3. If user is not authenticated, server will return an error and context userType is set to null.
+ * 4. When user navigates away from the site, the context is cleared.
+ * 5. Can be used in components to check the user type.
+ * @function
+ * @param {Object} props
+ * @param {JSX.Element} props.children Child JSX elements.
+ * @returns {JSX.Element} JSX element wrapping children with UserContext.Provider.
+ */

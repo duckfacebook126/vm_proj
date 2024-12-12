@@ -19,10 +19,58 @@ export const SignUpSchema = yup.object().shape({
         .email('Invalid email format')
         .required('Email is required'),
     username: yup.string()
-        .matches(/^(?=.*\d).{1,12}$/, 'Username must contain numbers and be no longer than 12 characters')
-        .required('Username is required'),
+    .min(6, 'Username must be at least 6 characters')
+    .matches(
+        /^(?=.*[a-zA-Z])(?=.*[!@#$%^&*(),_.?":{}|<>])(?=.*\d).+$/,
+        'Username must contain at least one alphabet, one special character, and one number'
+      )         .required('Username is required')
+
+      
+      .max(12, 'username must be at most 12 characters')
+      .required('Username is required'),
+
     password: yup.string()
-        .matches(/^(?=.*[0-9])(?=.*[!@#$%^&*_]).{8,12}$/, 'Password must include at least one number, one special character, and be 8-12 characters long')
-        .required('Password is required'),
+
+    .min(6, 'Password must be at most 12 characters')
+      
+    .matches(
+        /^(?=.*[a-zA-Z])(?=.*[!@#$%^&*(),_.?":{}|<>])(?=.*\d).+$/,
+        'Password must contain at least one alphabet, one special character, and one number'
+      )
+      .max(12, 'Password must be at most 12 characters')
+      
+      .required('Password is required').min(6, 'Password must be at least 6 characters')
+      
 });
+
+
+
+/**
+ * @summary
+ * This file exports the SignUpSchema which is a Yup schema 
+ * that validates the user input for the sign up form.
+ * 
+ * @workflow
+ * The SignUpSchema is used in the SignUp component to 
+ * validate the user input. The schema is defined using Yup's
+ * object.shape() method. The schema defines the following 
+ * rules for the user input:
+ * 
+ * - firstName: must be at most 10 alphabets and no numbers
+ * - lastName: must be at most 10 alphabets and no numbers
+ * - cnic: must be exactly 13 digits
+ * - phoneNumber: must be exactly 11 digits
+ * - email: must be a valid email address
+ * - username: must be at least 6 characters long and contain
+ *   at least one alphabet, one special character, and one number
+ * - password: must be at least 6 characters long and contain
+ *   at least one alphabet, one special character, and one number
+ * 
+ * The schema is then used in the SignUp component to validate
+ * the user input. If the input is invalid, an error message is
+ * displayed to the user.
+ * 
+ * 
+ * @since 0.0.1
+ */
 

@@ -44,3 +44,21 @@ useEffect(()=>{
     </Paper>
   );
 }
+
+
+/**
+ * UsersLineChart component
+ * 
+ * This component renders a line chart of the user distribution trend.
+ * 
+ * @summary
+ * - Renders a line chart of the user distribution trend.
+ * - Fetches the user data from the context.
+ * - Transforms the user data for the line chart.
+ * - Renders the line chart.
+ * 
+ * @workflow
+ * 1. The component fetches the user data from the context.
+ * 2. It transforms the user data for the line chart.
+ * 3. It renders the line chart.
+ */

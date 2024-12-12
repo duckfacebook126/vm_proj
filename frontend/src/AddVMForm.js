@@ -269,3 +269,37 @@ function AddVMForm({ onClose, onSuccess }) {
 }
 
 export default AddVMForm;
+
+
+/**
+ * AddVMForm component
+ * 
+ * This component renders a form to add a new virtual machine. It contains
+ * fields for the os name, vm name, disk name, disk size and ram size.
+ * 
+ * @summary
+ * - Renders a form to add a new virtual machine.
+ * - Contains fields for the os name, vm name, disk name, disk size and ram size.
+ * - Handles the form submission and calls the handleAddVM function.
+ * - The handleAddVM function is called when the form is submitted.
+ * - The handleAddVM function is responsible for creating a new virtual machine.
+ * - The handleAddVM function is passed the form data as an argument.
+ * - The form data is an object containing the os name, vm name, disk name,
+ *   disk size and ram size.
+ * - The handleAddVM function is responsible for validating the form data.
+ * - The handleAddVM function is responsible for calling the addVM function with
+ *   the validated form data.
+ * - The addVM function is responsible for creating a new virtual machine.
+ * 
+ * @workflow
+ * 1. The component renders the form to add a new virtual machine.
+ * 2. The user fills in the form fields with the required information.
+ * 3. The user submits the form.
+ * 4. The handleAddVM function is called with the form data as an argument.
+ * 5. The handleAddVM function validates the form data.
+ * 6. The handleAddVM function calls the addVM function with the validated form data.
+ * 7. The addVM function creates a new virtual machine.
+ * 8. The addVM function returns a success message.
+ * 9. The component displays the success message.
+ */
+

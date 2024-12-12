@@ -41,3 +41,18 @@ export const DataProvider = ({ children }) => {
         </DataContext.Provider>
     );
 };
+/**
+ * DataProvider component
+ * 
+ * This component provides the dashboard data to the child components
+ * 
+ * @summary
+ * - Provides the dashboard data to the child components
+ * - Fetches the data from the backend
+ * - Reloads the data on refresh Trigger
+ * 
+ * @workflow
+ * 1. The component fetches the dashboard data from the backend.
+ * 2. It provides the dashboard data to the child components.
+ * 3. When the refresh trigger is changed, it reloads the data.
+ */

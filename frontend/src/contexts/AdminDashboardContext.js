@@ -67,3 +67,19 @@ export const AdminDataProvider = ({ children }) => {
         </AdminDataContext.Provider>
     );
 };
+
+/**
+ * AdminDashboardContext component
+ * 
+ * This component provides a context for the admin dashboard data and related functions
+ * 
+ * @summary
+ * - Provides a context for the admin dashboard data and related functions
+ * - Fetches the admin data from the backend when the component mounts or when the user changes
+ * - Provides a function to trigger data refresh
+ * 
+ * @workflow
+ * 1. The component fetches the admin data from the backend when the component mounts or when the user changes.
+ * 2. The component provides a function to trigger data refresh.
+ * 3. The children components use the context to access the admin data and trigger data refresh.
+ */

@@ -191,3 +191,31 @@ export default function DiskTable() {
 
   );
 }
+
+/**
+ * @summary
+ * - This component renders the Disk table with an edit option.
+ * - Contains a dialog for deleting the Disk.
+ * - Handles the delete operation of the Disk.
+ * 
+ * @workflow
+ * 1. The component fetches the Disk data from the context.
+ * 2. It renders the Disk table with an edit option.
+ * 3. When the edit option is clicked, it opens a dialog with the Disk details.
+ * 4. The dialog contains a form with the Disk details that can be edited.
+ * 5. When the save button is clicked in the dialog, the component calls the
+ *    handleEditDisk function to update the Disk details.
+ * 6. The component also contains a delete button that calls the handleDeleteDisk
+ *    function when clicked.
+ * 7. The component also renders a loading spinner when the Disk data is being fetched.
+ * 8. The component also renders an error message when the Disk data fetch fails.
+ * 
+ * @function
+ * @param {object} props - The props passed to the component
+ * @param {object} props.disks - The array of Disk objects
+ * @param {function} props.handleDeleteDisk - The function to call when the delete button is clicked
+ * @param {function} props.handleEditDisk - The function to call when the edit button is clicked
+ * @param {boolean} props.loading - Whether the Disk data is being fetched
+ * @param {error} props.error - The error object if the Disk data fetch fails
+ */
+

@@ -1,0 +1,20 @@
+				
+			first the person will signup as an admin by filling the admin signup form which has validation 				checks for each fields if the checks are passed the admin user has been registered otherwise will 			throw validation errors
+ 			then  will login with password check if password and user name are correct it will throw an error
+			if they are not
+
+
+
+			Admin functions:
+
+ 			-has two options:
+			-users and analytics
+			-when Clicking on the analytics the admin will see different stats oon the graphs in form of a 				grid that will have cards
+			-when clicking on the users option there will be an add user button which will prompt a  user 				addition form that will enter the details for the users and add button to add the new user in the 			db
+			-below the add button we have the table for displaying the users that will help us to display the 			 users with details in each column and also that there will be a column for the actions that will 			have an edit and delete action button clicking on the delete action will cause the delete  dialog 			open and clicking in cancel will clear the dialog, also after clicking on the delete confirmation 			it will delete the user and update the data on the table
+			-same with the edit it will have the option to change the user_type and the all the other user 				fields clicking on edit will edit every field and clicking on cancel will close the edit form.
+
+
+
+
+			-- in the user  you  one login function and sign up asa same as the 								

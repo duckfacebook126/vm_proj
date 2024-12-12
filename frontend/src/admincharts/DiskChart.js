@@ -55,3 +55,23 @@ export default function DiskAreaChart() {
     </Paper>
   );
 }
+
+/**
+ * @function DiskChart
+ * @description This component renders a bar chart with the disk usage info.
+ * @summary
+ * - Fetches the disk data from the context.
+ * - Transforms the disk data for the chart.
+ * - Renders the chart with the aggregated data.
+ * 
+ * @workflow
+ * 1. The component fetches the disk data from the context.
+ * 2. It transforms the disk data for the chart.
+ * 3. The component renders the chart with the aggregated data.
+ * 
+ * @param {object} props - Component props
+ * @param {boolean} props.loading - Whether the disk data is being fetched
+ * @param {error} props.error - The error object if the disk data fetch fails
+ * @param {object} props.adminDashboardData - The object containing the disk data
+ * @returns {React.Component} A React component containing the bar chart
+ */

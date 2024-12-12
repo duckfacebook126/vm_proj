@@ -35,3 +35,34 @@ module.exports = { encryptPassword, decryptPassword };
 
 
 //decryption for password
+
+
+
+/**
+ * @summary
+ * This file contains functions for encrypting and decrypting passwords.
+ * 
+ * @description
+ * The functions in this file are used to encrypt and decrypt passwords.
+ * The encryption and decryption is done using the AES-256-CBC algorithm.
+ * 
+ * @function encryptPassword
+ * This function takes a password as a string and encrypts it using the AES-256-CBC algorithm.
+ * The encrypted password is then returned as a string.
+ * 
+ * @function decryptPassword
+ * This function takes an encrypted password as a string and decrypts it using the AES-256-CBC algorithm.
+ * The decrypted password is then returned as a string.
+ * 
+ * @workflow
+ * 1. The password is converted to a buffer.
+ * 2. The buffer is encrypted using the AES-256-CBC algorithm.
+ * 3. The encrypted buffer is converted to a string.
+ * 4. The string is returned as the encrypted password.
+ * 
+ * @workflow
+ * 1. The encrypted password is converted to a buffer.
+ * 2. The buffer is decrypted using the AES-256-CBC algorithm.
+ * 3. The decrypted buffer is converted to a string.
+ * 4. The string is returned as the decrypted password.
+ */

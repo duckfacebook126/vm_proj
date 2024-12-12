@@ -26,3 +26,25 @@ class Database {
 }
 
 module.exports = new Database();
+/**
+ * @summary The Database class is a singleton class that provides connection pooling to the MySQL database.
+ * @description This class is designed to be used with the async/await syntax to get a connection from the pool.
+ * The getConnection method can be used to get a connection from the pool. If the connection is not returned to the pool,
+ * a new connection will be created.
+ * @workflow
+ * 1. The Database class is created.
+ * 2. The pool is created with the provided options.
+ * 3. The getConnection method is called to get a connection from the pool.
+ * 4. If the connection is not returned to the pool, a new connection will be created.
+ * 5. The connection is returned to the pool.
+ * 6. The process is repeated.
+ * @example
+ * const db = require('./db');
+ *
+ * async function getVMs() {
+ *   const connection = await db.getConnection();
+ *   const [rows] = await connection.execute('SELECT * FROM vms');
+ *   connection.release();
+ *   return rows;
+ * }
+ */

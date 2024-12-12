@@ -26,3 +26,31 @@ export const addUserSchema = yup.object().shape({
         .required('Password is required'),
 });
 
+
+
+/**
+ * @summary
+ * This file exports the addUserSchema which is a Yup schema 
+ * that validates the user input for the add user form.
+ * 
+ * @workflow
+ * The addUserSchema is used in the AddUser component to 
+ * validate the user input. The schema is defined using Yup's
+ * object.shape() method. The schema defines the following 
+ * rules for the user input:
+ * 
+ * - firstName: must be at most 10 alphabets and no numbers
+ * - lastName: must be at most 10 alphabets and no numbers
+ * - CNIC: must be exactly 13 digits
+ * - phoneNumber: must be exactly 11 digits
+ * - email: must be a valid email address
+ * - userName: must contain numbers and be no longer than 12 characters
+ * - password: must include at least one number, one special character, and be 8-12 characters long
+ * 
+ * The schema is then used in the AddUser component to validate
+ * the user input. If the input is invalid, an error message is
+ * displayed to the user.
+ * 
+ * 
+ * @since 0.0.1
+ */

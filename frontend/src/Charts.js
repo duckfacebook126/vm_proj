@@ -97,3 +97,20 @@ const aggregateData = (vms, disks) => {
 };
 
 export default Chart01;
+
+/**
+ * @function Chart01
+ * @description This component renders a bar chart which displays the number of VMs and Disks for each user.
+ * @param {object} props - Component props
+ * @param {array} props.vms - List of VMs
+ * @param {array} props.disks - List of Disks
+ * @returns {React.Component} A React component containing the bar chart
+ *
+ * @example
+ * import Chart01 from './Chart01';
+ * 
+ * const vms = [{userId: '1', name: 'vm1'}, {userId: '2', name: 'vm2'}];
+ * const disks = [{userId: '1', name: 'disk1'}, {userId: '2', name: 'disk2'}];
+ * 
+ * <Chart01 vms={vms} disks={disks} />
+ */

@@ -84,7 +84,7 @@ console.log('failed to fetch session data');
         setUsers(userData);
       }
 
-      //errro handing for fetching the users
+      //erro handing for fetching the users
     } catch (error) {
       console.error('Error fetching users:', error);
       if (error.response?.status === 401) {
@@ -563,3 +563,22 @@ console.log('failed to fetch session data');
     </>
   );
 }
+
+
+/**
+ * @function
+ * @name UserTable
+ * @summary UserTable component which contains data table for displaying all users 
+ * @description UserTable component which contains data table for displaying all users 
+ * @param {object} props - props for the user table component
+ * @param {object} props.data - data for the user table component contains users
+ * @param {function} props.handleDelete - handle delete function for deleting user
+ * @param {function} props.handleEdit - handle edit function for editing user
+ * @returns {JSX.Element} - UserTable component
+ * @example
+ * import UserTable from './UserTable';
+ * 
+ * <UserTable data={data} handleDelete={handleDelete} handleEdit={handleEdit} />
+ * 
+ */
+

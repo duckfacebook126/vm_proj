@@ -54,15 +54,14 @@ const signup = async (req, res) => {
             return res.status(400).json({ error: errorMsg });
 
 
-        }
+            }
 
-       
-                //using bcrypt to to hash and store the password again in the data base
+                                                                                                                                    //using bcrypt to to hash and store the password again in the data base
 
                 //using salt rounds 10 as  the default
 
         const saltRounds = 10;
-        
+
 //hahsing the user inpput password and saving it iniside the
         const encryptedPassword= await bcrypt.hash(validatedData.password, saltRounds);
         
@@ -982,10 +981,48 @@ module.exports = {
     adminSignup,  
     adminLogin,
     adminLogout,
-    userTableData,
     fetchAdminData,
     createUser,
     updateUser,
     deleteUser,
     updateVm
 }
+
+
+
+/**
+ * @summary
+ * This module exports the controller functions for the user management API
+ * 
+ * @description
+ * This module contains the controller functions for the user management API. The
+ * functions are exported as a single object, so that they can be imported and used
+ * in the routes.
+ * 
+ * @workflow
+ * 1. The user management API receives a request to create a user.
+ * 2. The create user function is called with the request body.
+ * 3. The function validates the request body.
+ * 4. The function creates a new user in the database.
+ * 5. The function returns a response with a JSON object containing the user id.
+ * 6. The user management API receives a request to login a user.
+ * 7. The login function is called with the request body.
+ * 8. The function validates the request body.
+ * 9. The function checks if the user exists in the database.
+ * 10. The function checks if the password is correct.
+ * 11. The function returns a response with a JSON object containing the user id and session token.
+ * 12. The user management API receives a request to logout a user.
+ * 13. The logout function is called with the request body.
+ * 14. The function deletes the session token from the database.
+ * 15. The function returns a response with a JSON object containing a message.
+ * 16. The user management API receives a request to update a user.
+ * 17. The update user function is called with the request body.
+ * 18. The function validates the request body.
+ * 19. The function updates the user in the database.
+ * 20. The function returns a response with a JSON object containing the user id.
+ * 21. The user management API receives a request to delete a user.
+ * 22. The delete user function is called with the request body.
+ * 23. The function validates the request body.
+ * 24. The function deletes the user from the database.
+ * 25. The function returns a response with a JSON object containing a message.
+ */

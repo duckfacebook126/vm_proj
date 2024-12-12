@@ -29,3 +29,19 @@ export const encryptData = (data) => {
         throw error;
     }
 };
+
+
+/**
+ * @function encryptData
+ * @summary Encrypts the given data using AES encryption.
+ * @description This function encrypts the given data using AES encryption. It takes the data as an argument, converts it to a JSON string, encrypts the string with a secret key, and returns the encrypted data as a string. If any error occurs during encryption, it throws an error.
+ * @param {any} data - The data to be encrypted.
+ * @returns {string} - The encrypted data as a string.
+ * @throws {Error} - Throws an error if encryption fails.
+ * @workflow
+ * 1. The function takes the data as an argument.
+ * 2. The data is converted to a JSON string.
+ * 3. The JSON string is encrypted with a secret key using AES encryption.
+ * 4. The encrypted data is returned as a string.
+ * 5. If any error occurs during encryption, it is thrown.
+ */

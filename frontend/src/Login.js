@@ -10,7 +10,12 @@ import Swal from 'sweetalert2';
 import LoadingSpinner from './components/Loading';
 import { useContext } from 'react';
 import { useAuth } from './contexts/AuthContext';
-
+import      {   Box,
+TextField,
+Button,
+Typography,
+Container,
+Paper}from '@mui/material/';  
 // This function renders the login form for the user
 
 
@@ -53,6 +58,7 @@ useEffect(() => {
             username: '',
             password: ''
         },
+        validationSchema: LoginValidaitonSchema,
         // on submitt handle function here
         onSubmit: async (values, { setErrors, setSubmitting }) => {
             setSubmitting(true);
@@ -88,45 +94,79 @@ useEffect(() => {
                     setSubmitting(false);
                 });
         }
+
+
     });
+
+
+ //error handling for not diplaying formik errors handle the form errors
+
+ console.log('Form values:', formik.values);
+ console.log('Form errors:', formik.errors);
+ console.log('Form touched:', formik.touched);
+
+    
 if(!IsLoading){
     return (
 
         // Lojgin fform here
-        <div className='login-container bg-white d-flex justify-content-center align-items-center'>
-            <div className="login-form bg-white p-3 rounded dark-outline">
+        <Container component="main" maxWidth="xs">
+      <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
+        <Typography component="h1" variant ="h5" align="center" gutterBottom>
+
+
+            User Login
+        </Typography>
+
                 <form onSubmit={formik.handleSubmit}>
-                    <h1 className='text-center'>Login</h1>
+                
+
+                    {/* Username field */}
                     <div className="form-group">
-                        <label htmlFor="username"><strong>Username</strong></label>
-                        <input
-                            type="text"
-                            className="form-control mb-3 dark-outline"
-                            id="username"
-                            placeholder="Enter Username"
+                        <label htmlFor="username">Username</label>
+                        <TextField
+                            fullWidth
+                            margin="normal"
                             name="username"
-                            onChange={formik.handleChange}
+                            placeholder="Enter Username"
                             value={formik.values.username}
+                            onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
+                            helperText={formik.touched.username && formik.errors.username}
+                            sx={{
+                                '& .MuiFormHelperText-root': {
+                                    color: 'red',
+                                    fontSize: '1.0rem', // Increase the size as needed
+                                },
+                            }}
                         />
                             {/* formik errors  for username*/}
-                        {formik.touched.username && formik.errors.username && <p className='danger'>{formik.errors.username}</p>}
                     </div>
+
+
+                        {/*Password field  */}
                     <div className="form-group">
-                        <label htmlFor="password"><strong>Password</strong></label>
-                        <input
+                        <label htmlFor="password">Password</label>
+                        <TextField
                             type="password"
-                            className="form-control mb-3 dark-outline"
                             id="password"
                             placeholder="Enter Password"
                             name="password"
                             onChange={formik.handleChange}
                             value={formik.values.password}
                             onBlur={formik.handleBlur}
+                            helperText={formik.touched.password && formik.errors.password}
+                            fullWidth      
+                            
+                            sx={{
+                                '& .MuiFormHelperText-root': {
+                                    color: 'red',
+                                    fontSize: '1.0rem', // Increase the size as needed
+                                },
+                            }}
                         />
-                              {/* formik errors  for password*/}
+                        
 
-                        {formik.touched.password && formik.errors.password && <p className='danger'>{formik.errors.password}</p>}
                     </div>
 
             {/* submitt button that handles the login */}
@@ -150,8 +190,9 @@ if(!IsLoading){
 
 
                 </form>
-            </div>
-        </div>
+            </Paper>
+            </Container>
+        
 
 );}
    

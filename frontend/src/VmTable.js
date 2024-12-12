@@ -422,3 +422,25 @@ export default function VMTable({ onEdit, onDelete }) {
     </>
   );
 }
+
+/**
+ * VMTable component
+ * 
+ * This component renders the VM table with an edit option. It also contains
+ * a dialog for editing the VM details.
+ * 
+ * @summary
+ * - Renders the VM table with an edit option.
+ * - Contains a dialog for editing the VM details.
+ * - Handles the edit and delete operations of the VMs.
+ * 
+ * @workflow
+ * 1. The component fetches the VM data from the context.
+ * 2. It renders the VM table with an edit option.
+ * 3. When the edit option is clicked, it opens a dialog with the VM details.
+ * 4. The dialog contains a form with the VM details that can be edited.
+ * 5. When the save button is clicked in the dialog, the component calls the
+ *    handleEditvm function to update the VM details.
+ * 6. The component also contains a delete button that calls the handleDeletVM
+ *    function when clicked.
+ */

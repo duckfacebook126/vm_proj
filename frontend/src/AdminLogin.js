@@ -5,6 +5,8 @@ import { AdminLoginSchema } from './schemas/AdminLoginSchema';
 import axios from 'axios';
 import LoadingSpinner from './components/Loading';
 import { encryptData } from './utils/encryption';
+import { LoginValidaitonSchema } from './LoginValidation';
+
 
 import { Link } from 'react-router-dom'
 import {
@@ -63,7 +65,7 @@ function AdminLogin() {
     },
 
     //
-    validationSchema: AdminLoginSchema,
+    validationSchema: LoginValidaitonSchema,
     onSubmit: async (values, { setSubmitting, setErrors }) => {
       const encryptedData = encryptData(values);
 
@@ -108,6 +110,9 @@ function AdminLogin() {
     return <LoadingSpinner />;
   }
 
+ //formikmerror displaying troubleshooter
+  console.log('formik errors:', formik.errors);
+
   return (
 
     // 
@@ -119,36 +124,53 @@ function AdminLogin() {
         
 
 
-        {formik.errors.submit && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {formik.errors.submit}
-          </Alert>
-        )}
+       
         
 
         {/* form and fields */}
+
+        {/* UserName filed */}
         <form onSubmit={formik.handleSubmit}>
+        <label htmlFor="username">Username</label>
+
           <TextField
             fullWidth
             margin="normal"
             name="username"
-            label="Username"
+            placeholder="Enter Username"
             value={formik.values.username}
             onChange={formik.handleChange}
-            error={formik.touched.username && Boolean(formik.errors.username)}
+            onBlur={formik.handleBlur}
             helperText={formik.touched.username && formik.errors.username}
+            sx={{
+              '& .MuiFormHelperText-root': {
+                color: 'red',
+                fontSize: '1.2rem', // Increase the size as needed
+              },
+            }}
           />
-          
+        {/*user pasword field  */}
+        <label htmlFor="password">Password</label>
+
           <TextField
+            
             fullWidth
             margin="normal"
             name="password"
-            label="Password"
             type="password"
+            placeholder="Enter password"
+
             value={formik.values.password}
             onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
             error={formik.touched.password && Boolean(formik.errors.password)}
             helperText={formik.touched.password && formik.errors.password}
+            sx={{
+              '& .MuiFormHelperText-root': {
+                color: 'red',
+                fontSize: '1.2rem', // Increase the size as needed
+              },
+            }}
           />
           
           <Button
@@ -185,3 +207,15 @@ function AdminLogin() {
 }
 
 export default AdminLogin;
+
+
+/**
+ * @file AdminLogin.js
+ * @summary This is the admin login page component which will render the admin login form
+ * @description This component will render the admin login form with the fields of username and password
+ * The form validation is done by using the Formik library
+ * Once the form is submitted the username and password will be checked from the backend
+ * If the credentials are correct then the admin user will be redirected to the admin dashboard
+ * @flow
+ * @exports AdminLogin
+ */

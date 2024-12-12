@@ -182,3 +182,21 @@ export default function AdminAnalytics() {
     </Container>
   );
 }
+
+
+/**
+ * AdminAnalytics component
+ * 
+ * This component renders a dashboard for admin with different charts 
+ * 
+ * @summary
+ * - Renders a dashboard for admin with different charts
+ * - Uses the AdminDataContext to fetch the admin data
+ * - Transforms the admin data for the charts
+ * - Renders the charts
+ * 
+ * @workflow
+ * 1. The component fetches the admin data from the context.
+ * 2. It transforms the admin data for the charts.
+ * 3. It renders the charts.
+ */
