@@ -1,0 +1,5 @@
+/* styles.css */
+.swal-custom-class {
+    z-index: 1300 !important; /* Set a higher z-index */
+  }
+  

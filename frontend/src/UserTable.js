@@ -581,4 +581,3 @@ console.log('failed to fetch session data');
  * <UserTable data={data} handleDelete={handleDelete} handleEdit={handleEdit} />
  * 
  */
-
