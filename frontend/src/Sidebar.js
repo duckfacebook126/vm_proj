@@ -115,6 +115,17 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
+//custom syl for button
+
+const LogoutButton = styled(IconButton)(({ theme }) => ({
+  color: 'inherit',
+  '&:hover': {
+    backgroundColor: 'red',
+    color: 'white',
+  },
+}));
+
+
 
 
 export default function Sidebar() {
@@ -231,18 +242,15 @@ export default function Sidebar() {
               </Typography>
             </Box>
 
-            <Box sx={{ marginLeft: 'auto' }}>
-              <IconButton
-                color="inherit"
+            {/* Logout button */}
+            <LogoutButton
                 aria-label="logout"
                 onClick={handleLogout}
                 edge="end"
               >
-
-                {/* Logout  */}
+                {/* Logout */}
                 <LogoutIcon />
-              </IconButton>
-            </Box>
+              </LogoutButton>
           </Toolbar>
 
         </AppBar>

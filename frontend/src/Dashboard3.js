@@ -136,6 +136,16 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
+
+//custom logout button styles
+const LogoutButton = styled(IconButton)(({ theme }) => ({
+    color: 'inherit',
+    '&:hover': {
+      backgroundColor: 'red',
+      color: 'white',
+    },
+  }));
+
 function Dashboard3() {
 
     // importing the dashboard context and authetication context
@@ -350,20 +360,15 @@ const setVmToEdit = (vm) =>{
             <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Dashboard
             </Typography>
-            <IconButton
-              sx={{
-                color: 'red !important',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 0, 0, 0.04) !important',
-                  color: 'red !important',
-                },
-              }}
-              aria-label="logout"
-              onClick={handleLogout}
-              edge="end"
-            >
-              <LogoutIcon   />
-          </IconButton>
+            {/* logout button */}
+            <LogoutButton
+                aria-label="logout"
+                onClick={handleLogout}
+                edge="end"
+              >
+                {/* Logout */}
+                <LogoutIcon />
+              </LogoutButton>
         </Toolbar>
         </AppBar>
 

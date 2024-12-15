@@ -428,66 +428,68 @@ console.log('failed to fetch session data');
         <DialogContent    
        
         >
-          <Stack spacing={2} sx={{ mt: 2 }}>
+          <Stack spacing={2} sx={{ mt: 0 }}>
+
+            {/* firstname */}
             <TextField
              type="text"
-             className={formik.errors.firstName&& formik.touched.firstName?'form-control danger':'form-control'}
              id="firstName"
              placeholder="Enter First Name"
              name="firstName"
              onChange={formik.handleChange}
              value={formik.values.firstName}
              onBlur={formik.handleBlur}
-            />
-        {  formik.touched.firstName&& formik.errors.firstName&&<p className={formik.errors.firstName&& formik.touched.firstName?'form-control danger':'form-control'}>{formik.errors.firstName}</p>}
+             error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+             helperText={formik.touched.firstName&& formik.errors.firstName}
+             />
+           
 
             <TextField
             type="text"
-            className={formik.errors.lastName&& formik.touched.lastName?'form-control danger':'form-control'}
             id="lastName"
             placeholder="Enter Last Name"
             name="lastName"
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.lastName}
+            error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+            helperText={formik.touched.lastName&& formik.errors.lastName}
             />
-        { formik.touched.lastName&& formik.errors.lastName&&<p className={formik.errors.lastName&& formik.touched.lastName?'form-control danger':'form-control'}>{formik.errors.lastName}</p>}
             <TextField
             type="tel"
-            className={formik.errors.phoneNumber&& formik.touched.phoneNumber?'form-control danger':'form-control'}
             id="phoneNumber"
             placeholder="Enter Phone Number"
             name="phoneNumber"
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.phoneNumber}
+            error={formik.touched.phoneNumber && Boolean(formik.errors.phoneNumber)}
+            helperText={formik.touched.phoneNumber&& formik.errors.phoneNumber}
             />
-        { formik.touched.phoneNumber&& formik.errors.phoneNumber&&<p className={formik.errors.phoneNumber&& formik.touched.phoneNumber?'form-control danger':'form-control'}>{formik.errors.phoneNumber}</p>}
             <TextField
           type="text"
-          className={formik.touched.CNIC && formik.errors.CNIC ? 'danger form-control':'form-control'}
           id="CNIC"
           placeholder="Enter CNIC"
           name="CNIC"
           onChange={formik.handleChange}
           value={formik.values.CNIC}
           onBlur={formik.handleBlur}
-
+          error={formik.touched.CNIC && Boolean(formik.errors.CNIC)}
+          helperText={formik.touched.CNIC&& formik.errors.CNIC}
             />
 
 
-        { formik.touched.CNIC&& formik.errors.CNIC&&<p className={formik.errors.CNIC&& formik.touched.CNIC?'form-control danger':'form-control'}>{formik.errors.CNIC}</p>}
             <TextField
                type="email"
-             className={formik.touched.email && formik.errors.email ? ' form-control danger':"form-control"}
               id="email"
               placeholder="Enter Email"
               name="email"
               onChange={formik.handleChange}
               value={formik.values.email}
               onBlur={formik.handleBlur}
+              error={formik.touched.email && Boolean(formik.errors.email)}
+              helperText={formik.touched.email&& formik.errors.email}
             />
-         {formik.touched.email&&formik.errors.email&&<p className={formik.touched.email && formik.errors.email ? ' form-control danger':"form-control"}>{formik.errors.email}</p>}
 
          <TextField
                fullWidth
@@ -500,20 +502,19 @@ console.log('failed to fetch session data');
               error={formik.touched.userName && Boolean(formik.errors.userName)}
               helperText={formik.touched.userName && formik.errors.userName}
               />
-         {formik.touched.userName&&formik.errors.userName&&<p className={formik.touched.userName && formik.errors.userName ? ' form-control danger':"form-control"}>{formik.errors.userName}</p>}
 
 
             <TextField
               type="password"
-              className={formik.touched.password && formik.errors.password ? 'form-control danger':"form-control"}
               id="password"
               placeholder="Enter Password"
               name="password"
               onChange={formik.handleChange}
               value={formik.values.password}
               onBlur={formik.handleBlur}
+              error={formik.touched.password && Boolean(formik.errors.password)}
+              helperText={formik.touched.password&& formik.errors.password}
             />
-            {formik.touched.password&&formik.errors.password&&<p className={formik.touched.password && formik.errors.password ? 'form-control danger':"form-control"}>{formik.errors.password}</p>}
           </Stack>
         </DialogContent>
         
@@ -526,7 +527,7 @@ console.log('failed to fetch session data');
   type="submit"
   variant="contained"
   color="primary"
-  disabled={formik.isSubmitting || !formik.isValid}
+  
 >
   {formik.isSubmitting ? 'Creating...' : 'Create'}
 </Button>

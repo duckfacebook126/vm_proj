@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AddVMForm.css';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+
+import  * as Yup from 'yup';
 import {
     Dialog,
     DialogActions,
@@ -21,7 +24,9 @@ import Swal from 'sweetalert2';
 
 function AddVMForm({ onClose, onSuccess }) {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
+
+    //initial values to be used
+    const initialValues = {
         osName: '',
         vmName: '',
         cpuCores: 2,
@@ -30,27 +35,27 @@ function AddVMForm({ onClose, onSuccess }) {
         ram: 2,
         diskSize: 50,
         diskName: ''
-    });
-    const [vmError, setVmError] = useState({});
-
-    const handleInput = (event) => {
-        const { name, value } = event.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value
-        }));
     };
 
-    const handleSliderChange = (event) => {
-        const { name, value } = event.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: parseInt(value, 10)
-        }));
-    };
+    /// validation schema for add vm form
 
-    const handleDiskFlavorChange = (event) => {
-        const diskFlavor = event.target.value;
+    const validationSchema= Yup.object().shape({
+
+    osName:Yup.string()
+    .matches(/^[a-zA-Z][a-zA-Z0-9 ]{0,19}$/,'The Os name must be between 1 to 20 characters ,should start with an alphabet and no special characters')
+    .required('OS Name is required'),
+    vmName:Yup.string()
+    .matches(/^[a-zA-Z][a-zA-Z0-9 ]{0,19}$/,'The VM name must be between 1 to 20 characters ,should start with an alphabet and no special characters')
+    .required('VM Name is required'),
+    diskName:Yup.string()
+    .matches(/^[a-zA-Z][a-zA-Z0-9 ]{0,19}$/,'The Disk Name name must be between 1 to 20 characters ,should start with an alphabet and no special characters')
+    .required('Disk Name is required')
+    })
+
+
+    //handing disk flavor change
+    const handleDiskFlavorChange = (setFieldValue, diskFlavor) => {
+       
         let minRAM, maxRAM;
 
         if (diskFlavor === 'Light') {
@@ -64,36 +69,17 @@ function AddVMForm({ onClose, onSuccess }) {
             maxRAM = 64;
         }
 
-        setFormData((prev) => ({
-            ...prev,
-            diskFlavor,
-            ram: minRAM
-        }));
+        setFieldValue('diskFlavor', diskFlavor);
+        setFieldValue('ram', minRAM);
     };
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-
-        const errors = {};
+    const handleSubmit = async (values,{setSubmitting,setErrors}) => {
+        
 
 
-                // error handling and regex checks for the add vm form details
-        if (!formData.osName) errors.osName = "OS name is required";
-        if (!formData.vmName) errors.vmName = "VM name is required";
-        if (!formData.diskName) errors.diskName = "Disk name is required";
-        if (!/^[a-zA-Z][a-zA-Z0-9 ]{0,19}$/.test(formData.osName)) errors.osName = "OS name should start with at least one alphabet, spaces allowed, and be of max 20 characters in length";
-        if (!/^[a-zA-Z][a-zA-Z0-9 ]{0,19}$/.test(formData.vmName)) errors.vmName = "VM name should start with at least one alphabet, spaces allowed, and be of max 20 characters in length";
-        if (!/^[a-zA-Z][a-zA-Z0-9 ]{0,19}$/.test(formData.diskName)) errors.diskName = "Disk name should start with at least one alphabet, spaces allowed, and be of max 20 characters in length";
-
-
-            //check if there are any key value pairs in error variable if yes then set them t the handled errors above
-            if (Object.keys(errors).length > 0) {
-            setVmError(errors);
-            return;
-        }
                         /// post the data to the backend end point with axios post request
         try {
-            const response = await axios.post('http://localhost:8080/api/create_vm', formData, {
+            const response = await axios.post('http://localhost:8080/api/create_vm', values, {
                 withCredentials: true  // This line is crucial for sending cookies
             });
 
@@ -111,7 +97,10 @@ function AddVMForm({ onClose, onSuccess }) {
             onClose();
         } catch (err) {
             console.error('Error creating VM:', err);
-            setVmError({ submit: err.response?.data?.error || "Failed to create VM. Please try again." });
+            setErrors({ submit: err.response?.data?.error || "Failed to create VM. Please try again." });
+        }
+        finally{
+            setSubmitting(false);
         }
     };
 
@@ -121,6 +110,11 @@ function AddVMForm({ onClose, onSuccess }) {
         Heavy: { min: 16, max: 64 }
     };
 
+
+    // formik function for add vm form beow:
+
+
+
     return (
         <Dialog 
             open={true} 
@@ -129,37 +123,52 @@ function AddVMForm({ onClose, onSuccess }) {
             fullWidth
         >
             <DialogTitle>Add New VM</DialogTitle>
-            <form onSubmit={handleSubmit}>
-                <DialogContent>
-                    <Grid container spacing={3}>
-                        <Grid item xs={6}>
-                            <Stack spacing={3}>
+            <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+            >
+
+            {({ values, setFieldValue, errors, touched, isSubmitting, handleBlur,handleChange }) => (
+                <Form >
+                    <DialogContent>
+                        <Grid container spacing={3}>
+                            <Grid item xs={6}>
+                                <Stack spacing={3}>
+
+                                    {/* os name */}
                                 <TextField
+                                  
                                     fullWidth
+                                    value={values.osName}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
                                     label="OS Name"
                                     name="osName"
-                                    value={formData.osName}
-                                    onChange={handleInput}
-                                    required
-                                    error={!!vmError.osName}
-                                    helperText={vmError.osName}
+                                    error={touched.osName && !!errors.osName}
+                                    helperText={touched.osName && errors.osName}
                                 />
+                                {/* vm name */}
                                 <TextField
+                                  
                                     fullWidth
                                     label="VM Name"
                                     name="vmName"
-                                    value={formData.vmName}
-                                    onChange={handleInput}
-                                    required
-                                    error={!!vmError.vmName}
-                                    helperText={vmError.vmName}
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    value={values.vmName}
+                                    error={touched.vmName && !!errors.vmName}
+                                    helperText={touched.vmName && errors.vmName}
                                 />
+
+                                {/* cpu cores */}
                                 <FormControl fullWidth>
                                     <InputLabel>CPU Cores</InputLabel>
                                     <Slider
                                         name="cpuCores"
-                                        value={formData.cpuCores}
-                                        onChange={handleSliderChange}
+                                        value={values.cpuCores}
+                                        onBlur={handleBlur}
+                                        onChange={(e, value) => setFieldValue('cpuCores', value)}
                                         min={2}
                                         max={8}
                                         valueLabelDisplay="auto"
@@ -167,103 +176,119 @@ function AddVMForm({ onClose, onSuccess }) {
                                         aria-label="CPU Cores"
                                     />
                                     <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                                        CPU Cores: {formData.cpuCores}
+                                        CPU Cores: {values.cpuCores}
                                     </div>
-                                </FormControl>
-                                <FormControl fullWidth>
-                                    <InputLabel>CPU Count</InputLabel>
-                                    <Slider
-                                        name="cpuCount"
-                                        value={formData.cpuCount}
-                                        onChange={handleSliderChange}
-                                        min={1}
-                                        max={4}
-                                        valueLabelDisplay="auto"
-                                        marks
-                                        aria-label="CPU Count"
-                                    />
-                                    <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                                        CPU Count: {formData.cpuCount}
-                                    </div>
-                                </FormControl>
+                                    </FormControl>
+
+                                    {/* cpu count */}
+                                    <FormControl fullWidth>
+                                        <InputLabel>CPU Count</InputLabel>
+                                        <Slider
+                                            name="cpuCount"
+                                            value={values.cpuCount}
+                                            
+                                            onChange={(e, value) => setFieldValue('cpuCount', value)}
+                                            min={1}
+                                            max={4}
+                                            valueLabelDisplay="auto"
+                                            marks
+                                            aria-label="CPU Count"
+                                        />
+                                        <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                                            CPU Count: {values.cpuCount}
+                                        </div>
+                                    </FormControl>
                             </Stack>
                         </Grid>
+
+                        {/* right side of the form */}
                         <Grid item xs={6}>
                             <Stack spacing={3}>
-                                <FormControl fullWidth>
-                                    <InputLabel>Disk Flavor</InputLabel>
-                                    <Select
-                                        name="diskFlavor"
-                                        value={formData.diskFlavor}
-                                        onChange={handleDiskFlavorChange}
-                                        label="Disk Flavor"
-                                    >
-                                        <MenuItem value="Light">Light</MenuItem>
-                                        <MenuItem value="Medium">Medium</MenuItem>
-                                        <MenuItem value="Heavy">Heavy</MenuItem>
-                                    </Select>
-                                </FormControl>
-                                <FormControl fullWidth>
-                                    <InputLabel>RAM Size</InputLabel>
-                                    <Slider
-                                        name="ram"
-                                        value={formData.ram}
-                                        onChange={handleSliderChange}
-                                        min={ramLimits[formData.diskFlavor].min}
-                                        max={ramLimits[formData.diskFlavor].max}
-                                        valueLabelDisplay="auto"
-                                        marks
-                                        aria-label="RAM Size"
-                                    />
-                                    <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                                        RAM Size: {formData.ram} GB
-                                    </div>
-                                </FormControl>
-                                <TextField
-                                    fullWidth
-                                    label="Disk Name"
-                                    name="diskName"
-                                    value={formData.diskName}
-                                    onChange={handleInput}
-                                    required
-                                    error={!!vmError.diskName}
-                                    helperText={vmError.diskName}
-                                />
-                                <FormControl fullWidth>
-                                    <InputLabel>Disk Size</InputLabel>
-                                    <Slider
-                                        name="diskSize"
-                                        value={formData.diskSize}
-                                        onChange={handleSliderChange}
-                                        min={50}
-                                        max={5000}
-                                        step={50}
-                                        valueLabelDisplay="auto"
-                                        marks
-                                        aria-label="Disk Size"
-                                    />
-                                    <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                                        Disk Size: {formData.diskSize} GB
-                                    </div>
-                                </FormControl>
+                                {/* Disk flavor Selection */}
+                            <FormControl fullWidth>
+                                            <InputLabel>Disk Flavor</InputLabel>
+                                            <Select
+                                                name="diskFlavor"
+                                                value={values.diskFlavor}
+                                                onChange={(e) => handleDiskFlavorChange(setFieldValue, e.target.value)}
+                                                label="Disk Flavor"
+                                            >
+                                                <MenuItem value="Light">Light</MenuItem>
+                                                <MenuItem value="Medium">Medium</MenuItem>
+                                                <MenuItem value="Heavy">Heavy</MenuItem>
+                                            </Select>
+                                        </FormControl>
+
+                                         {/* Ram Slider */}
+                                         <FormControl fullWidth>
+                                            <InputLabel>RAM Size</InputLabel>
+                                            <Slider
+                                                name="ram"
+                                                value={values.ram}
+                                                onChange={(e, value) => setFieldValue('ram', value)}
+                                                min={ramLimits[values.diskFlavor].min}
+                                                max={ramLimits[values.diskFlavor].max}
+                                                valueLabelDisplay="auto"
+                                                marks
+                                                aria-label="RAM Size"
+                                            />
+                                            <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                                                RAM Size: {values.ram} GB
+                                            </div>
+                                        </FormControl>
+
+                                        {/* DiskName */}
+                                            <TextField
+                                            fullWidth
+                                            label="Disk Name"
+                                            name="diskName"
+                                            onBlur={handleBlur}
+                                            onChange={handleChange}
+                                            value={values.diskName}
+                                            error={touched.diskName && !!errors.diskName}
+                                            helperText={touched.diskName && errors.diskName}
+                                            />
+
+                                            {/*Disk Size  */}
+                                        <FormControl fullWidth>
+                                            <InputLabel>Disk Size</InputLabel>
+                                            <Slider
+                                                name="diskSize"
+                                                value={values.diskSize}
+                                                onChange={(e, value) => setFieldValue('diskSize', value)}
+                                                min={50}
+                                                max={5000}
+                                                step={50}
+                                                valueLabelDisplay="auto"
+                                                marks
+                                                aria-label="Disk Size"
+                                            />
+                                            <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                                                Disk Size: {values.diskSize} GB
+                                            </div>
+                                        </FormControl>
                             </Stack>
                         </Grid>
                     </Grid>
-                    {vmError.submit && (
+
+                    {errors.submit && (
                         <div style={{ color: 'red', marginTop: '16px', textAlign: 'center' }}>
-                            {vmError.submit}
+                            {errors.submit}
                         </div>
-                    )}
+                        )}
+
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={onClose} color="primary">
                         Cancel
                     </Button>
-                    <Button type="submit" color="primary" variant="contained">
+                    <Button type="submit" color="primary" variant="contained" disabled={isSubmitting}>
                         Submit
                     </Button>
                 </DialogActions>
-            </form>
+            </Form>
+             )}
+            </Formik>
         </Dialog>
     );
 }
