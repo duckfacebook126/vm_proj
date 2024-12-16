@@ -47,6 +47,7 @@ import TextField from '@mui/material/TextField';
 import EditIcon from '@mui/icons-material/Edit';
 import Slider from '@mui/material/Slider';
 import { useAuth } from './contexts/AuthContext';
+import logo from './logo.png'; 
 
 import Swal from 'sweetalert2';
 
@@ -91,12 +92,12 @@ const closedMixin = (theme) => ({
 });
 //drawer Header 
 const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
-}));
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    padding: theme.spacing(0, 1),
+    ...theme.mixins.toolbar,
+  }));
 
 // app bar syling
 const AppBar = styled(MuiAppBar, {
@@ -141,8 +142,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const LogoutButton = styled(IconButton)(({ theme }) => ({
     color: 'inherit',
     '&:hover': {
-      backgroundColor: 'red',
-      color: 'white',
+      backgroundColor: 'white',
+      color: 'black',
     },
   }));
 
@@ -242,7 +243,6 @@ const setVmToEdit = (vm) =>{
     setEditVm(
         {
             id:vm.id,
-
             NAME:vm.NAME,
             osName:vm.osName,
             cpu:vm.cpu,
@@ -347,16 +347,27 @@ const setVmToEdit = (vm) =>{
 
             {/*  */}
             <AppBar position="fixed" open={open}>
-           <Toolbar>
-              <IconButton
-              color="inherit"
+
+           <Toolbar sx={{backgroundColor:'darkred'}}>
+
+           <IconButton
+              backgroundColor='white' 
               aria-label="open drawer"
               onClick={handleDrawerOpen}
               edge="start"
-              sx={{ mr: 2, ...(open && { display: 'none' }) }}
-              >
-              <MenuIcon />
-            </IconButton>
+              sx={{ 
+               mr: 2, 
+              ...(open && { display: 'none' }),
+               '&:hover': {
+               backgroundColor: 'white', 
+               color: 'black' 
+    } 
+  }}
+>
+  <MenuIcon />
+</IconButton>
+
+
             <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Dashboard
             </Typography>
@@ -369,14 +380,18 @@ const setVmToEdit = (vm) =>{
                 {/* Logout */}
                 <LogoutIcon />
               </LogoutButton>
+
         </Toolbar>
         </AppBar>
 
-            <Drawer variant="permanent" open={open}>
-                <DrawerHeader>
+            <Drawer variant="permanent" open={open} >
+                <DrawerHeader >
+                {open && <img src={logo} alt="logo" style={{ width: '150px', height: 'auto', marginLeft: '8px' }} />}
+
                     <IconButton onClick={handleDrawerClose}>
                         {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
                     </IconButton>
+
                 </DrawerHeader>
                 <Divider />
                 <List>
@@ -426,19 +441,20 @@ const setVmToEdit = (vm) =>{
                                     Add VM
                                 </Button>
 
-                                <Button
-                                    variant={VmViewMode === 'Vmscard' ? 'outlined' : 'contained'}
-                                    onClick={() => setVmViewMode('Vmscard')}
-                                >
-                                    Card View
-                                </Button>
+                                <Button 
+                                onClick={() => setVmViewMode('Vmscard')}
+                                 variant={VmViewMode === 'Vmscard' ? 'outlined' : 'contained'} 
+                                  >
+                                 Card View 
+
+                                 </Button>
 
 
                                 <Button
-                                    variant={VmViewMode === 'Vmtable' ? 'outlined' : 'contained'}
-                                    onClick={() => setVmViewMode('Vmtable')}
-                                >
-                                    Table View
+                               onClick={() => setVmViewMode('Vmtable')}
+                               variant={VmViewMode === 'Vmtable' ? 'outlined' : 'contained'} 
+                               >
+                                Table View
                                 </Button>
                             </Stack>
                             {VmViewMode === 'Vmscard' ? (

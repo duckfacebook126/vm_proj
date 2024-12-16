@@ -170,7 +170,7 @@ if(!IsLoading){
                     </div>
 
             {/* submitt button that handles the login */}
-                    <button type="submit" className="btn btn-primary btn-block w-100" disabled={formik.isSubmitting}>
+                    <button onSubmit={formik.handleSubmit} className="btn btn-danger btn-block w-100" disabled={formik.isSubmitting}>
                         {formik.isSubmitting ? 'Logging in...' : 'Login'}
                     </button>
 

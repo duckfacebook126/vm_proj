@@ -173,15 +173,9 @@ function AdminLogin() {
             }}
           />
           
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3 }}
-            disabled={formik.isSubmitting}
-          >
-            Login
-          </Button>
+          <button onSubmit={formik.handleSubmit} className="btn btn-danger btn-block w-100" disabled={formik.isSubmitting}>
+                        {formik.isSubmitting ? 'Logging in...' : 'Login'}
+                    </button>
 
           {/* redirecting to signup */}
           <Link to="/admin_signup" className="btn btn-link">

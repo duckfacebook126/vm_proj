@@ -36,6 +36,7 @@ import Swal from 'sweetalert2';
 import { useAuth } from './contexts/AuthContext';
 import { AdminDataContext } from './contexts/AdminDashboardContext';
 import { useContext } from 'react';
+import logo from './logo.png'; 
 const drawerWidth = 240;
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -96,6 +97,13 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     flexShrink: 0,
     whiteSpace: 'nowrap',
     boxSizing: 'border-box',
+    color: 'inherit',
+    '&:hover': {
+      backgroundColor: 'white',
+      color: 'black',
+    },
+
+
     variants: [
       {
         props: ({ open }) => open,
@@ -120,8 +128,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const LogoutButton = styled(IconButton)(({ theme }) => ({
   color: 'inherit',
   '&:hover': {
-    backgroundColor: 'red',
-    color: 'white',
+    backgroundColor: 'white',
+    color: 'black',
   },
 }));
 
@@ -221,22 +229,22 @@ export default function Sidebar() {
           {/* Toolbar */}
           <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                edge="start"
-                sx={[
-                  {
-                    marginRight: 5,
-                  },
-                  open && { display: 'none' },
-                ]}
-              >
-
-                {/* menu icon */}
-                <MenuIcon />
-              </IconButton>
+            <IconButton
+              backgroundColor='white' 
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={{ 
+               mr: 2, 
+              ...(open && { display: 'none' }),
+               '&:hover': {
+               backgroundColor: 'white', 
+               color: 'black' 
+    } 
+  }}
+>
+  <MenuIcon />
+</IconButton>
               <Typography variant="h6" noWrap component="div">
                 Admin Dashboard Panel
               </Typography>
@@ -258,9 +266,11 @@ export default function Sidebar() {
         {/* Drawere menu  */}
         <Drawer variant="permanent" open={open}>
           <DrawerHeader>
-            <IconButton onClick={handleDrawerClose}>
-              {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-            </IconButton>
+          {open && <img src={logo} alt="logo" style={{ width: '150px', height: 'auto', marginLeft: '8px' }} />}
+
+         <IconButton onClick={handleDrawerClose}>
+          {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+         </IconButton>
           </DrawerHeader>
 
           {/* List for menu items */}
