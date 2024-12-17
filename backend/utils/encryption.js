@@ -1,19 +1,16 @@
 const CryptoJS = require('crypto-js');
 
-const SECRET_KEY = 'AESEncryptionKey@2024!SecurePassword';
+const SECRET_KEY = 'AESEncryptionKey@2024!SecurePass';
+const FIXED_IV = 'FixedIVKey123456';
+const encryptData = (data) => { try { const iv = CryptoJS.enc.Utf8.parse(FIXED_IV); 
+    // Encrypt the data with the fixed IV and secret key
+    const encryptedData = CryptoJS.AES.encrypt( JSON.stringify(data),
+    CryptoJS.enc.Utf8.parse(SECRET_KEY), { iv: iv } ).toString();
+     return encryptedData; }
 
-const encryptData = (data) => {
-    try {
-        const encryptedData = CryptoJS.AES.encrypt(
-            JSON.stringify(data),
-            SECRET_KEY
-        ).toString();
-        return encryptedData;
-    } catch (error) {
-        console.error('Encryption error:', error);
-        throw error;
-    }
-};
+    catch (error) 
+    { console.error('Encryption error:', error); throw error; } };
+
 
 module.exports = { encryptData, SECRET_KEY };
 

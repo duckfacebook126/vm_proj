@@ -108,6 +108,7 @@ module.exports = router;
  * 14. Admin logout: The admin logs out and the server clears the session.
  * 15. Fetch admin dashboard data: The server fetches the dashboard data for the
  *     admin and sends a response.
+ * 16. The server will check and authenticate the backend requests using Yup and validation Schemas
  *
  * @requires express
  * @requires ../controller/taskController

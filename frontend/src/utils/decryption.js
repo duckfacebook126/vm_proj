@@ -1,54 +1,26 @@
-// Import the CryptoJS library for decryption
-import CryptoJS from 'crypto-js';
+const CryptoJS = require('crypto-js');
 
-// Define a secret key for AES decryption
-const SECRET_KEY = 'AESEncryptionKey@2024!SecurePassword';
+const SECRET_KEY = 'AESEncryptionKey@2024!SecurePass';
+const FIXED_IV = 'FixedIVKey123456'
+const decryptData = (encryptedData) => { try { // Convert fixed IV to a WordArray
+     const iv = CryptoJS.enc.Utf8.parse(FIXED_IV); // Decrypt the data with the fixed IV
+      const decryptedData = CryptoJS.AES.decrypt( encryptedData, CryptoJS.enc.Utf8.parse(SECRET_KEY), { iv: iv } );
+       return JSON.parse(decryptedData.toString(CryptoJS.enc.Utf8)); }
+        catch (error) { console.error('Decryption error:', error); throw error; } };
 
-/**
- * Decrypts the given encrypted data using AES decryption.
- *
- * @param {string} encryptedData - The encrypted data to be decrypted.
- * @returns {any} - The decrypted data.
- * @throws {Error} - Throws an error if decryption fails.
- */
-export const decryptData = (encryptedData) => {
-    try {
-        // Decrypt the encrypted data using AES decryption with the secret key
-        const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
-
-        // Convert the decrypted bytes to a UTF-8 string
-        const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
-
-        // Parse the JSON string to get the original data
-        return JSON.parse(decryptedString);
-    } catch (error) {
-        // Log the decryption error to the console
-        console.error('Decryption error:', error);
-
-        // Re-throw the error to be handled by the caller
-        throw error;
-    }
-};
-
+module.exports = { decryptData, SECRET_KEY };
 
 /**
  * @file decryption.js
- * @summary This module provides a function to decrypt encrypted data using AES.
- * @description
- * This module provides a function to decrypt encrypted data using AES. The
- * function takes an encrypted string as input and decrypts it using a secret
- * key. The decrypted data is then parsed as JSON and returned. If the
- * decryption fails, an error is thrown.
- *
+ * @summary This file contains the decryption functions using AES to decrypt the data.
  * @workflow
- * 1. The function takes an encrypted string as input.
- * 2. The string is decrypted using AES decryption with the secret key.
- * 3. The decrypted bytes are converted to a UTF-8 string.
- * 4. The string is then parsed as JSON and returned.
- * 5. If an error occurs during decryption, an error is thrown.
- *
+ * 1. The decryption function takes the encrypted data as an argument.
+ * 2. The function uses the Crypto JS library to create a AES decryptor with the secret key.
+ * 3. The function decrypts the data using the AES decryptor.
+ * 4. The function returns the decrypted data as a JSON object.
+ * 5. The function throws an error if decryption fails.
  * @function decryptData
  * @param {string} encryptedData - The encrypted data to be decrypted.
- * @returns {any} - The decrypted data.
+ * @returns {object} - The decrypted data as a JSON object.
  * @throws {Error} - Throws an error if decryption fails.
  */

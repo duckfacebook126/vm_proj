@@ -4,6 +4,10 @@ const db = require('../db');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const crypto= require('crypto')
+const {userLoginSchema}=require('../utils/validationSchemas');
+
+const {userLoginValidation}=require('../utils/validationMiddleWare');
+const Yup= require("yup");
 //import the functionns of encrypting and decrypting
 const { encryptPassword, decryptPassword } = require('../utils/passwordEncryptionDecryption');
 
@@ -42,6 +46,11 @@ const signup = async (req, res) => {
     
             userType: String(userType)
         };
+
+
+        //validation function for backend
+
+        
 
         // Check for duplicates
         const checkQuery = 'SELECT * FROM users WHERE CNIC = ? OR userName = ?';
@@ -104,10 +113,13 @@ const signup = async (req, res) => {
         ]);
 
         res.status(201).json({ message: 'User created successfully' });
-    } catch (error) {
+    } 
+    catch (error) {
         console.error('Failed to create user:', error);
         res.status(500).json({ error: 'Failed to create user' });
-    } finally {
+    } 
+    
+    finally {
         if (conn) conn.release();
     }
 };
@@ -119,23 +131,20 @@ const login = async (req, res) => {
 
     try {
 
+        conn = await db.getConnection()
 
+    const { encryptedData } = req.body;
+    const decryptedData = decryptData(encryptedData);
+    const { username, password } = decryptedData;
 
-        conn = await db.getConnection();
-        const {encryptedData } = req.body;
+    // Validate data using Yup
+    const validationResult = await userLoginValidation(userLoginSchema, { username, password }); 
 
-        const decryptedData = decryptData(encryptedData);
-        const{username,password}=decryptedData;
-
-        // Validate data types before database insertion
-
-        const validatedData = {
-            userName: String(username),
-            PASSWORD: String(password)
-        };
-
-
-        const notUserType="Admin";
+    if (validationResult.error) {
+      return res.status(400).json({ error: validationResult.error }); 
+    }
+            
+            const notUserType="Admin";
 
         // Find user by username
         const [users] = await conn.execute(
@@ -148,10 +157,7 @@ const login = async (req, res) => {
         }
 
 
-         
-
-
-
+        
         const user =users[0];
 
             //using bcrypt to heck the  stored passwords hash with the user entered password
@@ -169,9 +175,6 @@ const login = async (req, res) => {
 
         // Set session data
 
-
-
-
         req.session.username = user.userName;
         req.session.userType = user.userType;
         req.session.uId = user.id;
@@ -186,10 +189,13 @@ const login = async (req, res) => {
             res.status(200).json({ message: "Login successful", login: true, username: req.session.username, userId: req.session.uId, userType:req.session.userType });
         });
     
-    } catch (error) {
+    } 
+    catch (error)
+     {
         console.error('User login error:', error);
         res.status(500).json({ error: 'Login failed', login: false });
-    } finally {
+    } 
+    finally {
         if (conn) conn.release();
     }
 };
@@ -979,8 +985,8 @@ module.exports = {
     deleteVM,
     deleteDisk,
     adminSignup,  
-    adminLogin,
     adminLogout,
+    adminLogin,
     fetchAdminData,
     createUser,
     updateUser,
