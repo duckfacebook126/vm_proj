@@ -1,14 +1,57 @@
 const CryptoJS = require('crypto-js');
 
-const SECRET_KEY = 'AESEncryptionKey@2024!SecurePass';
-const FIXED_IV = 'FixedIVKey123456'
-const decryptData = (encryptedData) => { try { // Convert fixed IV to a WordArray
-     const iv = CryptoJS.enc.Utf8.parse(FIXED_IV); // Decrypt the data with the fixed IV
-      const decryptedData = CryptoJS.AES.decrypt( encryptedData, CryptoJS.enc.Utf8.parse(SECRET_KEY), { iv: iv } );
-       return JSON.parse(decryptedData.toString(CryptoJS.enc.Utf8)); }
-        catch (error) { console.error('Decryption error:', error); throw error; } };
+const SECRET_KEY = 'AESEncryptionKey@2024!SecurePass'; 
+const FIXED_IV = 'FixedIVKey123456';
+
+const decryptData = (encryptedData) => {
+  try {
+    const iv = CryptoJS.enc.Utf8.parse(FIXED_IV);
+    const decryptedBytes = CryptoJS.AES.decrypt(encryptedData, CryptoJS.enc.Utf8.parse(SECRET_KEY), { iv: iv });
+    const decryptedString = decryptedBytes.toString(CryptoJS.enc.Utf8); 
+
+    // Parse the decrypted string as JSON
+    try {
+      return JSON.parse(decryptedString); 
+    } catch (parseError) {
+      console.error('JSON parsing error:', parseError);
+      throw new Error('Invalid JSON data'); 
+    }
+
+  } catch (error) {
+    console.error('Decryption error:', error);
+    throw error; 
+  }
+};
 
 module.exports = { decryptData, SECRET_KEY };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const CryptoJS = require('crypto-js');
+
+// const SECRET_KEY = 'AESEncryptionKey@2024!SecurePass';
+// const FIXED_IV = 'FixedIVKey123456'
+// const decryptData = (encryptedData) => { try { // Convert fixed IV to a WordArray
+//      const iv = CryptoJS.enc.Utf8.parse(FIXED_IV); // Decrypt the data with the fixed IV
+//       const decryptedData = CryptoJS.AES.decrypt( encryptedData, CryptoJS.enc.Utf8.parse(SECRET_KEY), { iv: iv } );
+//        return JSON.parse(decryptedData.toString(CryptoJS.enc.Utf8)); }
+//         catch (error) { console.error('Decryption error:', error); throw error; } };
+
+// module.exports = { decryptData, SECRET_KEY };
 
 /**
  * @file decryption.js

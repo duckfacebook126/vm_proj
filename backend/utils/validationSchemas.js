@@ -2,10 +2,10 @@ const Yup =require("yup");
 
 // User login validation schema
 
-const userLoginSchema=Yup.object().shape(
+const userLoginSchema=Yup.object(
     {
-        username: Yup.string().matches(/^.{1,12}$/,'username should be between 1 to 12 characters').required("Username is required"),
-        password: Yup.string().matches(/^.{1,12}$/,'password should be between 1 to 12 characters').required("Password is required"),
+        username: Yup.string().min(1).max(12).required(),
+        password: Yup.string().min(1).max(12).required(),
 
 
     }

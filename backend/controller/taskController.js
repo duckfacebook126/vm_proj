@@ -136,14 +136,28 @@ const login = async (req, res) => {
     const { encryptedData } = req.body;
     const decryptedData = decryptData(encryptedData);
     const { username, password } = decryptedData;
+    console.log(`The encrypted data is: ${encryptedData}`)
 
-    // Validate data using Yup
+    //validated data for input in data base
+    const validatedData = {
+        userName: String(username),
+        PASSWORD: String(password)
+    };
+
+
+  
+
+    // Check for validation errors
     const validationResult = await userLoginValidation(userLoginSchema, { username, password }); 
 
+    // Check for validation errors
     if (validationResult.error) {
+      console.log('Validation error:', validationResult.error); 
       return res.status(400).json({ error: validationResult.error }); 
     }
             
+
+    console.log(`The vaidaation result ${JSON.stringify(validationResult)}`);
             const notUserType="Admin";
 
         // Find user by username
