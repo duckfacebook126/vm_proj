@@ -4,13 +4,27 @@ const db = require('../db');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const crypto= require('crypto')
-const {userLoginSchema}=require('../utils/validationSchemas');
 
-const {userLoginValidation}=require('../utils/validationMiddleWare');
+
+const {userLoginValidation, backendValidation}=require('../utils/validationMiddleWare');
 const Yup= require("yup");
 //import the functionns of encrypting and decrypting
 const { encryptPassword, decryptPassword } = require('../utils/passwordEncryptionDecryption');
-
+const {
+    
+    userLoginSchema,
+    adminLoginSchema,
+    adminSignupSchema,
+    addVmValidationSchema,
+    addUserSchema,
+    userSignUpSchema
+    
+    
+    
+    
+    } = require('../utils/validationSchemas');
+const { ThemeProvider } = require('react-bootstrap');
+const { error } = require('console');
 
 // Signup Function
 const signup = async (req, res) => {
@@ -48,9 +62,26 @@ const signup = async (req, res) => {
         };
 
 
+
+
+
+        console.log(`The encrypted data is: ${encryptedData}`);
         //validation function for backend
 
-        
+    // Check for validation errors
+    const validationResult = await backendValidation(userSignUpSchema, {firstName,lastName,cnic,phoneNumber,email,username,password}); 
+
+    // Check for validation errors
+    if (validationResult.error) {
+
+      console.log('Validation error:', validationResult.error); 
+      return res.status(400).json({ error: validationResult.error }); 
+
+    }
+            
+
+    console.log(`The vaidation result ${JSON.stringify(validationResult)}`);
+        console.log(`thevalidation result is: ${validationResult}`);
 
         // Check for duplicates
         const checkQuery = 'SELECT * FROM users WHERE CNIC = ? OR userName = ?';
@@ -148,16 +179,18 @@ const login = async (req, res) => {
   
 
     // Check for validation errors
-    const validationResult = await userLoginValidation(userLoginSchema, { username, password }); 
+    const validationResult = await backendValidation(userLoginSchema, { username, password }); 
 
     // Check for validation errors
     if (validationResult.error) {
+
       console.log('Validation error:', validationResult.error); 
       return res.status(400).json({ error: validationResult.error }); 
+
     }
             
 
-    console.log(`The vaidaation result ${JSON.stringify(validationResult)}`);
+    console.log(`The vaidation result ${JSON.stringify(validationResult)}`);
             const notUserType="Admin";
 
         // Find user by username
@@ -247,23 +280,29 @@ const createVM = async (req, res) => {
             diskSize,
             diskName
         } = req.body;
+        //the backend validationn before the insertion in the database
+        console.log(`the add vm data is: JSON.stringify(${req.body})`);
 
+    const validationResult = await backendValidation(addVmValidationSchema, {osName,vmName,diskName});
+        if (validationResult.error) {
+
+            console.log('Validation error:', validationResult.error); 
+            return res.status(400).json({ error: validationResult.error }); 
+      
+          }
+               
         // Get user ID from session
         const userId = req.session.uId;
 
         if (!userId) {
             return res.status(401).json({ error: "User not authenticated please login first" });
         }
-
-        // Validate required fields
-        if (!osName || !vmName || !diskName) {
-            return res.status(400).json({ error: "Missing required fields" });
-        }
+     
 
         // Start a transaction
         await conn.beginTransaction();
 
-
+       
         // 1. Insert or get OS ID
         let [osRows] = await conn.execute('SELECT id FROM operating_system WHERE NAME = ?', [osName]);
         let osId;
@@ -353,6 +392,7 @@ const dashboard_data = async (req, res) => {
 
                 if (users.length>0)
                 {console.log(`this is the user data${users}`)}
+                
                     else if(users.length===0)
                     {
                         console.log(' the query resulted in 0 users ');
@@ -448,6 +488,19 @@ const adminSignup = async (req, res) => {
             userType: String(userType)
         };
 
+        console.log (`the encrypted data fo r admin signup is: ${encryptedData}`)
+        // validation before inserting in  the admin database
+        const validationResult = await backendValidation(adminSignupSchema, {firstName,lastName,phoneNumber,cnic,email,username,password}); 
+
+        // Check for validation errors
+        if (validationResult.error) {
+    
+          console.log('Validation error:', validationResult.error); 
+          return res.status(400).json({ error: validationResult.error }); 
+    
+        }
+
+
         // Check if admin already exists
         const [existingAdmin] = await conn.execute(
             'SELECT * FROM users WHERE (userName = ? OR email = ? OR CNIC = ?) AND userType = ?',
@@ -503,6 +556,18 @@ const adminLogin = async (req, res) => {
             userName: String(username),
             PASSWORD: String(password)
         };
+
+        //validatedata data before the database insertions
+            console.log(`Ecrypted data fo admin is: ${encryptedData}`)
+        const validationResult = await backendValidation(adminLoginSchema, { username, password }); 
+
+        // Check for validation errors
+        if (validationResult.error) {
+    
+          console.log('Validation error:', validationResult.error); 
+          return res.status(400).json({ error: validationResult.error }); 
+    
+        }
 
 
         // Find admin by username and userType
@@ -705,6 +770,34 @@ const createUser = async (req, res) => {
             userType: String(userType)
         };
 
+
+
+         //backend validation before inserting in the database
+            console.log(`The encrypted data is: ${encryptedData}`);
+        //validation function for backend
+    
+        // Check for validation errors
+        const validationResult = await backendValidation(addUserSchema, {firstName,lastName,CNIC,phoneNumber,email,userName,password}); 
+    
+        // Check for validation errors
+        if (validationResult.error) {
+    
+          console.log('Validation error:', validationResult.error); 
+          return res.status(400).json({ validationError: validationResult.error }); 
+    
+        }
+
+            //is the user is not admin it will not allow the user to send request
+            // const userType1=req.session.userType;
+
+            if (userType1!=='Admin')
+            {
+
+                return res.status(403).json({ error: 'Not authorized as admin' });
+
+            }
+
+            
         // Check for duplicates using validated data
         const [existingUser] = await conn.execute(
             'SELECT * FROM users WHERE CNIC = ? OR userName = ?',
@@ -785,10 +878,12 @@ const createUser = async (req, res) => {
 
 
 
-    } catch (error) {
+    } 
+    catch (error) {
         console.error('Error creating user:', error);
         res.status(500).json({ error: 'Failed to create user' });
-    } finally {
+    }
+     finally {
         if (conn) conn.release();
     }
 };

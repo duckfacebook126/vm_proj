@@ -182,13 +182,13 @@ export default function VMTable({ onEdit, onDelete }) {
         <Table sx={{ minWidth: 500 }} aria-label="vm table">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 'bold' }}>VM ID</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>VM Name</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>DISK NAME</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>RAM</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>CORES</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>OS ID</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>USER ID</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>FLAVOR ID</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>OS NAME</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>USER NAME</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>FLAVOR NAME</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>DISK SIZE</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>ACTIONS</TableCell>
             </TableRow>

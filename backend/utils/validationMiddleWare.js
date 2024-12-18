@@ -1,6 +1,6 @@
 //function to validate the schea
 
-const userLoginValidation = async(schema, data) =>  { 
+const backendValidation = async(schema, data) =>  { 
     try {
       await schema.validate(data); 
       return { success: true }; 
@@ -13,4 +13,4 @@ const userLoginValidation = async(schema, data) =>  {
   };  
     
 
-    module.exports={userLoginValidation}
+    module.exports={backendValidation}
