@@ -39,7 +39,7 @@ export default function VMTable({ onEdit, onDelete }) {
   const { dashboardData } = useContext(DataContext);
   const { user, loading } = useAuth();
   const vms = dashboardData?.vms || [];
-
+  const vmTableData =dashboardData?.vmTableData || [];
   // States for handling pagination
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -56,12 +56,12 @@ export default function VMTable({ onEdit, onDelete }) {
             id:vm.id,
 
             NAME:vm.NAME,
-            osName:vm.osName,
-            cpu:vm.cpu,
+            osName:vm.os_name,
+            cpu:vm.CPU,
             cores:vm.cores,
             ram:vm.ram,
             size:vm.size,
-            flavorName:vm.flavorName,
+            flavorName:vm.disk_flavor,
             userType:user.userType
 
 
@@ -136,7 +136,7 @@ export default function VMTable({ onEdit, onDelete }) {
 
     //handle the edit vm request
   const handleEditvm = async (editVm) => {
-    axios.put(`http://localhost:8080/api/update_vm/${editVm.id}`, editVm,{ withCredentials: true })
+    axios.put(`http://localhost:8080/api/update_vm/${editVm.id}`,editVm,{ withCredentials: true })
         .then(res => {
           //if the the request is successfull then show a successmessage on deletion
           if(res){
@@ -187,7 +187,6 @@ export default function VMTable({ onEdit, onDelete }) {
               <TableCell sx={{ fontWeight: 'bold' }}>RAM</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>CORES</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>OS NAME</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>USER NAME</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>FLAVOR NAME</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>DISK SIZE</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>ACTIONS</TableCell>
@@ -196,15 +195,14 @@ export default function VMTable({ onEdit, onDelete }) {
           <TableBody>
 
             {/* show the specific number of rows per page */}
-            {vms.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((vm) => (
+            {vmTableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((vm,index) => (
               <TableRow key={vm.id}>
                 <TableCell>{vm.NAME}</TableCell>
+                <TableCell>{vm.disk_name}</TableCell>
                 <TableCell>{vm.ram}</TableCell>
-                <TableCell>{vm.size}</TableCell>
                 <TableCell>{vm.cores}</TableCell>
-                <TableCell>{vm.osId}</TableCell>
-                <TableCell>{vm.userId}</TableCell>
-                <TableCell>{vm.flavorId}</TableCell>
+                <TableCell>{vm.os_name}</TableCell>
+                <TableCell>{vm.disk_flavor}</TableCell>
                 <TableCell>{vm.size}</TableCell>
                 <TableCell>
                   <Stack direction="row" spacing={1}>
@@ -244,7 +242,7 @@ export default function VMTable({ onEdit, onDelete }) {
         {/* pagintion for the vm table */}
         <TablePagination
           component="div"
-          count={vms.length}
+          count={vmTableData.length}
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={rowsPerPage}
@@ -315,7 +313,7 @@ export default function VMTable({ onEdit, onDelete }) {
             <TextField
                 label="OS Name"
                 name="osName"
-                value={editVm?.osName || ''}
+                value={editVm?.os_name || ''}
                 onChange={(e) => setEditVm({...editVm, osName: e.target.value})}
                 fullWidth
             />
@@ -417,6 +415,7 @@ export default function VMTable({ onEdit, onDelete }) {
             setOpenEditDialog(false);
         }}>Save Changes</Button>
     </DialogActions>
+    
 </Dialog>
 
     </>
@@ -428,11 +427,16 @@ export default function VMTable({ onEdit, onDelete }) {
  * 
  * This component renders the VM table with an edit option. It also contains
  * a dialog for editing the VM details.
+ *
  * 
+ * 
+ *  
  * @summary
  * - Renders the VM table with an edit option.
  * - Contains a dialog for editing the VM details.
  * - Handles the edit and delete operations of the VMs.
+ * 
+ * 
  * 
  * @workflow
  * 1. The component fetches the VM data from the context.

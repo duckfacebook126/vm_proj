@@ -32,8 +32,10 @@
 	-- Create the disk_flavor table
 	CREATE TABLE disk_flavor (
 	    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	    diskId INT ,
 	    NAME VARCHAR(255) NOT NULL,
-	    size INT NOT NULL
+	    size INT NOT NULL,
+	    FOREIGN (diskId) KEY REFERENCES DISK(id) ON DELETE CASCADE
 	);
 
 	-- Create the virtual_machine table with cascading deletes
@@ -70,7 +72,7 @@
 	    typeId INT NOT NULL,
 	    typeName VARCHAR(255) NOT NULL,
 	    permission VARCHAR(255) NOT NULL,
-	    FOREIGN KEY (userId) REFERENCES users(id) ON CASCADE DELETE
+	    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
 	    
 	    
 	);

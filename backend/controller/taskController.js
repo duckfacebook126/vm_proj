@@ -376,6 +376,38 @@ const dashboard_data = async (req, res) => {
         `;
         const [vms] = await conn.execute(vmQuery, [userId]);
 
+        //get althe related vm_table data 
+        const vmTableQuery = `
+         SELECT
+        virtual_machine.*, 
+        users.id AS user_id,
+        Disk.NAME AS disk_name,
+        operating_system.NAME AS os_name,
+        disk_flavor.NAME AS disk_flavor
+  
+        FROM users
+        INNER JOIN
+        virtual_machine 
+        ON users.id=virtual_machine.userId
+  
+ 
+        INNER JOIN
+        DISK
+        ON
+        virtual_machine.id=disk.vmId
+  
+  
+        INNER JOIN operating_system
+        ON operating_system.id=virtual_machine.osId
+  
+  
+        INNER JOIN disk_flavor
+        ON disk_flavor.id =virtual_machine.flavorId
+  
+        WHERE users.id=?
+        `
+        const [vmTableData] = await conn.execute(vmTableQuery, [userId]);
+
         // Get all disks for the user with flavor details
         const diskQuery = `
             SELECT d.*, df.name as flavorName, vm.name as vmName
@@ -401,6 +433,7 @@ const dashboard_data = async (req, res) => {
 
         res.status(200).json({
             vms,
+            vmTableData,
             disks,
             users,
             login: true,

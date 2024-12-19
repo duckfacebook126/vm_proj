@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 export const DataContext = createContext(null);
 //export dashbaord data context
 export const DataProvider = ({ children }) => {
-    const [dashboardData, setDashboardData] = useState({ vms: [], disks: [], users: [] });
+    const [dashboardData, setDashboardData] = useState({ vms: [], disks: [], users: [],vmTableData: [] });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
