@@ -70,6 +70,7 @@ router.post('/admin_login', adminLogin); // Route for admin login
 
 module.exports = router;
 
+
 /**
  * @fileoverview This file contains the routes for the application.
  *

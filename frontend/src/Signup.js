@@ -80,7 +80,7 @@ function Signup() {
         onSubmit:(values ,{setSubmitting,setErrors})=>{
             setSubmitting(true);
             const encryptedData=encryptData(values);
-            axios.post('http://localhost:8080/api/signup', { encryptedData }).then(res => {
+            axios.post('http://localhost:8082/api/signup', { encryptedData }).then(res => {
                 
                 navigate('/login'); // Navigate to the home page on successful signup
             }

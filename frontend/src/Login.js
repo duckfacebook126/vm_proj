@@ -68,7 +68,7 @@ useEffect(() => {
             console.log('Submitting login with values:', values);
 
             //send encrypted data request
-            axios.post('http://localhost:8080/api/login',{encryptedData}, { withCredentials: true })
+            axios.post('http://localhost:8081/api/login',{encryptedData}, { withCredentials: true })
 
             //throwing the alert on success
                 .then(async (res) => {
@@ -102,7 +102,6 @@ useEffect(() => {
  //error handling for not diplaying formik errors handle the form errors
 
  console.log('Form values:', formik.values);
- console.log('Form errors:', formik.errors);
  console.log('Form touched:', formik.touched);
 
     

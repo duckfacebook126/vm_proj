@@ -51,7 +51,7 @@ function AdminSignup() {
     //handle submit function
     onSubmit: async (values, { setSubmitting }) => {
       const encryptedData = encryptData(values);
-         await axios.post('http://localhost:8080/api/admin_signup', {encryptedData})
+         await axios.post('http://localhost:8082/api/admin_signup', {encryptedData})
         .then(res=>{
                 if(res.data.success){
             navigate('/admin_login');

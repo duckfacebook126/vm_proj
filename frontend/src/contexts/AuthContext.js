@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
             setLoading(true);
 
             //axios request to check auhth
-            const response = await axios.get('http://localhost:8080/api/check_auth', {
+            const response = await axios.get('http://localhost:8081/api/check_auth', {
                 withCredentials: true
             });
               ///if scucccess ful login then throw th alert on success
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
                 ? '/api/admin_logout' 
                 : '/api/logout';
             
-            await axios.post(`http://localhost:8080${logoutEndpoint}`, {}, { 
+            await axios.post(`http://localhost:8081${logoutEndpoint}`, {}, { 
                 withCredentials: true 
             });
             setUser(null);

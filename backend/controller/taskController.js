@@ -61,10 +61,6 @@ const signup = async (req, res) => {
             userType: String(userType)
         };
 
-
-
-
-
         console.log(`The encrypted data is: ${encryptedData}`);
         //validation function for backend
 
@@ -347,11 +343,13 @@ const createVM = async (req, res) => {
             osId,
             flavorId
         });
-    } catch (error) {
+    }
+     catch (error) {
         if (conn) await conn.rollback();
         console.error('Failed to create VM:', error);
         res.status(500).json({ error: error.message });
-    } finally {
+    } 
+    finally {
         if (conn) conn.release();
     }
 };
@@ -718,9 +716,9 @@ const fetchAdminData = async (req, res) => {
     try {
 
         // Check if user is authenticated and is an admin
-        // if (!req.session || !req.session.uId) {
-        //     return res.status(401).json({ error: 'Not authenticated' });
-        // }
+        if (!req.session || !req.session.uId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
 
         conn = await db.getConnection();
 
@@ -756,11 +754,14 @@ const fetchAdminData = async (req, res) => {
             error: 'Failed to fetch admin data',
             details: error.message 
         });
-    } finally {
+    } 
+    finally {
         if (conn) {
             try {
                 await conn.release();
-            } catch (err) {
+            } 
+            
+            catch (err) {
                 console.error('Error releasing connection:', err);
             }
         }
