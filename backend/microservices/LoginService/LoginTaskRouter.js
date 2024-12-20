@@ -22,10 +22,11 @@ const {
 
 // User routes
 
+
+
 router.post('/login', login); // Route for user login
 
 router.post('/logout', logout); // Route for user logout
-
 
 //adminLogin router
 router.post('/admin_login', adminLogin);
@@ -36,14 +37,17 @@ router.post('/admin_logout', adminLogout);
 // Route to check authentication
 router.get('/check_auth', (req, res) => {
     if (req.session && req.session.uId) {
-        console.log(`The authenticated user ID is ${req.session.uId}`);
+        console.log(`The authenticated user ID from the Middleware is ${req.session.uId}`);
+        
         res.json({
             login: true,
             username: req.session.username,
             userType: req.session.userType,
             userId: req.session.uId
         });
-    } else {
+
+    } 
+    else {
         res.status(401).json({ login: false });
     }
 });

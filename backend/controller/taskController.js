@@ -231,6 +231,9 @@ const login = async (req, res) => {
             console.log(`Session saved. Username: ${req.session.username}, uId: ${req.session.uId}`);
             res.status(200).json({ message: "Login successful", login: true, username: req.session.username, userId: req.session.uId, userType:req.session.userType });
         });
+
+
+        console.log(`Login successful. Username: ${req.session.username}, uId: ${req.session.uId}`);
     
     } 
     catch (error)
@@ -359,6 +362,8 @@ const dashboard_data = async (req, res) => {
     try {
         const userId = req.session.uId;
         if (!userId) {
+
+            console.log(` The user Id from the session is not recieved so :${req.session.uId}`)
             return res.status(401).json({ error: "User not authenticated" });
         }
 
@@ -430,11 +435,13 @@ const dashboard_data = async (req, res) => {
                     }
 
         res.status(200).json({
-            vms,
-            vmTableData,
-            disks,
-            users,
-            login: true,
+            // vms,
+            // vmTableData,
+            // disks,
+            // users,
+            // login: true,
+
+        name:"xyz"
         });
     } catch (error) {
         console.error('Failed to fetch dashboard data:', error);

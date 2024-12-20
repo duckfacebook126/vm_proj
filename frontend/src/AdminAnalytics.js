@@ -158,6 +158,7 @@ export default function AdminAnalytics() {
           
             
                 
+                
                 <graphcontext.Provider value={adminDashboardData}>
                   <AdminPieChartComponent />
                 </graphcontext.Provider>

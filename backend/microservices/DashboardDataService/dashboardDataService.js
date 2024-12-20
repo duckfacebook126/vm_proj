@@ -4,7 +4,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const taskRouter = require('./userSignupTaskRouter');
+const taskRouter = require('./dashboardDataTaskRouter');
 
 app.use(cors({
     origin: 'http://localhost:3000',  // Correct base URL
@@ -25,11 +25,14 @@ app.use(session({
     }
 }));
 
+
+
 app.use('/api',taskRouter);
 
 app.get('/', (req, res) => {
-    console.log(`Session username: ${req.session.username}`);
-    if (req.session.username) {
+   
+     if (req.session) {
+        console.log('session Data:',req.session.uId);   
         res.status(200).json({ 
             login: true, 
             username: req.session.username,
@@ -39,8 +42,12 @@ app.get('/', (req, res) => {
         });
     } else {
         res.status(404).json({ login: false });
+        console.log('session Data:',req.session);  
     }
 });
 
-const port = 8082;
-app.listen(port, () => console.log(`user Signup Service is running on port ${port}`));
+
+
+const port = 8083;
+app.listen(port, () => console.log(`Dashboard Data Service is running on port ${port}`));
+

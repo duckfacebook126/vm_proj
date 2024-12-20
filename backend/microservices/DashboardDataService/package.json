@@ -1,10 +1,10 @@
 {
-  "name": "usersignupservice",
+  "name": "dashboarddataservice",
   "version": "1.0.0",
-  "main": "userSignupService.js",
+  "main": "dashboardDataService.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start":"nodemon userSignupService.js"
+    "start": "nodemon dashboardDataService.js"
   },
   "keywords": [],
   "author": "",
