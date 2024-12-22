@@ -1,0 +1,16 @@
+POST http://localhost:8081/api/login
+Content-Type: application/json
+
+{
+    "encryptedData": "nigga1"
+}
+
+###
+
+POST http://localhost:8081/api/posts
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.bmlnZ2Ex.oYnhLuhX1Ga9a3VKa9PoHmcZi0KWXTi3Y3xyzpBlIv8
+
+{
+    "encryptedData": "nigga1"
+}

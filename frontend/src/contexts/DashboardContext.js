@@ -13,7 +13,7 @@ export const DataProvider = ({ children }) => {
 // fetchht the data from the backend  to be dsiplayed on frontend
     const fetchDashboardData = async () => {
         try {
-            const res = await axios.get('http://localhost:8080/api/dashboard_data', { withCredentials: true });
+            const res = await axios.get('http://localhost:8083/api/dashboard_data', { withCredentials: true });
             setDashboardData(res.data);
         } catch (err) {
             console.error('Failed to fetch dashboard data:', err);
