@@ -10,19 +10,14 @@ import Swal from 'sweetalert2';
 import LoadingSpinner from './components/Loading';
 import { useContext } from 'react';
 import { useAuth } from './contexts/AuthContext';
-import      {   Box,
-TextField,
-Button,
-Typography,
-Container,
-Paper}from '@mui/material/';  
+import { Box, TextField, Button, Typography, Container, Paper } from '@mui/material/';
 // This function renders the login form for the user
 
 
 function Login() {
     const { user, checkAuthStatus } = useAuth();
     const navigate = useNavigate();
-const [IsLoading,setIsLoading]=useState(true)
+    const [IsLoading, setIsLoading] = useState(true)
 
 
 
@@ -62,37 +57,39 @@ const [IsLoading,setIsLoading]=useState(true)
         // on submitt handle function here
         onSubmit: async (values, { setErrors, setSubmitting }) => {
             setSubmitting(true);
-                    //encrypt  data
-                const encryptedData=encryptData(values)
-
+            const encryptedData = encryptData(values);
             console.log('Submitting login with values:', values);
 
-            //send encrypted data request
-            axios.post('http://localhost:8081/api/login',{encryptedData}, { withCredentials: true })
+            try {
+                const res = await axios.post('http://localhost:8081/api/login',
+                    { encryptedData },
+                    { withCredentials: true }
+                );
 
-            //throwing the alert on success
-                .then(async (res) => {
-                    console.log('Login response:', res.data);
-                    setSubmitting(false);
-                    if (res.data.login) {
-                        await checkAuthStatus();
-                            navigate('/dashboard');
-                        }
-                })
-                .catch(error => {
-                    console.error('Login error:', error.response?.data || error);
-                    if (error.response) {
-                        const backendError = error.response.data.error;
-
-                        //throwing the alert on the error
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: backendError,
-                        });
+                console.log('Login response:', res.data);
+                if (res.data.login) {
+                    await checkAuthStatus();
+                    // Wait for a moment to ensure session is properly set
+                   await new Promise(resolve => setTimeout(resolve, 100));
+                    if (res.data.userType === 'Admin') {
+                        navigate('/admin_dashboard');
+                    } else {
+                        navigate('/dashboard');
                     }
-                    setSubmitting(false);
-                });
+                }
+            } catch (error) {
+                console.error('Login error:', error.response?.data || error);
+                if (error.response) {
+                    const backendError = error.response.data.error;
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: backendError,
+                    });
+                }
+            } finally {
+                setSubmitting(false);
+            }
         }
 
 
@@ -104,14 +101,13 @@ const [IsLoading,setIsLoading]=useState(true)
     console.log('Form values:', formik.values);
     console.log('Form touched:', formik.touched);
 
-    
-if(!IsLoading){
+    if (!IsLoading) {
         return (
 
             // Lojgin fform here
             <Container component="main" maxWidth="xs">
                 <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
-        <Typography component="h1" variant ="h5" align="center" gutterBottom>
+                    <Typography component="h1" variant="h5" align="center" gutterBottom>
 
 
                         User Login
@@ -169,7 +165,7 @@ if(!IsLoading){
                         </div>
 
                         {/* submitt button that handles the login */}
-                    <button onSubmit={formik.handleSubmit} className="btn btn-danger btn-block w-100" disabled={formik.isSubmitting}>
+                        <button onSubmit={formik.handleSubmit} className="btn btn-danger btn-block w-100" disabled={formik.isSubmitting}>
                             {formik.isSubmitting ? 'Logging in...' : 'Login'}
                         </button>
 
@@ -178,7 +174,7 @@ if(!IsLoading){
                         </Link>
 
                         <strong>OR</strong>
-                    <br/>
+                        <br />
 
                         {/* redirecting links to the */}
 
@@ -193,15 +189,14 @@ if(!IsLoading){
             </Container>
 
 
-);}
-   
+        );
+    }
 
     //show loading if loading is false
 
-    else if(IsLoading)
-    {
+    else if (IsLoading) {
 
-        return(<><LoadingSpinner/></>);
+        return (<><LoadingSpinner /></>);
     }
 }
 

@@ -44,3 +44,6 @@ app.get('/', (req, res) => {
 
 const port = 8083;
 app.listen(port, () => console.log(` User Data Service is running on port ${port}`));
+
+// Apply session check middleware to all routes except sync-session
+

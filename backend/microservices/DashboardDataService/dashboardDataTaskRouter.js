@@ -46,6 +46,8 @@ router.get('/check_auth', (req, res) => {
 // get the dahsbaord data form the database
 router.get('/dashboard_data', dashboard_data);
 
+console.log(`hehhe her is the session data in the middle ware ${JSON.stringify(req.session)}`);
+
 module.exports = router;
 
 /** 

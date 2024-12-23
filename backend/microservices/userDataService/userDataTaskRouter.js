@@ -20,6 +20,8 @@ const {
     updateVm
 } = require('../../controller/taskController');
 
+
+let sessionData; 
 // User routes
 
 router.put('/update_vm/:vmId', updateVm); // Route for updating a VM by ID
@@ -46,19 +48,86 @@ router.get('/check_auth', (req, res) => {
     }
 });
 
+// Route to receive and set session data from Login service
+router.post('/get_auth', async (req, res) => {
+    try {
+        const sessionData = req.body;
+        console.log('Received session data in UserData service:', sessionData);
+
+        // Validate session data
+        if (!sessionData || !sessionData.username || !sessionData.uId) {
+            console.error('Invalid session data received:', sessionData);
+            return res.status(400).json({ 
+                error: 'Invalid session data',
+                received: sessionData 
+            });
+        }
+
+        // Create a Promise wrapper for session operations
+        await new Promise((resolve, reject) => {
+            req.session.regenerate((err) => {
+                if (err) {
+                    console.error('Session regeneration error:', err);
+                    reject(err);
+                    return;
+                }
+
+                // Set session data
+                req.session.username = sessionData.username;
+                req.session.uId = sessionData.uId;
+                req.session.userType = sessionData.userType;
+
+                req.session.save((err) => {
+                    if (err) {
+                        console.error('Session save error:', err);
+                        reject(err);
+                        return;
+                    }
+                    resolve();
+                });
+            });
+        });
+
+        console.log('Session successfully set in UserData service:', {
+            username: req.session.username,
+            uId: req.session.uId,
+            userType: req.session.userType
+        });
+
+        res.status(200).json({
+            message: 'Session synchronized successfully',
+            sessionId: req.sessionID,
+            username: req.session.username,
+            uId: req.session.uId
+        });
+
+    } catch (error) {
+        console.error('Error in get_auth:', error);
+        res.status(500).json({ 
+            error: 'Failed to process session data',
+            details: error.message 
+        });
+    }
+});
+
+// Route to verify session is working
+router.get('/check-session', (req, res) => {
+    if (req.session && req.session.username) {
+        res.json({
+            message: 'Session is active',
+            username: req.session.username,
+            uId: req.session.uId,
+            userType: req.session.userType
+        });
+    } else {
+        res.status(401).json({ error: 'No active session' });
+    }
+});
 
 
-
-
-
-
-
-
-
-
+console.log(`hehhe her is the session data in the middle ware ${JSON.stringify(req.session)}`);
 
 module.exports = router;
-
 
 /**
  * @fileoverview This file contains the routes for the application.
@@ -103,4 +172,3 @@ module.exports = router;
  * @requires express
  * @requires ../controller/taskController
  */
-

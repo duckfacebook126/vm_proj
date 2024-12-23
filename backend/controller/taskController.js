@@ -155,108 +155,86 @@ const signup = async (req, res) => {
 // Login Function
 const login = async (req, res) => {
     let conn;
-
-
     try {
-
-        conn = await db.getConnection()
-
+        conn = await db.getConnection();
         const { encryptedData } = req.body;
         const decryptedData = decryptData(encryptedData);
         const { username, password } = decryptedData;
-    console.log(`The encrypted data is: ${encryptedData}`)
+        console.log(`The encrypted data is: ${encryptedData}`);
 
-    //validated data for input in data base
-    const validatedData = {
-        userName: String(username),
-        PASSWORD: String(password)
-    };
+        const validatedData = {
+            userName: String(username),
+            PASSWORD: String(password)
+        };
 
-
-  
-
-    // Check for validation errors
         const validationResult = await backendValidation(userLoginSchema, { username, password });
-
-    // Check for validation errors
         if (validationResult.error) {
-
-      console.log('Validation error:', validationResult.error); 
-            return res.status(400).json({ error: validationResult.error });
-
+            console.log('Validation error:', validationResult.error); 
+            return res.status(400).json({ error: validationResult.error, login: false });
         }
-
-
-    console.log(`The vaidation result ${JSON.stringify(validationResult)}`);
-            const notUserType="Admin";
-
-        // Find user by username
+        console.log(`The validation result ${JSON.stringify(validationResult)}`);
+        
+        const notUserType = "Admin";
         const [users] = await conn.execute(
-            'SELECT * FROM users WHERE userName =? AND userType !=?',
-            [validatedData.userName,notUserType]
+            'SELECT * FROM users WHERE userName = ? AND userType != ?',
+            [validatedData.userName, notUserType]
         );
 
         if (users.length === 0) {
             return res.status(401).json({ login: false, error: 'Username does not exist' });
         }
 
+        const user = users[0];
+        const hashedUserpasssword = user.PASSWORD;
+        const isPasswordMatch = await bcrypt.compare(validatedData.PASSWORD, hashedUserpasssword);
 
-        
-        const user =users[0];
-
-            //using bcrypt to heck the  stored passwords hash with the user entered password
-
-
-            //stored hashed password in the adatbase
-            const hashedUserpasssword=user.PASSWORD;
-
-            //now chwcking the paassword using using bcrypt compare
-            const isPasswordMatch = await bcrypt.compare(validatedData.PASSWORD, hashedUserpasssword);
-
-            if (!isPasswordMatch) {
-                return res.status(401).json({login: false, error: 'Invalid password'});
+        if (!isPasswordMatch) {
+            return res.status(401).json({ login: false, error: 'Invalid password' });
         }
 
-         // Create JWT payload
-        const payload = {
-            userId: user.id,
-            username: user.userName,
-            userType: user.userType,
-         };
-
-
-      const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
         // Set session data
-
-        req.session.username = user.userName;
-        req.session.userType = user.userType;
-        req.session.uId = user.id;
-        
-        // Save the session
-        req.session.save(err => {
+        req.session.regenerate((err) => {
             if (err) {
-                console.error('Session save error:', err);
-                return res.status(500).json({ error: 'Failed to save session' });
+                console.error('Session regeneration error:', err);
+                return res.status(500).json({ error: 'Failed to create session', login: false });
             }
-            console.log(`Session saved. Username: ${req.session.username}, uId: ${req.session.uId}`);
-            res.status(200).json({
-                 message: "Login successful", login: true, username: req.session.username, userId: req.session.uId, userType:req.session.userType,accessToken });
-        });
 
-    } 
-    catch (error)
-     {
+            req.session.username = user.userName;
+            req.session.userType = user.userType;
+            req.session.uId = user.id;
+
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Session save error:', err);
+                    return res.status(500).json({ error: 'Failed to save session', login: false });
+                }
+
+                console.log('Login successful, session data set:', {
+                    username: req.session.username,
+                    userType: req.session.userType,
+                    uId: req.session.uId
+                });
+
+                res.status(200).json({
+                    message: "Login successful",
+                    login: true,
+                    username: req.session.username,
+                    userId: req.session.uId,
+                    userType: req.session.userType
+                });
+            });
+        });
+    } catch (error) {
         console.error('User login error:', error);
         res.status(500).json({ error: 'Login failed', login: false });
-    } 
-    finally {
+    } finally {
         if (conn) conn.release();
     }
 };
 
-
 // Logout Function
 const logout = (req, res) => {
+
     req.session.destroy((err) => {
         if (err) {
             console.error('Failed to destroy session:', err);
@@ -368,94 +346,91 @@ const createVM = async (req, res) => {
 const dashboard_data = async (req, res) => {
     let conn;
     try {
-        const userId = req.session.uId;
-        if (!userId) {
-
-            console.log(` The user Id from the session is not recieved so :${req.session.uId}`)
-            return res.status(401).json({ error: "User not authenticated" });
+        // First check if session exists and has required data
+        if (!req.session || !req.session.uId) {
+            console.error('No session or user ID found:', req.session);
+            return res.status(401).json({ 
+                error: 'Authentication required',
+                authenticated: false
+            });
         }
+
+        console.log('Session data in dashboard:', {
+            username: req.session.username,
+            uId: req.session.uId,
+            userType: req.session.userType
+        });
 
         conn = await db.getConnection();
+        const userId = req.session.uId;
 
-        // Get all VMs for the user with OS and flavor details
-        const vmQuery = `
-            SELECT vm.*, os.name as osName, df.name as flavorName 
-            FROM virtual_machine vm
-            JOIN operating_system os ON vm.osId = os.id
-            JOIN disk_flavor df ON vm.flavorId = df.id
-            WHERE vm.userId = ?
-        `;
-        const [vms] = await conn.execute(vmQuery, [userId]);
+        // Get user VMs
+        const [userVMs] = await conn.execute(
+            'SELECT * FROM user_vms WHERE userId = ?',
+            [userId]
+        );
 
-        //get althe related vm_table data 
-        const vmTableQuery = `
-         SELECT
-        virtual_machine.*, 
-        users.id AS user_id,
-        Disk.NAME AS disk_name,
-        operating_system.NAME AS os_name,
-        disk_flavor.NAME AS disk_flavor
-  
-        FROM users
-        INNER JOIN
-        virtual_machine 
-        ON users.id=virtual_machine.userId
-  
- 
-        INNER JOIN
-        DISK
-        ON
-        virtual_machine.id=disk.vmId
-  
-  
-        INNER JOIN operating_system
-        ON operating_system.id=virtual_machine.osId
-  
-  
-        INNER JOIN disk_flavor
-        ON disk_flavor.id =virtual_machine.flavorId
-  
-        WHERE users.id=?
-        `
-        const [vmTableData] = await conn.execute(vmTableQuery, [userId]);
+        // Get user details
+        const [userDetails] = await conn.execute(
+            'SELECT userName, userType, email FROM users WHERE id = ?',
+            [userId]
+        );
 
-        // Get all disks for the user with flavor details
-        const diskQuery = `
-            SELECT d.*, df.name as flavorName, vm.name as vmName
-            FROM disk d
-            JOIN disk_flavor df ON d.flavorId = df.id
-            LEFT JOIN virtual_machine vm ON d.vmId = vm.id
-            WHERE d.userId = ?
-        `;
-        const [disks] = await conn.execute(diskQuery, [userId]);
-
-        const userQuery= 'SELECT * FROM users';
-
-        const [users] = await conn.execute(userQuery);
-
-                if (users.length>0)
-                {console.log(`this is the user data${users}`)}
-                
-                    else if(users.length===0)
-                    {
-            console.log(' the query resulted in 0 users ');
-
+        if (userDetails.length === 0) {
+            console.error('No user found for ID:', userId);
+            return res.status(404).json({ error: 'User not found' });
         }
 
-        res.status(200).json({
-            // vms,
-            // vmTableData,
-            // disks,
-            // users,
-            // login: true,
-
-        name:"xyz"
+        // Get VM details for each user VM
+        const vmPromises = userVMs.map(async (userVM) => {
+            const [vmDetails] = await conn.execute(
+                'SELECT * FROM vms WHERE id = ?',
+                [userVM.vmId]
+            );
+            return vmDetails[0];
         });
+
+        const vms = await Promise.all(vmPromises);
+
+        // Prepare response data
+        const dashboardData = {
+            user: {
+                username: userDetails[0].userName,
+                userType: userDetails[0].userType,
+                email: userDetails[0].email,
+                id: userId
+            },
+            vms: vms.filter(vm => vm !== undefined).map(vm => ({
+                id: vm.id,
+                name: vm.name,
+                status: vm.status,
+                specs: {
+                    cpu: vm.cpu,
+                    memory: vm.memory,
+                    storage: vm.storage
+                },
+                createdAt: vm.created_at,
+                lastModified: vm.last_modified
+            }))
+        };
+
+        console.log('Sending dashboard data:', dashboardData);
+        res.status(200).json(dashboardData);
+
     } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
-        res.status(500).json({ error: "Failed to fetch dashboard data" });
+        console.error('Error fetching dashboard data:', error);
+        res.status(500).json({ 
+            error: 'Failed to fetch dashboard data',
+            details: error.message
+        });
     } finally {
-        if (conn) conn.release();
+        if (conn) {
+            try {
+                await conn.release();
+            } catch (error) {
+                console.error('Error releasing connection:', error);
+            }
+        }
     }
 };
 
