@@ -20,39 +20,39 @@ Paper}from '@mui/material/';
 
 
 function Login() {
-    const {user,checkAuthStatus}=useAuth();
+    const { user, checkAuthStatus } = useAuth();
     const navigate = useNavigate();
 const [IsLoading,setIsLoading]=useState(true)
 
 
 
-useEffect(() => {
+    useEffect(() => {
 
-    // Function to check if user is logged in and redirect accordingly
-    const checkAndRedirect = async () => {
-        if (user) {
-            // If user is logged in as an admin, go to admin dashboard
-            if (user.userType === 'Admin') {
-                navigate('/admin_dashboard');
+        // Function to check if user is logged in and redirect accordingly
+        const checkAndRedirect = async () => {
+            if (user) {
+                // If user is logged in as an admin, go to admin dashboard
+                if (user.userType === 'Admin') {
+                    navigate('/admin_dashboard');
+                }
+                // If user is a regular user, go to regular dashboard
+                else if (['Standard', 'Premium', 'SuperUser'].includes(user.userType)) {
+                    navigate('/dashboard');
+                }
             }
-            // If user is a regular user, go to regular dashboard
-            else if (['Standard', 'Premium', 'SuperUser'].includes(user.userType)) {
-                navigate('/dashboard');
-            }
-        }
-    };
+        };
 
-    //check and redirect on first render
-    checkAndRedirect();
+        //check and redirect on first render
+        checkAndRedirect();
 
-    const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 3000);
-      
-      return () => clearTimeout(timer)
-}, [user, navigate]);
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 3000);
 
-// formik validation    
+        return () => clearTimeout(timer)
+    }, [user, navigate]);
+
+    // formik validation    
     const formik = useFormik({
         initialValues: {
             username: '',
@@ -75,9 +75,9 @@ useEffect(() => {
                     console.log('Login response:', res.data);
                     setSubmitting(false);
                     if (res.data.login) {
-                        await checkAuthStatus(); 
-                        navigate('/dashboard');
-                    }
+                        await checkAuthStatus();
+                            navigate('/dashboard');
+                        }
                 })
                 .catch(error => {
                     console.error('Login error:', error.response?.data || error);
@@ -99,104 +99,104 @@ useEffect(() => {
     });
 
 
- //error handling for not diplaying formik errors handle the form errors
+    //error handling for not diplaying formik errors handle the form errors
 
- console.log('Form values:', formik.values);
- console.log('Form touched:', formik.touched);
+    console.log('Form values:', formik.values);
+    console.log('Form touched:', formik.touched);
 
     
 if(!IsLoading){
-    return (
+        return (
 
-        // Lojgin fform here
-        <Container component="main" maxWidth="xs">
-      <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
+            // Lojgin fform here
+            <Container component="main" maxWidth="xs">
+                <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
         <Typography component="h1" variant ="h5" align="center" gutterBottom>
 
 
-            User Login
-        </Typography>
+                        User Login
+                    </Typography>
 
-                <form onSubmit={formik.handleSubmit}>
-                
+                    <form onSubmit={formik.handleSubmit}>
 
-                    {/* Username field */}
-                    <div className="form-group">
-                        <label htmlFor="username">Username</label>
-                        <TextField
-                            fullWidth
-                            margin="normal"
-                            name="username"
-                            placeholder="Enter Username"
-                            value={formik.values.username}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            helperText={formik.touched.username && formik.errors.username}
-                            sx={{
-                                '& .MuiFormHelperText-root': {
-                                    color: 'red',
-                                    fontSize: '1.0rem', // Increase the size as needed
-                                },
-                            }}
-                        />
+
+                        {/* Username field */}
+                        <div className="form-group">
+                            <label htmlFor="username">Username</label>
+                            <TextField
+                                fullWidth
+                                margin="normal"
+                                name="username"
+                                placeholder="Enter Username"
+                                value={formik.values.username}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                helperText={formik.touched.username && formik.errors.username}
+                                sx={{
+                                    '& .MuiFormHelperText-root': {
+                                        color: 'red',
+                                        fontSize: '1.0rem', // Increase the size as needed
+                                    },
+                                }}
+                            />
                             {/* formik errors  for username*/}
-                    </div>
+                        </div>
 
 
                         {/*Password field  */}
-                    <div className="form-group">
-                        <label htmlFor="password">Password</label>
-                        <TextField
-                            type="password"
-                            id="password"
-                            placeholder="Enter Password"
-                            name="password"
-                            onChange={formik.handleChange}
-                            value={formik.values.password}
-                            onBlur={formik.handleBlur}
-                            helperText={formik.touched.password && formik.errors.password}
-                            fullWidth      
-                            
-                            sx={{
-                                '& .MuiFormHelperText-root': {
-                                    color: 'red',
-                                    fontSize: '1.0rem', // Increase the size as needed
-                                },
-                            }}
-                        />
-                        
+                        <div className="form-group">
+                            <label htmlFor="password">Password</label>
+                            <TextField
+                                type="password"
+                                id="password"
+                                placeholder="Enter Password"
+                                name="password"
+                                onChange={formik.handleChange}
+                                value={formik.values.password}
+                                onBlur={formik.handleBlur}
+                                helperText={formik.touched.password && formik.errors.password}
+                                fullWidth
 
-                    </div>
+                                sx={{
+                                    '& .MuiFormHelperText-root': {
+                                        color: 'red',
+                                        fontSize: '1.0rem', // Increase the size as needed
+                                    },
+                                }}
+                            />
 
-            {/* submitt button that handles the login */}
+
+                        </div>
+
+                        {/* submitt button that handles the login */}
                     <button onSubmit={formik.handleSubmit} className="btn btn-danger btn-block w-100" disabled={formik.isSubmitting}>
-                        {formik.isSubmitting ? 'Logging in...' : 'Login'}
-                    </button>
+                            {formik.isSubmitting ? 'Logging in...' : 'Login'}
+                        </button>
 
-                    <Link to="/signup" className="btn btn-link">
-                        Don't have an account? Sign up
-                    </Link>
+                        <Link to="/signup" className="btn btn-link">
+                            Don't have an account? Sign up
+                        </Link>
 
-                    <strong>OR</strong>
+                        <strong>OR</strong>
                     <br/>
 
-                    {/* redirecting links to the */}
+                        {/* redirecting links to the */}
 
                         <Link to="/admin_login" className="btn btn-link">
                             Log in as Admin
-                            </Link>
+                        </Link>
 
 
 
-                </form>
-            </Paper>
+                    </form>
+                </Paper>
             </Container>
-        
+
 
 );}
    
 
-//show loading if loading is false
+    //show loading if loading is false
 
     else if(IsLoading)
     {

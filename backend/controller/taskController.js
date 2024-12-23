@@ -1,11 +1,12 @@
+
+require('dotenv').config({path: './process.env'});
 const express = require('express');
 const { decryptData } = require('../utils/decryption');
 const db = require('../db');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const crypto= require('crypto')
-
-
+const jwt = require('jsonwebtoken');
 const {userLoginValidation, backendValidation}=require('../utils/validationMiddleWare');
 const Yup= require("yup");
 //import the functionns of encrypting and decrypting
@@ -18,11 +19,11 @@ const {
     addVmValidationSchema,
     addUserSchema,
     userSignUpSchema
+
     
     
     
-    
-    } = require('../utils/validationSchemas');
+} = require('../utils/validationSchemas');
 const { ThemeProvider } = require('react-bootstrap');
 const { error } = require('console');
 
@@ -32,18 +33,18 @@ const signup = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { encryptedData } = req.body;
-        
+
         // Decrypt the incoming data
         const decryptedData = decryptData(encryptedData);
 
         console.log(`${decryptedData}`);
         const {
-            firstName, 
-            lastName, 
-            phoneNumber, 
-            cnic, 
-            email, 
-            username, 
+            firstName,
+            lastName,
+            phoneNumber,
+            cnic,
+            email,
+            username,
             password,
             userType = "Standard"  // default value
         } = decryptedData;
@@ -57,26 +58,26 @@ const signup = async (req, res) => {
             email: String(email),
             userName: String(username),
             password: String(password),
-    
+
             userType: String(userType)
         };
 
         console.log(`The encrypted data is: ${encryptedData}`);
         //validation function for backend
 
-    // Check for validation errors
+        // Check for validation errors
     const validationResult = await backendValidation(userSignUpSchema, {firstName,lastName,cnic,phoneNumber,email,username,password}); 
 
-    // Check for validation errors
-    if (validationResult.error) {
+        // Check for validation errors
+        if (validationResult.error) {
 
-      console.log('Validation error:', validationResult.error); 
-      return res.status(400).json({ error: validationResult.error }); 
+            console.log('Validation error:', validationResult.error);
+            return res.status(400).json({ error: validationResult.error });
 
-    }
-            
+        }
 
-    console.log(`The vaidation result ${JSON.stringify(validationResult)}`);
+
+        console.log(`The vaidation result ${JSON.stringify(validationResult)}`);
         console.log(`thevalidation result is: ${validationResult}`);
 
         // Check for duplicates
@@ -84,21 +85,21 @@ const signup = async (req, res) => {
         const [rows] = await conn.execute(checkQuery, [validatedData.CNIC, validatedData.userName]);
 
         if (rows.length > 0) {
-            let errorMsg = rows.some(row => row.CNIC === validatedData.CNIC) 
-                ? 'CNIC is already in use' 
+            let errorMsg = rows.some(row => row.CNIC === validatedData.CNIC)
+                ? 'CNIC is already in use'
                 : 'Username is already in use';
             return res.status(400).json({ error: errorMsg });
 
 
-            }
+        }
 
-                                                                                                                                    //using bcrypt to to hash and store the password again in the data base
+        //using bcrypt to to hash and store the password again in the data base
 
-                //using salt rounds 10 as  the default
+        //using salt rounds 10 as  the default
 
         const saltRounds = 10;
 
-//hahsing the user inpput password and saving it iniside the
+        //hahsing the user inpput password and saving it iniside the
         const encryptedPassword= await bcrypt.hash(validatedData.password, saltRounds);
         
 
@@ -140,11 +141,11 @@ const signup = async (req, res) => {
         ]);
 
         res.status(201).json({ message: 'User created successfully' });
-    } 
+    }
     catch (error) {
         console.error('Failed to create user:', error);
         res.status(500).json({ error: 'Failed to create user' });
-    } 
+    }
     
     finally {
         if (conn) conn.release();
@@ -160,9 +161,9 @@ const login = async (req, res) => {
 
         conn = await db.getConnection()
 
-    const { encryptedData } = req.body;
-    const decryptedData = decryptData(encryptedData);
-    const { username, password } = decryptedData;
+        const { encryptedData } = req.body;
+        const decryptedData = decryptData(encryptedData);
+        const { username, password } = decryptedData;
     console.log(`The encrypted data is: ${encryptedData}`)
 
     //validated data for input in data base
@@ -175,16 +176,16 @@ const login = async (req, res) => {
   
 
     // Check for validation errors
-    const validationResult = await backendValidation(userLoginSchema, { username, password }); 
+        const validationResult = await backendValidation(userLoginSchema, { username, password });
 
     // Check for validation errors
-    if (validationResult.error) {
+        if (validationResult.error) {
 
       console.log('Validation error:', validationResult.error); 
-      return res.status(400).json({ error: validationResult.error }); 
+            return res.status(400).json({ error: validationResult.error });
 
-    }
-            
+        }
+
 
     console.log(`The vaidation result ${JSON.stringify(validationResult)}`);
             const notUserType="Admin";
@@ -214,8 +215,17 @@ const login = async (req, res) => {
 
             if (!isPasswordMatch) {
                 return res.status(401).json({login: false, error: 'Invalid password'});
-            }
+        }
 
+         // Create JWT payload
+        const payload = {
+            userId: user.id,
+            username: user.userName,
+            userType: user.userType,
+         };
+
+
+      const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
         // Set session data
 
         req.session.username = user.userName;
@@ -229,12 +239,10 @@ const login = async (req, res) => {
                 return res.status(500).json({ error: 'Failed to save session' });
             }
             console.log(`Session saved. Username: ${req.session.username}, uId: ${req.session.uId}`);
-            res.status(200).json({ message: "Login successful", login: true, username: req.session.username, userId: req.session.uId, userType:req.session.userType });
+            res.status(200).json({
+                 message: "Login successful", login: true, username: req.session.username, userId: req.session.uId, userType:req.session.userType,accessToken });
         });
 
-
-        console.log(`Login successful. Username: ${req.session.username}, uId: ${req.session.uId}`);
-    
     } 
     catch (error)
      {
@@ -253,7 +261,7 @@ const logout = (req, res) => {
         if (err) {
             console.error('Failed to destroy session:', err);
             return res.status(500).json({ error: 'Failed to logout' });
-        }
+    }
         // Clear the session cookie and destroy the session
         res.clearCookie('connect.sid', { path: '/' });
         res.status(200).json({ message: 'Logout successful', login: false });
@@ -285,11 +293,11 @@ const createVM = async (req, res) => {
     const validationResult = await backendValidation(addVmValidationSchema, {osName,vmName,diskName});
         if (validationResult.error) {
 
-            console.log('Validation error:', validationResult.error); 
-            return res.status(400).json({ error: validationResult.error }); 
-      
-          }
-               
+            console.log('Validation error:', validationResult.error);
+            return res.status(400).json({ error: validationResult.error });
+
+        }
+
         // Get user ID from session
         const userId = req.session.uId;
 
@@ -301,7 +309,7 @@ const createVM = async (req, res) => {
         // Start a transaction
         await conn.beginTransaction();
 
-       
+
         // 1. Insert or get OS ID
         let [osRows] = await conn.execute('SELECT id FROM operating_system WHERE NAME = ?', [osName]);
         let osId;
@@ -339,19 +347,19 @@ const createVM = async (req, res) => {
         // Commit the transaction
         await conn.commit();
 
-        res.status(201).json({ 
-            message: 'VM created successfully', 
-            vmId, 
+        res.status(201).json({
+            message: 'VM created successfully',
+            vmId,
             diskId,
             osId,
             flavorId
         });
     }
-     catch (error) {
+    catch (error) {
         if (conn) await conn.rollback();
         console.error('Failed to create VM:', error);
         res.status(500).json({ error: error.message });
-    } 
+    }
     finally {
         if (conn) conn.release();
     }
@@ -368,7 +376,7 @@ const dashboard_data = async (req, res) => {
         }
 
         conn = await db.getConnection();
-        
+
         // Get all VMs for the user with OS and flavor details
         const vmQuery = `
             SELECT vm.*, os.name as osName, df.name as flavorName 
@@ -430,9 +438,9 @@ const dashboard_data = async (req, res) => {
                 
                     else if(users.length===0)
                     {
-                        console.log(' the query resulted in 0 users ');
+            console.log(' the query resulted in 0 users ');
 
-                    }
+        }
 
         res.status(200).json({
             // vms,
@@ -522,7 +530,7 @@ const adminSignup = async (req, res) => {
             email: String(email),
             userName: String(username),
             password: String(password),
-    
+
             userType: String(userType)
         };
 
@@ -532,10 +540,10 @@ const adminSignup = async (req, res) => {
 
         // Check for validation errors
         if (validationResult.error) {
-    
-          console.log('Validation error:', validationResult.error); 
-          return res.status(400).json({ error: validationResult.error }); 
-    
+
+            console.log('Validation error:', validationResult.error);
+            return res.status(400).json({ error: validationResult.error });
+
         }
 
 
@@ -552,10 +560,10 @@ const adminSignup = async (req, res) => {
         }
 
 
-    //using bcrypt to encrypt the password here
+        //using bcrypt to encrypt the password here
 
 
-    //encrypted password
+        //encrypted password
     const encryptedPassword=await bcrypt.hash(validatedData.password,10);
 
 
@@ -589,22 +597,22 @@ const adminLogin = async (req, res) => {
         const decryptedData = decryptData(encryptedData);
         const{username,password}=decryptedData;
 
-//validate the types before insertion i the database
+        //validate the types before insertion i the database
         const validatedData = {
             userName: String(username),
             PASSWORD: String(password)
         };
 
         //validatedata data before the database insertions
-            console.log(`Ecrypted data fo admin is: ${encryptedData}`)
-        const validationResult = await backendValidation(adminLoginSchema, { username, password }); 
+        console.log(`Ecrypted data fo admin is: ${encryptedData}`)
+        const validationResult = await backendValidation(adminLoginSchema, { username, password });
 
         // Check for validation errors
         if (validationResult.error) {
-    
-          console.log('Validation error:', validationResult.error); 
-          return res.status(400).json({ error: validationResult.error }); 
-    
+
+            console.log('Validation error:', validationResult.error);
+            return res.status(400).json({ error: validationResult.error });
+
         }
 
 
@@ -621,9 +629,9 @@ const adminLogin = async (req, res) => {
         const user = users[0];
 
 
-                //using bcrrypt to encrypt the password here
+        //using bcrrypt to encrypt the password here
 
-                //stored user password
+        //stored user password
         const hashedUserPassword = user.PASSWORD;
 
         // checking the password using bcrypt
@@ -651,7 +659,7 @@ const adminLogin = async (req, res) => {
         req.session.username = user.userName;
         req.session.userType = user.userType;  // Use the actual userType from database
         req.session.uId = user.id;
-        
+
         // Save the session
         req.session.save(err => {
             if (err) {
@@ -663,12 +671,12 @@ const adminLogin = async (req, res) => {
                 uId: req.session.uId,
                 userType: req.session.userType
             });
-            res.status(200).json({ 
-                login: true, 
+        res.status(200).json({
+            login: true,
                 username: req.session.username, 
                 userId: req.session.uId, 
                 userType: req.session.userType 
-            });
+        });
         });
     
     } catch (error) {
@@ -757,11 +765,11 @@ const fetchAdminData = async (req, res) => {
         });
     } catch (error) {
         console.error('Error in fetchAdminData:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: 'Failed to fetch admin data',
-            details: error.message 
+            details: error.message
         });
-    } 
+    }
     finally {
         if (conn) {
             try {
@@ -785,7 +793,7 @@ const createUser = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { encryptedData } = req.body;
-        
+
         // Decrypt the incoming data
         const decryptedData = decryptData(encryptedData);
         const {
@@ -813,32 +821,32 @@ const createUser = async (req, res) => {
 
 
 
-         //backend validation before inserting in the database
-            console.log(`The encrypted data is: ${encryptedData}`);
+        //backend validation before inserting in the database
+        console.log(`The encrypted data is: ${encryptedData}`);
         //validation function for backend
-    
+
         // Check for validation errors
         const validationResult = await backendValidation(addUserSchema, {firstName,lastName,CNIC,phoneNumber,email,userName,password}); 
-    
+
         // Check for validation errors
         if (validationResult.error) {
-    
-          console.log('Validation error:', validationResult.error); 
-          return res.status(400).json({ validationError: validationResult.error }); 
-    
+
+            console.log('Validation error:', validationResult.error);
+            return res.status(400).json({ validationError: validationResult.error });
+
         }
 
-            //is the user is not admin it will not allow the user to send request
-            // const userType1=req.session.userType;
+        //is the user is not admin it will not allow the user to send request
+        // const userType1=req.session.userType;
 
             if (userType1!=='Admin')
             {
 
-                return res.status(403).json({ error: 'Not authorized as admin' });
+            return res.status(403).json({ error: 'Not authorized as admin' });
 
-            }
+        }
 
-            
+
         // Check for duplicates using validated data
         const [existingUser] = await conn.execute(
             'SELECT * FROM users WHERE CNIC = ? OR userName = ?',
@@ -895,19 +903,19 @@ const createUser = async (req, res) => {
             {
                  typeId=3;
                 permission='create/update'
-    
-            }
+
+        }
 
 
             else if(userType_==='Standard')
                 {
                      typeId=4;
                     permission='create'
-        
-                }
+
+        }
             
 
-//insert the user typ nad id baseed on the selections
+        //insert the user typ nad id baseed on the selections
 
         const query2 = 'INSERT INTO user_type (userId,  typeId,  typeName,  permission) VALUES (?, ?,?,?)';
         const values2 = [userId, typeId, userType_,permission];
@@ -919,16 +927,16 @@ const createUser = async (req, res) => {
 
 
 
-    } 
+    }
     catch (error) {
         console.error('Error creating user:', error);
         res.status(500).json({ error: 'Failed to create user' });
     }
-     finally {
+    finally {
         if (conn) conn.release();
     }
 };
-       
+
 //upadte use rby the admin
 const updateUser = async (req, res) => {
     let conn;
@@ -936,7 +944,7 @@ const updateUser = async (req, res) => {
         conn = await db.getConnection();
         const { userId } = req.params;
         const { firstName, lastName, phoneNumber, CNIC, email,userName,userType } = req.body;
-        
+
         // Check if user exists
         const [user] = await conn.execute('SELECT * FROM users WHERE id = ?', [userId]);
         if (user.length === 0) {
@@ -945,10 +953,10 @@ const updateUser = async (req, res) => {
 
         // Check if CNIC is already taken by another user
        
-        
+
         const query = 'UPDATE users SET firstName = ?, lastName = ?, phoneNumber = ?, CNIC = ?, email = ?,userName = ?,userType = ? WHERE id = ?';
         const values =                 [firstName,     lastName,     phoneNumber,     CNIC,     email,    userName,   userType,          userId];
-        
+
         const [result] = await conn.execute(query, values);
 
         let typeId;
@@ -971,36 +979,36 @@ const updateUser = async (req, res) => {
             {
                  typeId=3;
                 permission='create/update'
-    
-            }
+
+        }
 
 
             else if(userType==='Standard')
                 {
                      typeId=4;
                     permission='create'
-        
-                }
+
+        }
 
 
 
-   //GET ALL THE USER TYPES AND THEIR PERMISSIONS
+        //GET ALL THE USER TYPES AND THEIR PERMISSIONS
         const query1='UPDATE user_type SET typeId=?,typeName=? ,permission=? WHERE userId=?';
         const values1=[typeId,userType,permission,userId];
-/// now update the diks flavor table
+        /// now update the diks flavor table
         const [result1]=await conn.execute(query1,values1)
-        
+
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'User not found or no changes made' });
         }
-        
+
         res.status(200).json({ message: 'User updated successfully' });
     }
     
     catch (error) {
         console.error('Error updating user:', error);
         res.status(500).json({ error: 'Failed to update user' });
-    } 
+    }
     
     
     finally {
@@ -1013,7 +1021,7 @@ const deleteUser = async (req, res) => {
     try {
         conn = await db.getConnection();
         const { userId } = req.params;
-        
+
         // Check if user exists
         const [user] = await conn.execute('SELECT * FROM users WHERE id = ?', [userId]);
         if (user.length === 0) {
@@ -1024,13 +1032,13 @@ const deleteUser = async (req, res) => {
         if (user[0].userType == 'Admin') {
             return res.status(403).json({ error: 'Cannot delete admin users' });
         }
-        
+
         const [result] = await conn.execute('DELETE FROM users WHERE id = ?', [userId]);
-        
+
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
-        
+
         res.json({ message: 'User deleted successfully' });
     } catch (error) {
         console.error('Error deleting user:', error);
@@ -1071,7 +1079,7 @@ const updateVm = async (req, res) => {
             const query2='SELECT  osId from virtual_machine  WHERE id=?';
             const values2=[vmId];
             const [result2] = await conn.execute(query2, values2);
-            
+
             const osId=result2[0].osId;
 
 
@@ -1079,31 +1087,31 @@ const updateVm = async (req, res) => {
             const query3='UPDATE operating_system SET name=? WHERE id=?';
             const values3=[osName,osId];
             const [result3] = await conn.execute(query3, values3);
-            
+
             const query4='SELECT flavorId from virtual_machine  WHERE id=?';
             const values4=[vmId];
             const [result4] = await conn.execute(query4, values4);
-            
+
             const flavorId=result4[0].flavorId;
-                //now insert into disk flavors
+            //now insert into disk flavors
 
                 const query5='UPDATE disk_flavor SET size=?,NAME=? WHERE id=?';
                 const values5=[size,flavorName,flavorId];
-                const [result5] = await conn.execute(query5, values5);
-                //now insert into disks table
+            const [result5] = await conn.execute(query5, values5);
+            //now insert into disks table
 
                 const query6='UPDATE disk SET  size=? WHERE flavorId=?';
                 const values6=[size,flavorId];
-                const [result6] = await conn.execute(query6, values6);
+            const [result6] = await conn.execute(query6, values6);
 
 
             if (result1.affectedRows === 0) {
                 return res.status(404).json({ error: 'VM not found or no changes made due to unauthorized user' });
             }
-            
+
             res.status(200).json({ message: 'VM updated successfully' });
-        } 
-        
+        }
+
         else {
             res.status(403).json({ error: 'Unauthorized: Only Premium or SuperUser can update VMs' });
         }
@@ -1134,7 +1142,7 @@ module.exports = {
     dashboard_data,
     deleteVM,
     deleteDisk,
-    adminSignup,  
+    adminSignup,
     adminLogout,
     adminLogin,
     fetchAdminData,

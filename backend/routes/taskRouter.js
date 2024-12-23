@@ -31,6 +31,7 @@ router.post('/admin_logout', logout); // Route for admin logout
 router.post('/create_vm', createVM); // Route for creating a VM
 router.delete('/delete_vm/:vmid', deleteVM); // Route for deleting a VM by ID
 router.delete('/delete_Disk/:Diskid', deleteDisk); // Route for deleting a Disk by ID
+router.put('/update_vm/:vmId', updateVm); // Route for updating a VM by ID
 
 // Task routes
 router.get('/dashboard_data', dashboard_data); // Route for fetching dashboard data
@@ -58,7 +59,7 @@ router.get('/check_auth', (req, res) => {
 // Admin user management routes
 router.put('/update_user/:userId', updateUser); // Route for updating a user by ID
 router.delete('/delete_user/:userId', deleteUser); // Route for deleting a user by ID
-router.put('/update_vm/:vmId', updateVm); // Route for updating a VM by ID
+
 router.post('/create_user', createUser); // Route for creating a user
 
 // Route for getting the admin dashboard data
