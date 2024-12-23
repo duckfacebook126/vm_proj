@@ -1,5 +1,5 @@
 
-
+require('dotenv').config({path: './process.env'});
 const express = require('express');
 const { decryptData } = require('../utils/decryption');
 const db = require('../db');
@@ -217,15 +217,15 @@ const login = async (req, res) => {
                 return res.status(401).json({login: false, error: 'Invalid password'});
         }
 
-    // Create JWT payload
-    const payload = {
-        userId: user.id,
-        username: user.userName,
-        userType: user.userType,
-      };
+         // Create JWT payload
+        const payload = {
+            userId: user.id,
+            username: user.userName,
+            userType: user.userType,
+         };
 
 
-      const accessToken = jwt.sign(payload, JWT_SECRET_KEY);
+      const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
         // Set session data
 
         req.session.username = user.userName;
@@ -239,7 +239,8 @@ const login = async (req, res) => {
                 return res.status(500).json({ error: 'Failed to save session' });
             }
             console.log(`Session saved. Username: ${req.session.username}, uId: ${req.session.uId}`);
-            res.status(200).json({ message: "Login successful", login: true, username: req.session.username, userId: req.session.uId, userType:req.session.userType });
+            res.status(200).json({
+                 message: "Login successful", login: true, username: req.session.username, userId: req.session.uId, userType:req.session.userType,accessToken });
         });
 
     } 
