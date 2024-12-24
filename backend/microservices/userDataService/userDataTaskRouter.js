@@ -20,6 +20,24 @@ const {
     updateVm
 } = require('../../controller/taskController');
 
+// Middleware to check and attach session data
+const attachSessionData = (req, res, next) => {
+    if (syncedSessionData) {
+        // Attach the synced session data to the request
+        req.session = {
+            username: syncedSessionData.username,
+            uId: syncedSessionData.uId,
+            userType: syncedSessionData.userType
+        };
+        console.log('Session data attached to request:', req.session);
+    } else {
+        console.log('No synced session data available');
+    }
+    next();
+};
+
+// Apply the middleware to routes that need session data
+router.use(attachSessionData);
 
 let sessionData; 
 // User routes
@@ -31,20 +49,27 @@ router.post('/create_vm', createVM); // Route for creating a VM
 router.delete('/delete_vm/:vmid', deleteVM); // Route for deleting a VM by ID
 router.delete('/delete_Disk/:Diskid', deleteDisk); // Route for deleting a Disk by ID
 router.put('/update_vm/:vmId', updateVm); // Route for updating a VM by ID
-router.get('/dashboard_data', dashboard_data);
 
-// Route to check authentication
-router.get('/check_auth', (req, res) => {
-    if (req.session && req.session.uId) {
-        console.log(`The authenticated user ID is ${req.session.uId}`);
-        res.json({
-            login: true,
-            username: req.session.username,
-            userType: req.session.userType,
-            userId: req.session.uId
+// Route for dashboard data with session handling
+router.get('/dashboard_data', async (req, res) => {
+    try {
+        console.log('Accessing dashboard with session:', req.session);
+        
+        if (!req.session || !req.session.uId) {
+            return res.status(401).json({
+                error: 'Authentication required',
+                authenticated: false
+            });
+        }
+
+        // Forward to dashboard_data with session
+        await dashboard_data(req, res);
+    } catch (error) {
+        console.error('Error in dashboard route:', error);
+        res.status(500).json({
+            error: 'Failed to fetch dashboard data',
+            details: error.message
         });
-    } else {
-        res.status(401).json({ login: false });
     }
 });
 
@@ -52,80 +77,58 @@ router.get('/check_auth', (req, res) => {
 router.post('/get_auth', async (req, res) => {
     try {
         const sessionData = req.body;
-        console.log('Received session data in UserData service:', sessionData);
-
+        
         // Validate session data
         if (!sessionData || !sessionData.username || !sessionData.uId) {
             console.error('Invalid session data received:', sessionData);
             return res.status(400).json({ 
                 error: 'Invalid session data',
-                received: sessionData 
+                synced: false
             });
         }
 
-        // Create a Promise wrapper for session operations
-        await new Promise((resolve, reject) => {
-            req.session.regenerate((err) => {
-                if (err) {
-                    console.error('Session regeneration error:', err);
-                    reject(err);
-                    return;
-                }
+        // Store the session data globally
+        syncedSessionData = {
+            username: sessionData.username,
+            uId: sessionData.uId,
+            userType: sessionData.userType
+        };
 
-                // Set session data
-                req.session.username = sessionData.username;
-                req.session.uId = sessionData.uId;
-                req.session.userType = sessionData.userType;
-
-                req.session.save((err) => {
-                    if (err) {
-                        console.error('Session save error:', err);
-                        reject(err);
-                        return;
-                    }
-                    resolve();
-                });
-            });
-        });
-
-        console.log('Session successfully set in UserData service:', {
-            username: req.session.username,
-            uId: req.session.uId,
-            userType: req.session.userType
-        });
+        console.log('Session data stored:', syncedSessionData);
 
         res.status(200).json({
-            message: 'Session synchronized successfully',
-            sessionId: req.sessionID,
-            username: req.session.username,
-            uId: req.session.uId
+            message: 'Session data received and stored',
+            synced: true,
+            sessionData: syncedSessionData
         });
 
     } catch (error) {
         console.error('Error in get_auth:', error);
         res.status(500).json({ 
             error: 'Failed to process session data',
-            details: error.message 
+            synced: false
         });
     }
 });
 
-// Route to verify session is working
-router.get('/check-session', (req, res) => {
-    if (req.session && req.session.username) {
-        res.json({
-            message: 'Session is active',
-            username: req.session.username,
-            uId: req.session.uId,
-            userType: req.session.userType
-        });
-    } else {
-        res.status(401).json({ error: 'No active session' });
+let syncedSessionData;
+
+const sendtToTaksouter=async()=>{
+
+
+    try{
+
+        const response=await axios.post('http://localhost:8083/api',sessionData,{withCredentials:true})
+
     }
-});
+    catch(eror)
+    {
 
 
-console.log(`hehhe her is the session data in the middle ware ${JSON.stringify(req.session)}`);
+
+    }
+
+}
 
 module.exports = router;
 

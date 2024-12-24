@@ -355,7 +355,7 @@ const dashboard_data = async (req, res) => {
             });
         }
 
-        console.log('Session data in dashboard:', {
+        console.log('Session data in dashboard in task controller is:', {
             username: req.session.username,
             uId: req.session.uId,
             userType: req.session.userType
