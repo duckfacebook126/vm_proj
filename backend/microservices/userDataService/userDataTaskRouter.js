@@ -64,7 +64,9 @@ router.get('/dashboard_data', async (req, res) => {
 
         // Forward to dashboard_data with session
         await dashboard_data(req, res);
-    } catch (error) {
+    }
+     catch (error)
+     {
         console.error('Error in dashboard route:', error);
         res.status(500).json({
             error: 'Failed to fetch dashboard data',
@@ -76,13 +78,16 @@ router.get('/dashboard_data', async (req, res) => {
 // Route to receive and set session data from Login service
 router.post('/get_auth', async (req, res) => {
     try {
+
+        //get the req body from the Login service  from the syncmiddlwaresession  function
         const sessionData = req.body;
         
         // Validate session data
         if (!sessionData || !sessionData.username || !sessionData.uId) {
             console.error('Invalid session data received:', sessionData);
             return res.status(400).json({ 
-                error: 'Invalid session data',
+                
+                message: 'Invalid session data',
                 synced: false
             });
         }
