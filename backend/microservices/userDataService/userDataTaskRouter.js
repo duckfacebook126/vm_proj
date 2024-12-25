@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
+// Global variable to store synced session data
+let syncedSessionData = null;
+let sessionData = null;
+
 // Importing all the controllers
 const {
     signup,
@@ -22,33 +26,52 @@ const {
 
 // Middleware to check and attach session data
 const attachSessionData = (req, res, next) => {
+    console.log('Current synced session data:', syncedSessionData);
+    console.log('Current session:', req.session);
+    
     if (syncedSessionData) {
-        // Attach the synced session data to the request
-        req.session = {
-            username: syncedSessionData.username,
-            uId: syncedSessionData.uId,
-            userType: syncedSessionData.userType
-        };
-        console.log('Session data attached to request:', req.session);
+        // Update session data instead of overwriting the session object
+        if (req.session) {
+            req.session.username = syncedSessionData.username;
+            req.session.uId = syncedSessionData.uId;
+            req.session.userType = syncedSessionData.userType;
+            req.session.save((err) => {
+                if (err) {
+                    console.error('Error saving session:', err);
+                }
+                console.log('Session data updated:', req.session);
+                next();
+            });
+        } else {
+            console.log('No session object available');
+            next();
+        }
     } else {
         console.log('No synced session data available');
+        next();
     }
-    next();
 };
 
 // Apply the middleware to routes that need session data
 router.use(attachSessionData);
 
-let sessionData; 
 // User routes
+router.put('/update_vm/:vmId', updateVm);
 
-router.put('/update_vm/:vmId', updateVm); // Route for updating a VM by ID
+// Route for creating a VM with session check
+router.post('/create_vm', (req, res, next) => {
+    console.log('Session in create_vm route:', req.session);
+    
+    if (!req.session || !req.session.uId) {
+        console.log('The session data inside the add_vm route is:', req.session ? req.session.uId : 'no session');
+        return res.status(401).json({ error: "Unauthorized user" });
+    }
+    next();
+}, createVM);
 
-
-router.post('/create_vm', createVM); // Route for creating a VM
-router.delete('/delete_vm/:vmid', deleteVM); // Route for deleting a VM by ID
-router.delete('/delete_Disk/:Diskid', deleteDisk); // Route for deleting a Disk by ID
-router.put('/update_vm/:vmId', updateVm); // Route for updating a VM by ID
+router.delete('/delete_vm/:vmid', deleteVM);
+router.delete('/delete_Disk/:Diskid', deleteDisk);
+router.put('/update_vm/:vmId', updateVm);
 
 // Route for dashboard data with session handling
 router.get('/dashboard_data', async (req, res) => {
@@ -61,12 +84,8 @@ router.get('/dashboard_data', async (req, res) => {
                 authenticated: false
             });
         }
-
-        // Forward to dashboard_data with session
         await dashboard_data(req, res);
-    }
-     catch (error)
-     {
+    } catch (error) {
         console.error('Error in dashboard route:', error);
         res.status(500).json({
             error: 'Failed to fetch dashboard data',
@@ -78,15 +97,13 @@ router.get('/dashboard_data', async (req, res) => {
 // Route to receive and set session data from Login service
 router.post('/get_auth', async (req, res) => {
     try {
-
-        //get the req body from the Login service  from the syncmiddlwaresession  function
         const sessionData = req.body;
+        console.log('Received session data in get_auth:', sessionData);
         
         // Validate session data
         if (!sessionData || !sessionData.username || !sessionData.uId) {
             console.error('Invalid session data received:', sessionData);
             return res.status(400).json({ 
-                
                 message: 'Invalid session data',
                 synced: false
             });
@@ -99,24 +116,36 @@ router.post('/get_auth', async (req, res) => {
             userType: sessionData.userType
         };
 
+        // Also set it in the current session
+        if (req.session) {
+            req.session.username = sessionData.username;
+            req.session.uId = sessionData.uId;
+            req.session.userType = sessionData.userType;
+            
+            await new Promise((resolve, reject) => {
+                req.session.save(err => {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+        }
+
         console.log('Session data stored:', syncedSessionData);
+        console.log('Current session after update:', req.session);
 
-        res.status(200).json({
-            message: 'Session data received and stored',
-            synced: true,
-            sessionData: syncedSessionData
+        res.json({ 
+            message: 'Session data synced successfully',
+            synced: true
         });
-
     } catch (error) {
-        console.error('Error in get_auth:', error);
+        console.error('Error syncing session:', error);
         res.status(500).json({ 
-            error: 'Failed to process session data',
-            synced: false
+            message: 'Failed to sync session data',
+            synced: false,
+            error: error.message
         });
     }
 });
-
-let syncedSessionData;
 
 const sendtToTaksouter=async()=>{
 

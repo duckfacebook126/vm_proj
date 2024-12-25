@@ -40,6 +40,8 @@ export default function VMTable({ onEdit, onDelete }) {
   const { user, loading } = useAuth();
   const vms = dashboardData?.vms || [];
   const vmTableData =dashboardData?.vmTableData || [];
+
+  console.log('this is the vm table data on the frontend',vmTableData);
   // States for handling pagination
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -102,7 +104,7 @@ export default function VMTable({ onEdit, onDelete }) {
 
   //ends the deelte request to backend with  params vm id
   const handleDeletevm = async (vmToDelete) => {
-    axios.delete(`http://localhost:8080/api/delete_vm/${vmToDelete}`, { withCredentials: true })
+    axios.delete(`http://localhost:8083/api/delete_vm/${vmToDelete}`, { withCredentials: true })
       .then(res => {
         console.log(res.data);
           //if the request is successfull then show a deleteion succes
@@ -136,7 +138,7 @@ export default function VMTable({ onEdit, onDelete }) {
 
     //handle the edit vm request
   const handleEditvm = async (editVm) => {
-    axios.put(`http://localhost:8080/api/update_vm/${editVm.id}`,editVm,{ withCredentials: true })
+    axios.put(`http://localhost:8083/api/update_vm/${editVm.id}`,editVm,{ withCredentials: true })
         .then(res => {
           //if the the request is successfull then show a successmessage on deletion
           if(res){

@@ -16,9 +16,10 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+// Use the same session configuration across services
 app.use(session({
     secret: 'your_session_secret',
-    resave: false,
+    resave: true,
     saveUninitialized: false,
     cookie: { 
         sameSite: 'lax',
@@ -33,16 +34,25 @@ app.use(session({
 const syncWithUserData = async (req, res, next) => {
     if (req.session && req.session.username) {
         try {
-            await axios.post('http://localhost:8083/api/get_auth', {
+            console.log('Syncing session to UserData service:', {
+                username: req.session.username,
+                uId: req.session.uId,
+                userType: req.session.userType
+            });
+            
+            const response = await axios.post('http://localhost:8083/api/get_auth', {
                 username: req.session.username,
                 uId: req.session.uId,
                 userType: req.session.userType
             }, {
+                withCredentials: true,
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Cookie': req.headers.cookie
                 }
             });
-            console.log('Session synced with UserData service');
+            
+            console.log('Session sync response:', response.data);
         } catch (error) {
             console.error('Failed to sync with UserData service:', error.message);
         }
@@ -50,9 +60,11 @@ const syncWithUserData = async (req, res, next) => {
     next();
 };
 
-// Apply routes
-app.use('/api', taskRouter);
+// Apply sync middleware after session middleware
 app.use(syncWithUserData);
+
+// Apply router after all middleware
+app.use('/api', taskRouter);
 
 app.get('/', (req, res) => {
     console.log(`Session username: ${req.session.username}`);

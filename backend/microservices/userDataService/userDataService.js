@@ -1,30 +1,48 @@
-const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+
+const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+
 const session = require('express-session');
+const MemoryStore = require('memorystore')(session);
 const taskRouter = require('./userDataTaskRouter');
 
 app.use(cors({
     origin: 'http://localhost:3000',  // Correct base URL
     credentials: true
 }));
-app.use(express.json());
-app.use(bodyParser.json());
+
 app.use(cookieParser());
 
+// Use the same session configuration as LoginService
 app.use(session({
+    store: new MemoryStore({
+        checkPeriod: 86400000 // prune expired entries every 24h
+    }),
     secret: 'your_session_secret',
-    resave: false,
-    saveUninitialized: true,
+    resave: true,
+    saveUninitialized: false,
     cookie: { 
+        sameSite: 'lax',
         secure: process.env.NODE_ENV === "production", 
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
+    },
+    name: 'sessionId'
 }));
 
+// Log all incoming requests and their session data
+app.use((req, res, next) => {
+    console.log('Incoming request to:', req.path);
+    console.log('Session data:', req.session);
+    console.log('Cookies:', req.cookies);
+    next();
+});
+
+app.use(express.json());
+app.use(bodyParser.json());
 app.use('/api', taskRouter);
 
 app.get('/', (req, res) => {
@@ -46,4 +64,3 @@ const port = 8083;
 app.listen(port, () => console.log(` User Data Service is running on port ${port}`));
 
 // Apply session check middleware to all routes except sync-session
-

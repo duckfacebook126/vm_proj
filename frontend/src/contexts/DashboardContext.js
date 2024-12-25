@@ -7,6 +7,8 @@ export const DataContext = createContext(null);
 //export dashbaord data context
 export const DataProvider = ({ children }) => {
     const [dashboardData, setDashboardData] = useState({ vms: [], disks: [], users: [],vmTableData: [] });
+
+    console.log('this is the dashboard data on the context', dashboardData);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);

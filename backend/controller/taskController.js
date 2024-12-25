@@ -254,6 +254,12 @@ const createVM = async (req, res) => {
     try {
         conn = await db.getConnection();
 
+        // Get user ID from session
+        const userId = req.session.uId;
+        if (!userId) {
+            return res.status(401).json({ error: "User not authenticated" });
+        }
+
         // Destructure values from req.body, using nullish coalescing to preserve falsy values
         const {
             osName,
@@ -265,28 +271,28 @@ const createVM = async (req, res) => {
             diskSize,
             diskName
         } = req.body;
-        //the backend validationn before the insertion in the database
-        console.log(`the add vm data is: JSON.stringify(${req.body})`);
+        
+        // Log the request data
+        console.log('Creating VM with data:', {
+            userId,
+            osName,
+            vmName,
+            cpuCores,
+            cpuCount,
+            diskFlavor,
+            ram,
+            diskSize,
+            diskName
+        });
 
-    const validationResult = await backendValidation(addVmValidationSchema, {osName,vmName,diskName});
+        const validationResult = await backendValidation(addVmValidationSchema, {osName,vmName,diskName});
         if (validationResult.error) {
-
             console.log('Validation error:', validationResult.error);
             return res.status(400).json({ error: validationResult.error });
-
         }
-
-        // Get user ID from session
-        const userId = req.session.uId;
-
-        if (!userId) {
-            return res.status(401).json({ error: "User not authenticated please login first" });
-        }
-     
 
         // Start a transaction
         await conn.beginTransaction();
-
 
         // 1. Insert or get OS ID
         let [osRows] = await conn.execute('SELECT id FROM operating_system WHERE NAME = ?', [osName]);
@@ -343,94 +349,96 @@ const createVM = async (req, res) => {
     }
 };
 
+//funciton to brin the dashboard data to the useata
 const dashboard_data = async (req, res) => {
     let conn;
     try {
-        // First check if session exists and has required data
-        if (!req.session || !req.session.uId) {
-            console.error('No session or user ID found:', req.session);
-            return res.status(401).json({ 
-                error: 'Authentication required',
-                authenticated: false
-            });
+        const userId = req.session.uId;
+        if (!userId) {
+            return res.status(401).json({ error: "User not authenticated" });
         }
 
-        console.log('Session data in dashboard in task controller is:', {
-            username: req.session.username,
-            uId: req.session.uId,
-            userType: req.session.userType
-        });
+        console.log('Fetching data for user ID:', userId);
 
         conn = await db.getConnection();
-        const userId = req.session.uId;
+        
+        // Get all VMs for the user with OS and flavor details
+        const vmQuery = `
+            SELECT vm.*, os.name as osName, df.name as flavorName 
+            FROM virtual_machine vm
+            JOIN operating_system os ON vm.osId = os.id
+            JOIN disk_flavor df ON vm.flavorId = df.id
+            WHERE vm.userId = ?
+        `;
+        const [vms] = await conn.execute(vmQuery, [userId]);
 
-        // Get user VMs
-        const [userVMs] = await conn.execute(
-            'SELECT * FROM user_vms WHERE userId = ?',
-            [userId]
-        );
+        //get althe related vm_table data 
+        const vmTableQuery = `
+         SELECT
+        virtual_machine.*, 
+        users.id AS user_id,
+        Disk.NAME AS disk_name,
+        operating_system.NAME AS os_name,
+        disk_flavor.NAME AS disk_flavor
+  
+        FROM users
+        INNER JOIN
+        virtual_machine 
+        ON users.id=virtual_machine.userId
+  
+ 
+        INNER JOIN
+        DISK
+        ON
+        virtual_machine.id=disk.vmId
+  
+  
+        INNER JOIN operating_system
+        ON operating_system.id=virtual_machine.osId
+  
+  
+        INNER JOIN disk_flavor
+        ON disk_flavor.id =virtual_machine.flavorId
+  
+        WHERE users.id=?
+        `
+        const [vmTableData] = await conn.execute(vmTableQuery, [userId]);
 
-        // Get user details
-        const [userDetails] = await conn.execute(
-            'SELECT userName, userType, email FROM users WHERE id = ?',
-            [userId]
-        );
+        // Get all disks for the user with flavor details
+        const diskQuery = `
+            SELECT d.*, df.name as flavorName, vm.name as vmName
+            FROM disk d
+            JOIN disk_flavor df ON d.flavorId = df.id
+            LEFT JOIN virtual_machine vm ON d.vmId = vm.id
+            WHERE d.userId = ?
+        `;
+        const [disks] = await conn.execute(diskQuery, [userId]);
 
-        if (userDetails.length === 0) {
-            console.error('No user found for ID:', userId);
-            return res.status(404).json({ error: 'User not found' });
-        }
+        const userQuery= 'SELECT * FROM users';
 
-        // Get VM details for each user VM
-        const vmPromises = userVMs.map(async (userVM) => {
-            const [vmDetails] = await conn.execute(
-                'SELECT * FROM vms WHERE id = ?',
-                [userVM.vmId]
-            );
-            return vmDetails[0];
+        const [users] = await conn.execute(userQuery);
+
+                if (users.length>0)
+                {console.log(`this is the user data ${JSON.stringify(users)}`)}
+                
+                    else if(users.length===0)
+                    {
+                        console.log(' the query resulted in 0 users ');
+
+                    }
+
+        res.status(200).json({
+            vms,
+            vmTableData,
+            disks,
+            users,
+            login: true,
         });
-
-        const vms = await Promise.all(vmPromises);
-
-        // Prepare response data
-        const dashboardData = {
-            user: {
-                username: userDetails[0].userName,
-                userType: userDetails[0].userType,
-                email: userDetails[0].email,
-                id: userId
-            },
-            vms: vms.filter(vm => vm !== undefined).map(vm => ({
-                id: vm.id,
-                name: vm.name,
-                status: vm.status,
-                specs: {
-                    cpu: vm.cpu,
-                    memory: vm.memory,
-                    storage: vm.storage
-                },
-                createdAt: vm.created_at,
-                lastModified: vm.last_modified
-            }))
-        };
-
-        console.log('Sending dashboard data:', dashboardData);
-        res.status(200).json(dashboardData);
-
     } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        res.status(500).json({ 
-            error: 'Failed to fetch dashboard data',
-            details: error.message
-        });
+        console.error('Failed to fetch dashboard data:', error);
+        res.status(500).json({ error: "Failed to fetch dashboard data" });
     } finally {
-        if (conn) {
-            try {
-                await conn.release();
-            } catch (error) {
-                console.error('Error releasing connection:', error);
-            }
-        }
+        if (conn) conn.release();
     }
 };
 
