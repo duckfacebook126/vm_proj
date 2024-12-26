@@ -329,7 +329,16 @@ const createVM = async (req, res) => {
         const diskId = diskResult.insertId;
 
         // Commit the transaction
+        try{
         await conn.commit();
+        }
+        catch (error) {
+            console.error('Failed to commit transaction:', error);
+            await conn.rollback();
+            
+        }
+
+        console.log(`the query data in the console: ${vmResult} and ${flavorRows} and ${osResult} and ${diskResult}`);
 
         res.status(201).json({
             message: 'VM created successfully',
@@ -723,7 +732,7 @@ const fetchAdminData = async (req, res) => {
         // First, verify if the user is an admin
         const [adminCheck] = await conn.execute(
             'SELECT userType FROM users WHERE id = ?',
-            [1]
+            [req.session.uId]
         );
 
         // if (!adminCheck.length || adminCheck[0].userType !== 'Admin') {
@@ -819,8 +828,7 @@ const createUser = async (req, res) => {
 
         }
 
-        //is the user is not admin it will not allow the user to send request
-        // const userType1=req.session.userType;
+     const userType1=req.session.userType;
 
             if (userType1!=='Admin')
             {

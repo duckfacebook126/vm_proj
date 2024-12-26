@@ -39,7 +39,7 @@ export default function AdminAnalytics() {
   if (error) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <Typography color="error">{error}</Typography>
+        <Typography color="error"> hehehh this the error {error}</Typography>
       </Box>
     );
   }

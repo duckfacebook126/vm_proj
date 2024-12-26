@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { DataContext } from './contexts/DashboardContext';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { addUserSchema } from './addUserValidation';
-
+import { user,useAuth } from './contexts/AuthContext';
 import { useFormik } from 'formik';
 
 import {
@@ -47,7 +47,7 @@ const[userToDelete,setUserToDelete]=useState()
 const getsSessionData = async () => {
 try{
 
-const response = axios.get('http://localhost:8080/', { withCredentials: true });
+const response = axios.get('http://localhost:8081/', { withCredentials: true });
 
 if(response.data.login)
 {
@@ -66,9 +66,11 @@ console.log('failed to fetch session data');
 }
 
 
+
+
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/admin_dashboard_data', {
+      const response = await axios.get('http://localhost:8084/api/admin_dashboard_data', {
         
         params:{value:userId},
         withCredentials: true 
@@ -98,9 +100,9 @@ console.log('failed to fetch session data');
   // first time render , and will change as the user tries to navigate away
   useEffect(() => {
     
-    getsSessionData().then(()=>{
+
     fetchUsers();
-    });
+   
   }, [navigate]);
 
 
@@ -119,11 +121,14 @@ console.log('failed to fetch session data');
     setOpenDialog(true);
   };
 
+//eror handling for the user data in hthe user auth
+// console.log(`the userId in the user tabel from the auth is: ${user.userId}`)
+
 
   //function to jandle thethe user ti=o be updated
   const handleUpdate = async () => {
     try {
-      const response = await axios.put(`http://localhost:8080/api/update_user/${editUser.id}`, editUser, { withCredentials: true });
+      const response = await axios.put(`http://localhost:8084/api/update_user/${editUser.id}`, editUser, { withCredentials: true });
       if (response.status === 200) {
 
        // fires on succefull deletion
@@ -154,7 +159,7 @@ console.log('failed to fetch session data');
   //function to handle the deletion of the user
   const handleDelete = async (userToDelete) => {
     try {
-      await axios.delete(`http://localhost:8080/api/delete_user/${userToDelete}`, { withCredentials: true });
+      await axios.delete(`http://localhost:8084/api/delete_user/${userToDelete}`, { withCredentials: true });
 //succeful deletion fires an alert
       Swal.fire({
         icon: 'success',
@@ -187,7 +192,7 @@ console.log('failed to fetch session data');
     try {
       //sending axios reqiest to the backend for new user creation
       const encryptedData = encryptData(newUser);
-      await axios.post('http://localhost:8080/api/create_user', {encryptedData}, { withCredentials: true });
+      await axios.post('http://localhost:8084/api/create_user', {encryptedData}, { withCredentials: true });
       //closing the dialog box
       setOpenCreateDialog(false);
       //fetch the dashbaord
@@ -229,7 +234,7 @@ console.log('failed to fetch session data');
         console.log('Submitting form with values:', values);
         //axios post req with encrypted data
         const response = await axios.post(
-          'http://localhost:8080/api/create_user', 
+          'http://localhost:8084/api/create_user', 
           { encryptedData }, 
           { withCredentials: true }
         );

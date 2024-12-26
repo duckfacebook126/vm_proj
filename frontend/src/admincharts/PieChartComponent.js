@@ -29,7 +29,7 @@ function AdminPieChartComponent() {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get('http://localhost:8080/api/admin_dashboard_data', { 
+      const response = await axios.get('http://localhost:8084/api/admin_dashboard_data', { 
         withCredentials: true 
       });
       

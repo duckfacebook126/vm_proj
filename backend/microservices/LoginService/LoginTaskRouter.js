@@ -45,7 +45,10 @@ const posts=[
  } 
 ]
 
-// Function to sync session with UserData service
+// Function to send axios request to sync session with UserData service to be used inside
+//the syncSessionMiddlewareUserData function ,exracts the req data from the login route and sens it
+//to the userData service and sends the original data  back ot the login frontend
+
 const syncSessionWithUserData = async (sessionData) => {
     try {
         console.log('Attempting to sync session with UserData service:', sessionData);
@@ -56,14 +59,41 @@ const syncSessionWithUserData = async (sessionData) => {
         });
         console.log('Session sync successful:', response.data);
         return response.data;
-    } catch (error) {
+    } 
+
+    catch (error) {
         console.error('Failed to sync session with UserData service:', error.message);
         throw error;
     }
 };
 
-// Middleware to sync session after login
-const syncSessionMiddleware = async (req, res, next) => {
+// Function to send axios request to sync session with AdminData service to be used inside
+//the syncSessionMiddlewareAdminData function ,exracts the req data from the login route and sens it
+//to the AdminData service and sends the original data  back ot the admin login frontend
+
+const syncSessionWithAdminData = async (sessionData) => {
+    try {
+        console.log('Attempting to sync session with AdminData service:', sessionData);
+        const response = await axios.post('http://localhost:8084/api/get_auth', sessionData, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log('Session sync successful:', response.data);
+        return response.data;
+    } 
+
+    catch (error) {
+        console.error('Failed to sync session with AdminData service:', error.message);
+        throw error;
+    }
+};
+
+
+
+
+// Middleware to sync session after login for the userData service
+const syncSessionMiddlewareUserData = async (req, res, next) => {
 
     //save the original end and send function
     const originalEnd = res.end;
@@ -71,7 +101,7 @@ const syncSessionMiddleware = async (req, res, next) => {
 
     //let the sync flag default be false
     let isSynced = false;
-//overriding thres .send function that internally called by the res.json fro  the backedend
+//overriding the res .send function that internally called by the res.json fro  the backedend
 //which will have the body param that are the objects returned by the  res.send function
 
 //this will run evertime on every usecase
@@ -114,7 +144,8 @@ const syncSessionMiddleware = async (req, res, next) => {
                     console.error('Session sync failed:', error.message);
                 }
             }
-        } catch
+        }
+         catch
          (error) {
 
             //error  if the login backend function response fails
@@ -137,22 +168,103 @@ const syncSessionMiddleware = async (req, res, next) => {
     next();
 };
 
+// Middleware to sync session after login for the AdminData service
+const syncSessionMiddlewareAdminData = async (req, res, next) => {
+
+    //save the original end and send function
+    const originalEnd = res.end;
+    const originalSend = res.send;
+
+    //let the sync flag default be false
+    let isSynced = false;
+//overriding the res .send function that internally called by the res.json fro  the backedend
+//which will have the body param that are the objects returned by the  res.send function
+
+//this will run evertime on every usecase
+    res.send = async function(body) {
+
+        // if user is logged in then it will return the osrginal res    .send  to the frontend
+        if (isSynced) {
+
+            // the body will only be initzed after the login backend sends the response
+            return originalSend.call(this, body);
+        }
+
+        //this will execute if the user is not logged in 
+        try {
+
+            // parse the body from the res.send()
+            // the responseData will be  initialized after the request has comeback from the backend
+            const responseData = JSON.parse(body);
+            //set the session Data from the response
+            if (responseData.login === true && req.session && req.session.username) {
+                isSynced = true;
+
+                            //set the session Data from the response
+
+                const sessionData = {
+                    username: req.session.username,
+                    uId: req.session.uId,
+                    userType: req.session.userType
+                };
+
+                try {
+
+                    //send the session data to the userData service for sync    
+                    await syncSessionWithAdminData(sessionData);
+                    console.log('Session sync completed');
+
+                    //throwing errors from the userDataservice service
+                } 
+                catch (error) {
+                    console.error('Session sync failed:', error.message);
+                }
+            }
+        }
+         catch
+         (error) {
+
+            //error  if the login backend function response fails
+            console.error('Error processing response:', error);
+        }
+
+        //calls the original send function that will send the data back to original /login route feom where it  from
+        //upon incorrect login  primary or on successful login it will send the data but it will  be populated with correct response
+        originalSend.call(this, body);
+    };
+
+    res.end = function(chunk, encoding) {
+        if (isSynced) {
+            return originalEnd.call(this, chunk, encoding);
+        }
+        originalEnd.call(this, chunk, encoding);
+    };
+
+    // moves the controller to the next middleware function
+    next();
+};
+
+
+
+
 // Login route with session sync
-router.post('/login', syncSessionMiddleware, login);
+router.post('/login', syncSessionMiddlewareUserData, login);
 //logouut route that will destriy the session and logout
 router.post('/logout', logout); 
 //same route for admin login as login
-router.post('/admin_login', adminLogin);
+router.post('/admin_login',syncSessionMiddlewareAdminData,adminLogin);
 //sama  login route
 router.post('/admin_logout', adminLogout);
 //checking authentication from the auth for the ogin 
 router.get('/check_auth', (req, res) => {
     console.log('Session data:', req.session);
     //if session is not found throw an error
+
     if (!req.session) {
         console.log('No session object found');
         return res.status(401).json({ login: false, error: 'No session found' });
     }
+
     // if req.session has username and uId and userType
     if (req.session.username && req.session.uId && req.session.userType) {
         console.log('Session validated. User:', req.session.username, 'Type:', req.session.userType);
@@ -162,7 +274,9 @@ router.get('/check_auth', (req, res) => {
             userType: req.session.userType,
             userId: req.session.uId
         });
-    } else {
+    }
+
+     else {
         //throw th incomplete session data
         console.log('Session data incomplete:', {
             username: req.session.username,
@@ -175,7 +289,42 @@ router.get('/check_auth', (req, res) => {
     }
 });
 
-//Syncing the data to the userData service 
+//Syncing the data to the userData service funcition
+const  syncWithAdminData = async(req,res,next)=>
+{
+
+        try{
+
+            const sessionData={
+                username:req.session.username,
+                uId:req.session.uId,
+                userType:req.session.userType
+            }
+
+           const response= await axios.post('http://localhost:8084/api/get_auth',sessionData,{withCredentials:true}) ;
+
+           if(response.data)
+           {
+                res.sendStatus(200).json({
+
+                    message: response.data.message
+                });
+
+           }
+        }
+        catch(error)
+        {
+
+             res.sendStatus(500).json({error:'Failed to sync with UserData service'});
+
+        }
+
+
+    } 
+
+
+
+   //Syncing the data to the userData service funcition
 const  syncWithUserData = async(req,res,next)=>
 {
 

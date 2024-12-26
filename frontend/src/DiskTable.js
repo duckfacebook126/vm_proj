@@ -50,7 +50,7 @@ export default function DiskTable() {
 
   //handle delete functionn that will 
   const handleDeleteDisk = async (Diskid) => {
-    axios.delete(`http://localhost:8080/api/delete_Disk/${Diskid}`, { withCredentials: true })
+    axios.delete(`http://localhost:8083/api/delete_Disk/${Diskid}`, { withCredentials: true })
         .then(res => {
             console.log(res.data);
             Swal.fire({

@@ -73,8 +73,8 @@ app.get('/', (req, res) => {
             login: true, 
             username: req.session.username,
             userId: req.session.uId,
-            userType: req.session.userType,
-            isAdmin: req.session.isAdmin
+            userType:req.session.userType,
+            isAdmin:req.session.isAdmin
         });
     } else {
         res.status(404).json({ login: false });
