@@ -315,7 +315,7 @@ export default function VMTable({ onEdit, onDelete }) {
             <TextField
                 label="OS Name"
                 name="osName"
-                value={editVm?.os_name || ''}
+                value={editVm?.osName || ''}
                 onChange={(e) => setEditVm({...editVm, osName: e.target.value})}
                 fullWidth
             />

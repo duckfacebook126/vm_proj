@@ -155,25 +155,21 @@ export default function AdminAnalytics() {
 
         {/* First card */}
         <Grid item xs={4}>
-          
-            
-                
-                
                 <graphcontext.Provider value={adminDashboardData}>
                   <AdminPieChartComponent />
                 </graphcontext.Provider>
           
         </Grid>
         {/* Second card */}
-        <Grid item xs={4}>
+        <Grid item xs={8} sm={8} md={8}>
           <VmChart />
         </Grid>
         {/* Third card */}
-        <Grid item xs={4}>
+        <Grid item xs={6} sm={6} md={6}>
           <UsersChart />
         </Grid>
         {/* Fourth card */}
-        <Grid item xs={4}>
+        <Grid item xs={6} sm={6} md={6}>
           <DiskChart />
         </Grid>     
       </Grid>

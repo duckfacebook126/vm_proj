@@ -227,7 +227,7 @@ export default function Sidebar() {
         <AppBar position="fixed" open={open}>
 
           {/* Toolbar */}
-          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', backgroundColor:'darkred'}}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton
               backgroundColor='white' 

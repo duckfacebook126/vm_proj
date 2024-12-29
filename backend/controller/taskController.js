@@ -338,7 +338,7 @@ const createVM = async (req, res) => {
             
         }
 
-        console.log(`the query data in the console: ${vmResult} and ${flavorRows} and ${osResult} and ${diskResult}`);
+       
 
         res.status(201).json({
             message: 'VM created successfully',

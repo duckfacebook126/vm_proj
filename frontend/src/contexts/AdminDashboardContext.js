@@ -24,43 +24,34 @@ export const AdminDataProvider = ({ children }) => {
             // Make a GET request to fetch admin dashboard data
             const response = await axios.get('http://localhost:8084/api/admin_dashboard_data', { withCredentials: true });
             ;
-            // Check if the response contains an error
-            if (response.data.error) {
-                throw new Error(response.data.error);
-            }
 
             // Update the admin dashboard data state
             setAdminDashboardData(response.data);
         } catch (error) {
             // Log the error to the console
-            console.error('Error fetching admin data:', error);
+            console.error('Error fetching admin data:', error.message);
            
 
-            // Check if the error is due to unauthorized access
-            if (error.response?.status === 401) {
-                // Handle unauthorized access (e.g., redirect to login)
-            }
-
+           
             // Set the error message state
-            setError(error.message || 'Failed to fetch data');
+            setError(error.messsage);
         } finally {
             // Set loading status to false
             setLoading(false);
         }
     };
 
-    // Function to trigger data refresh
+    // Function to trigger data refresh and reoad
     const refreshData = () => {
         setRefreshTrigger(prev => prev + 1);
     };
 
     // useEffect to fetch data when the component mounts or when refreshTrigger or user changes
 useEffect(() => {
-    const init = async () => {
-        await checkAuthStatus();
+           
         fetchAdminDashboardData();
-    };
-    init();
+    
+    
 }, [refreshTrigger]);
 
     // Provide the admin data context to the children components

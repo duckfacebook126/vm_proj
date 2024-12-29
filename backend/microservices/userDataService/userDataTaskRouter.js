@@ -147,22 +147,6 @@ router.post('/get_auth', async (req, res) => {
     }
 });
 
-const sendtToTaksouter=async()=>{
-
-
-    try{
-
-        const response=await axios.post('http://localhost:8083/api',sessionData,{withCredentials:true})
-
-    }
-    catch(eror)
-    {
-
-
-
-    }
-
-}
 
 module.exports = router;
 

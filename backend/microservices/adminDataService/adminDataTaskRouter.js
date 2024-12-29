@@ -58,20 +58,7 @@ router.use(attachSessionData);
 // User routes
 router.put('/update_vm/:vmId', updateVm);
 
-// Route for creating a VM with session check
-router.post('/create_vm', (req, res, next) => {
-    console.log('Session in create_vm route:', req.session);
-    
-    if (!req.session || !req.session.uId) {
-        console.log('The session data inside the add_vm route is:', req.session ? req.session.uId : 'no session');
-        return res.status(401).json({ error: "Unauthorized user" });
-    }
-    next();
-}, createVM);
 
-router.delete('/delete_vm/:vmid', deleteVM);
-router.delete('/delete_Disk/:Diskid', deleteDisk);
-router.put('/update_vm/:vmId', updateVm);
 
 // Route for dashboard data with session handling
 router.get('/admin_dashboard_data', async (req, res) => {

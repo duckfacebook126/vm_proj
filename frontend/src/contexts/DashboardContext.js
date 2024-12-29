@@ -24,7 +24,7 @@ export const DataProvider = ({ children }) => {
             setLoading(false);
         }
     };
-        //refesrsh data and reoad it
+        //refesrsh data and reload it
     const refreshData = () => {
         setRefreshTrigger(prev => prev + 1);
     };
