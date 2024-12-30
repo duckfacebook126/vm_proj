@@ -27,7 +27,7 @@ function AdminLogin() {
   const { user,checkAuthStatus } = useAuth();
   const navigate = useNavigate();
 
-
+  const REACT_APP_ADMIN_LOGIN_CALL= process.env.REACT_APP_ADMIN_LOGIN_CALL
   useEffect(() => {
     if (user) {
       // If user is logged in as an admin, go to admin dashboard
@@ -72,7 +72,7 @@ function AdminLogin() {
       try {
 
         // ogin request to backend
-        const response = await axios.post('http://localhost:8081/api/admin_login', {encryptedData}, {
+        const response = await axios.post(`${REACT_APP_ADMIN_LOGIN_CALL}`, {encryptedData}, {
           withCredentials: true
         });
 

@@ -37,6 +37,7 @@ function Signup() {
     const [IsLoading,setIsLoading]=useState(true);
     const navigate = useNavigate();
     const{user}=useAuth();
+    const REACT_APP_SIGNUP_CALL=process.env.REACT_APP_SIGNUP_CALL;
     useEffect(() => {
         
 
@@ -80,7 +81,7 @@ function Signup() {
         onSubmit:(values ,{setSubmitting,setErrors})=>{
             setSubmitting(true);
             const encryptedData=encryptData(values);
-            axios.post('http://localhost:8082/api/signup', { encryptedData }).then(res => {
+            axios.post(`${REACT_APP_SIGNUP_CALL}`, { encryptedData }).then(res => {
                 
                 navigate('/login'); // Navigate to the home page on successful signup
             }

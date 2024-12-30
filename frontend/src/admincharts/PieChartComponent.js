@@ -24,12 +24,12 @@ function AdminPieChartComponent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  
+  const REACT_APP_ADMIN_DASHBOARD_DATA_CALL=process.env.REACT_APP_ADMIN_DASHBOARD_DATA_CALL;
   const fetchAdminData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get('http://localhost:8084/api/admin_dashboard_data', { 
+      const response = await axios.get(`${REACT_APP_ADMIN_DASHBOARD_DATA_CALL}`, { 
         withCredentials: true 
       });
       

@@ -22,7 +22,7 @@ import { Label } from 'recharts';
 
 function AdminSignup() {
   const [IsLoading, setIsLoading] = useState(true);
-
+  const REACT_APP_ADMIN_SIGNUP_CALL=process.env.REACT_APP_ADMIN_SIGNUP_CALL;
 ///on first time render set loading is true for 3 secs
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -51,7 +51,7 @@ function AdminSignup() {
     //handle submit function
     onSubmit: async (values, { setSubmitting }) => {
       const encryptedData = encryptData(values);
-         await axios.post('http://localhost:8082/api/admin_signup', {encryptedData})
+         await axios.post(`${REACT_APP_ADMIN_SIGNUP_CALL}`, {encryptedData})
         .then(res=>{
                 if(res.data.success){
             navigate('/admin_login');

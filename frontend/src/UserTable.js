@@ -43,34 +43,15 @@ const[userToDelete,setUserToDelete]=useState()
     CNIC: '', email: '', userName: '', password: '', userType: 'Standard'
   });
 
-
-const getsSessionData = async () => {
-try{
-
-const response = axios.get('http://localhost:8081/', { withCredentials: true });
-
-if(response.data.login)
-{
-setUserId(response.data.userId);
-
-}
-
-}
-catch(error)
-{
-console.log('failed to fetch session data');
-
-}
-
-
-}
-
-
+  const REACT_APP_ADMIN_DASHBOARD_DATA_CALL=process.env.REACT_APP_ADMIN_DASHBOARD_DATA_CALL; 
+  const REACT_APP_UPDATE_USER_CALL=process.env.REACT_APP_UPDATE_USER_CALL;
+  const REACT_APP_DELETE_USER_CALL=process.env.REACT_APP_DELETE_USER_CALL;
+  const REACT_APP_CREATE_USER_CALL=process.env.REACT_APP_CREATE_USER_CALL;
 
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:8084/api/admin_dashboard_data', {
+      const response = await axios.get(`${REACT_APP_ADMIN_DASHBOARD_DATA_CALL}`, {
         
         params:{value:userId},
         withCredentials: true 
@@ -128,7 +109,7 @@ console.log('failed to fetch session data');
   //function to jandle thethe user ti=o be updated
   const handleUpdate = async () => {
     try {
-      const response = await axios.put(`http://localhost:8084/api/update_user/${editUser.id}`, editUser, { withCredentials: true });
+      const response = await axios.put(`${REACT_APP_UPDATE_USER_CALL}${editUser.id}`, editUser, { withCredentials: true });
       if (response.status === 200) {
 
        // fires on succefull deletion
@@ -159,7 +140,7 @@ console.log('failed to fetch session data');
   //function to handle the deletion of the user
   const handleDelete = async (userToDelete) => {
     try {
-      await axios.delete(`http://localhost:8084/api/delete_user/${userToDelete}`, { withCredentials: true });
+      await axios.delete(`${REACT_APP_DELETE_USER_CALL}${userToDelete}`, { withCredentials: true });
 //succeful deletion fires an alert
       Swal.fire({
         icon: 'success',
@@ -192,7 +173,7 @@ console.log('failed to fetch session data');
     try {
       //sending axios reqiest to the backend for new user creation
       const encryptedData = encryptData(newUser);
-      await axios.post('http://localhost:8084/api/create_user', {encryptedData}, { withCredentials: true });
+      await axios.post(`${REACT_APP_CREATE_USER_CALL}`, {encryptedData}, { withCredentials: true });
       //closing the dialog box
       setOpenCreateDialog(false);
       //fetch the dashbaord
@@ -234,7 +215,7 @@ console.log('failed to fetch session data');
         console.log('Submitting form with values:', values);
         //axios post req with encrypted data
         const response = await axios.post(
-          'http://localhost:8084/api/create_user', 
+          `${REACT_APP_CREATE_USER_CALL}`, 
           { encryptedData }, 
           { withCredentials: true }
         );

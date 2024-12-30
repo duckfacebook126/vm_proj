@@ -5,6 +5,8 @@ import { useAuth } from './AuthContext';
 // Create a context for admin data
 export const AdminDataContext = createContext(null);
 
+
+const REACT_APP_ADMIN_DASHBOARD_DATA_CALL=process.env.REACT_APP_ADMIN_DASHBOARD_DATA_CALL;
 // AdminDataProvider component to provide admin data to its children
 export const AdminDataProvider = ({ children }) => {
     // State to hold admin dashboard data
@@ -22,7 +24,7 @@ export const AdminDataProvider = ({ children }) => {
     const fetchAdminDashboardData = async () => {
         try {
             // Make a GET request to fetch admin dashboard data
-            const response = await axios.get('http://localhost:8084/api/admin_dashboard_data', { withCredentials: true });
+            const response = await axios.get(`${REACT_APP_ADMIN_DASHBOARD_DATA_CALL}`, { withCredentials: true });
             ;
 
             // Update the admin dashboard data state

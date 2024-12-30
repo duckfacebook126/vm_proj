@@ -31,7 +31,7 @@ export default function DiskTable() {
   const [DiskToDelete, setDiskToDelete] = useState(null);
   const [openDialogDisk, setOpenDialogDisk] = useState(false);
 
-
+  const REACT_APP_DELETE_DISK_CALL=process.env.REACT_APP_DELETE_DISK_CALL;
  
 
 
@@ -50,7 +50,7 @@ export default function DiskTable() {
 
   //handle delete functionn that will 
   const handleDeleteDisk = async (Diskid) => {
-    axios.delete(`http://localhost:8083/api/delete_Disk/${Diskid}`, { withCredentials: true })
+    axios.delete(`${REACT_APP_DELETE_DISK_CALL}${Diskid}`, { withCredentials: true })
         .then(res => {
             console.log(res.data);
             Swal.fire({

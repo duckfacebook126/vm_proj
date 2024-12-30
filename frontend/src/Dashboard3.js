@@ -152,6 +152,10 @@ function Dashboard3() {
     // importing the dashboard context and authetication context
         const{dashboardData,fetchDashboardData,refreshData} = useContext(DataContext);
         const{user, checkAuthStatus,logout} = useAuth();
+        const REACT_APP_DELETE_VM_CALL=process.env.REACT_APP_DELETE_VM_CALL;
+        const REACT_APP_UPDATE_VM_CALL=process.env.REACT_APP_UPDATE_VM_CALL;
+        const REACT_APP_DELETE_DISK_CALL=process.env.REACT_APP_DELETE_DISK_CALL;
+
 
         //will check auth on the use effect
         useEffect(() => {
@@ -217,7 +221,7 @@ function Dashboard3() {
     const handleDeletevm = async (VMid) => {
 
         //axios delte request
-        axios.delete(`http://localhost:8083/api/delete_vm/${VMid}`, { withCredentials: true })
+        axios.delete(`${REACT_APP_DELETE_VM_CALL}${VMid}`, { withCredentials: true })
             .then(res => {
                 console.log(res.data);
                     //succesfull alert fire so that thereis succesful deeletion
@@ -258,7 +262,7 @@ const setVmToEdit = (vm) =>{
 }
         //axios put requestfor updating the user with th
     const handleEditvm = async (editVm) => {
-        axios.put(`http://localhost:8083/api/update_vm/${editVm.id}`, editVm,{ withCredentials: true })
+        axios.put(`${REACT_APP_UPDATE_VM_CALL}${editVm.id}`, editVm,{ withCredentials: true })
             .then(res => {
                 console.log(res.data);
 
@@ -305,7 +309,7 @@ const setVmToEdit = (vm) =>{
     const handleDeleteDisk = async (Diskid) => {
 
         //axios delte req with params vm id
-        axios.delete(`http://localhost:8083/api/delete_Disk/${Diskid}`, { withCredentials: true })
+        axios.delete(`${REACT_APP_DELETE_DISK_CALL}${Diskid}`, { withCredentials: true })
             .then(res => {
                 Swal.fire({
                     icon: 'success',

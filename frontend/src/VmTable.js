@@ -47,7 +47,8 @@ export default function VMTable({ onEdit, onDelete }) {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [vmToDelete, setVmToDelete] = useState();
   const[openEditDialog,setOpenEditDialog]=useState(false)
-
+  const REACT_APP_DELETE_VM_CALL=process.env.REACT_APP_DELETE_VM_CALL;
+  const REACT_APP_UPDATE_VM_CALL=process.env.REACT_APP_UPDATE_VM_CALL;
 
   // setting the vm to be edited
   const [editVm, setEditVm] = useState();
@@ -104,7 +105,7 @@ export default function VMTable({ onEdit, onDelete }) {
 
   //ends the deelte request to backend with  params vm id
   const handleDeletevm = async (vmToDelete) => {
-    axios.delete(`http://localhost:8083/api/delete_vm/${vmToDelete}`, { withCredentials: true })
+    axios.delete(`${REACT_APP_DELETE_VM_CALL}${vmToDelete}`, { withCredentials: true })
       .then(res => {
         console.log(res.data);
           //if the request is successfull then show a deleteion succes
@@ -138,7 +139,7 @@ export default function VMTable({ onEdit, onDelete }) {
 
     //handle the edit vm request
   const handleEditvm = async (editVm) => {
-    axios.put(`http://localhost:8083/api/update_vm/${editVm.id}`,editVm,{ withCredentials: true })
+    axios.put(`${REACT_APP_UPDATE_VM_CALL}${editVm.id}`,editVm,{ withCredentials: true })
         .then(res => {
           //if the the request is successfull then show a successmessage on deletion
           if(res){

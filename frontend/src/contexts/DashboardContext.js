@@ -12,10 +12,11 @@ export const DataProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const REACT_APP_DASHBOARD_DATA_CALL=process.env.REACT_APP_DASHBOARD_DATA_CALL;
 // fetchht the data from the backend  to be dsiplayed on frontend
     const fetchDashboardData = async () => {
         try {
-            const res = await axios.get('http://localhost:8083/api/dashboard_data', { withCredentials: true });
+            const res = await axios.get(`${REACT_APP_DASHBOARD_DATA_CALL}`, { withCredentials: true });
             setDashboardData(res.data);
         } catch (err) {
             console.error('Failed to fetch dashboard data:', err);

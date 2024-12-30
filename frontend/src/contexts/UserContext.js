@@ -7,12 +7,12 @@ const UserContext = createContext(null);
 export const UserProvider = ({ children }) => {
     const [userType, setUserType] = useState(null);
     const [error, setError] = useState(null);
-
+    const REACT_APP_CHECK_AUTH_CALL=process.env.REACT_APP_CHECK_AUTH_CALL;
     //check the user typre from context
     const checkUserType = async () => {
         try {
             //trhow a check auth request to backend
-            const response = await axios.get("http://localhost:8080/api/check_auth", {
+            const response = await axios.get(`${REACT_APP_CHECK_AUTH_CALL}`, {
                 withCredentials: true
             });
             setUserType(response.data.userType);

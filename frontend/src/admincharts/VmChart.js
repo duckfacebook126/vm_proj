@@ -11,6 +11,7 @@ export default function VMBarChart() {
   const [adminDashboardData, setAdminDashboardData] = useState({ users: [], vms: [], disks: [] });
   const disks = adminDashboardData?.disks || [];
  
+  const REACT_APP_ADMIN_DASHBOARD_DATA_CALL=process.env.REACT_APP_ADMIN_DASHBOARD_DATA_CALL;
 const vms=adminDashboardData?.vms||[];
   const numVms = vms.length;
   const [loading, setLoading] = useState(true);
@@ -20,7 +21,7 @@ const vms=adminDashboardData?.vms||[];
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get('http://localhost:8084/api/admin_dashboard_data', { 
+      const response = await axios.get(`${REACT_APP_ADMIN_DASHBOARD_DATA_CALL}`, { 
         withCredentials: true 
       });
       

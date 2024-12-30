@@ -37,6 +37,8 @@ function AddVMForm({ onClose, onSuccess }) {
         diskName: ''
     };
 
+    const REACT_APP_CREATE_VM_CALL= process.env.REACT_APP_CREATE_VM_CALL ;
+
     /// validation schema for add vm form
 
     const validationSchema= Yup.object().shape({
@@ -79,7 +81,7 @@ function AddVMForm({ onClose, onSuccess }) {
 
                         /// post the data to the backend end point with axios post request
         try {
-            const response = await axios.post('http://localhost:8083/api/create_vm', values, {
+            const response = await axios.post(`${REACT_APP_CREATE_VM_CALL}`, values, {
                 withCredentials: true  // This line is crucial for sending cookies
             });
 

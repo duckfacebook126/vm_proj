@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    const REACT_APP_CHECK_AUTH_CALL=process.env.REACT_APP_CHECK_AUTH_CALL;
     // Configure axios defaults
     axios.defaults.withCredentials = true;
 ///check the status of the authentication  from the backend
@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
             setLoading(true);
 
             //axios request to check auhth
-            const response = await axios.get('http://localhost:8081/api/check_auth', {
+            const response = await axios.get(`${REACT_APP_CHECK_AUTH_CALL}`, {
                 withCredentials: true
             });
               ///if scucccess ful login then throw th alert on success

@@ -7,7 +7,7 @@ class Database {
                 host: 'localhost',  
                 port: 3307, // Ensure host, user, password, and database are correct
                 user: 'root',
-                password: '',         // Your MySQL password here
+                password: 'Quartz_marine_00',         // Your MySQL password here
                 database: 'vm_proj'
             });
             Database.instance = this;

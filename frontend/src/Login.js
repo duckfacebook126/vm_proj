@@ -3,7 +3,6 @@ import './Login.css';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { encryptData } from './utils/encryption';
-
 import { useFormik } from 'formik';
 import { LoginValidaitonSchema } from './LoginValidation';
 import Swal from 'sweetalert2';
@@ -13,14 +12,18 @@ import { useAuth } from './contexts/AuthContext';
 import { Box, TextField, Button, Typography, Container, Paper } from '@mui/material/';
 // This function renders the login form for the user
 
-
 function Login() {
     const { user, checkAuthStatus } = useAuth();
     const navigate = useNavigate();
     const [IsLoading, setIsLoading] = useState(true)
 
+const REACT_APP_USER_LOGIN_CALL=process.env.REACT_APP_USER_LOGIN_CALL;
+const testVar = process.env.REACT_APP_TEST_VAR;
+console.log('Test variable:', testVar);
+console.log('All environment variables:', process.env);
 
 
+console.log('the imported environment variable is:',REACT_APP_USER_LOGIN_CALL);
     useEffect(() => {
 
         // Function to check if user is logged in and redirect accordingly
@@ -61,7 +64,7 @@ function Login() {
             console.log('Submitting login with values:', values);
 
             try {
-                const res = await axios.post('http://localhost:8081/api/login',
+                const res = await axios.post(`${REACT_APP_USER_LOGIN_CALL}`,
                     { encryptedData },
                     { withCredentials: true }
                 );
