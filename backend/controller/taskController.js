@@ -37,7 +37,6 @@ const signup = async (req, res) => {
         // Decrypt the incoming data
         const decryptedData = decryptData(encryptedData);
 
-        console.log(`${decryptedData}`);
         const {
             firstName,
             lastName,
@@ -62,7 +61,6 @@ const signup = async (req, res) => {
             userType: String(userType)
         };
 
-        console.log(`The encrypted data is: ${encryptedData}`);
         //validation function for backend
 
         // Check for validation errors
@@ -71,14 +69,12 @@ const signup = async (req, res) => {
         // Check for validation errors
         if (validationResult.error) {
 
-            console.log('Validation error:', validationResult.error);
             return res.status(400).json({ error: validationResult.error });
 
         }
 
 
-        console.log(`The vaidation result ${JSON.stringify(validationResult)}`);
-        console.log(`thevalidation result is: ${validationResult}`);
+
 
         // Check for duplicates
         const checkQuery = 'SELECT * FROM users WHERE CNIC = ? OR userName = ?';
@@ -143,7 +139,6 @@ const signup = async (req, res) => {
         res.status(201).json({ message: 'User created successfully' });
     }
     catch (error) {
-        console.error('Failed to create user:', error);
         res.status(500).json({ error: 'Failed to create user' });
     }
     
@@ -160,7 +155,6 @@ const login = async (req, res) => {
         const { encryptedData } = req.body;
         const decryptedData = decryptData(encryptedData);
         const { username, password } = decryptedData;
-        console.log(`The encrypted data is: ${encryptedData}`);
 
         const validatedData = {
             userName: String(username),
@@ -169,10 +163,10 @@ const login = async (req, res) => {
 
         const validationResult = await backendValidation(userLoginSchema, { username, password });
         if (validationResult.error) {
-            console.log('Validation error:', validationResult.error); 
+
             return res.status(400).json({ error: validationResult.error, login: false });
         }
-        console.log(`The validation result ${JSON.stringify(validationResult)}`);
+
         
         const notUserType = "Admin";
         const [users] = await conn.execute(
@@ -195,7 +189,7 @@ const login = async (req, res) => {
         // Set session data
         req.session.regenerate((err) => {
             if (err) {
-                console.error('Session regeneration error:', err);
+
                 return res.status(500).json({ error: 'Failed to create session', login: false });
             }
 
@@ -205,16 +199,11 @@ const login = async (req, res) => {
 
             req.session.save((err) => {
                 if (err) {
-                    console.error('Session save error:', err);
+
                     return res.status(500).json({ error: 'Failed to save session', login: false });
                 }
 
-                console.log('Login successful, session data set:', {
-                    username: req.session.username,
-                    userType: req.session.userType,
-                    uId: req.session.uId
-                });
-
+                
                 res.status(200).json({
                     message: "Login successful",
                     login: true,
@@ -225,7 +214,7 @@ const login = async (req, res) => {
             });
         });
     } catch (error) {
-        console.error('User login error:', error);
+
         res.status(500).json({ error: 'Login failed', login: false });
     } finally {
         if (conn) conn.release();
@@ -237,7 +226,7 @@ const logout = (req, res) => {
 
     req.session.destroy((err) => {
         if (err) {
-            console.error('Failed to destroy session:', err);
+
             return res.status(500).json({ error: 'Failed to logout' });
     }
         // Clear the session cookie and destroy the session
@@ -273,21 +262,11 @@ const createVM = async (req, res) => {
         } = req.body;
         
         // Log the request data
-        console.log('Creating VM with data:', {
-            userId,
-            osName,
-            vmName,
-            cpuCores,
-            cpuCount,
-            diskFlavor,
-            ram,
-            diskSize,
-            diskName
-        });
-
+ 
+        
         const validationResult = await backendValidation(addVmValidationSchema, {osName,vmName,diskName});
         if (validationResult.error) {
-            console.log('Validation error:', validationResult.error);
+
             return res.status(400).json({ error: validationResult.error });
         }
 
@@ -333,7 +312,7 @@ const createVM = async (req, res) => {
         await conn.commit();
         }
         catch (error) {
-            console.error('Failed to commit transaction:', error);
+
             await conn.rollback();
             
         }
@@ -350,7 +329,7 @@ const createVM = async (req, res) => {
     }
     catch (error) {
         if (conn) await conn.rollback();
-        console.error('Failed to create VM:', error);
+
         res.status(500).json({ error: error.message });
     }
     finally {
@@ -367,8 +346,8 @@ const dashboard_data = async (req, res) => {
             return res.status(401).json({ error: "User not authenticated" });
         }
 
-        console.log('Fetching data for user ID:', userId);
 
+        
         conn = await db.getConnection();
         
         // Get all VMs for the user with OS and flavor details
@@ -428,12 +407,14 @@ const dashboard_data = async (req, res) => {
         const [users] = await conn.execute(userQuery);
 
                 if (users.length>0)
-                {console.log(`this is the user data ${JSON.stringify(users)}`)}
+                {
+                    
+                }
                 
                     else if(users.length===0)
                     {
-                        console.log(' the query resulted in 0 users ');
 
+                        
                     }
 
         res.status(200).json({
@@ -444,7 +425,7 @@ const dashboard_data = async (req, res) => {
             login: true,
         });
     } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
+
         res.status(500).json({ error: "Failed to fetch dashboard data" });
     } finally {
         if (conn) conn.release();
@@ -526,14 +507,14 @@ const adminSignup = async (req, res) => {
             userType: String(userType)
         };
 
-        console.log (`the encrypted data fo r admin signup is: ${encryptedData}`)
+
         // validation before inserting in  the admin database
         const validationResult = await backendValidation(adminSignupSchema, {firstName,lastName,phoneNumber,cnic,email,username,password}); 
 
         // Check for validation errors
         if (validationResult.error) {
 
-            console.log('Validation error:', validationResult.error);
+
             return res.status(400).json({ error: validationResult.error });
 
         }
@@ -569,7 +550,7 @@ const adminSignup = async (req, res) => {
 
         res.status(201).json({ success: true, message: 'Admin user registered successfully' });
     } catch (error) {
-        console.error('Admin signup error:', error);
+
         res.status(500).json({ error: 'Internal server error', details: error.message });
     } finally {
         if (conn) conn.release();
@@ -596,13 +577,13 @@ const adminLogin = async (req, res) => {
         };
 
         //validatedata data before the database insertions
-        console.log(`Ecrypted data fo admin is: ${encryptedData}`)
+
         const validationResult = await backendValidation(adminLoginSchema, { username, password });
 
         // Check for validation errors
         if (validationResult.error) {
 
-            console.log('Validation error:', validationResult.error);
+
             return res.status(400).json({ error: validationResult.error });
 
         }
@@ -655,14 +636,11 @@ const adminLogin = async (req, res) => {
         // Save the session
         req.session.save(err => {
             if (err) {
-                console.error('Session save error:', err);
+
                 return res.status(500).json({ error: 'Failed to save session' });
             }
-            console.log('Session saved:', {
-                username: req.session.username,
-                uId: req.session.uId,
-                userType: req.session.userType
-            });
+
+            
         res.status(200).json({
             login: true,
                 username: req.session.username, 
@@ -672,14 +650,14 @@ const adminLogin = async (req, res) => {
         });
     
     } catch (error) {
-        console.error('Admin login error:', error);
+
         res.status(500).json({ error: 'Login failed', login: false });
     } finally {
         if (conn) {
             try {
                 await conn.release();
             } catch (err) {
-                console.error('Error releasing connection:', err);
+
             }
         }
     }
@@ -695,7 +673,7 @@ const adminLogout=(req,res)=>{
 
     req.session.destroy((err) => {
         if (err) {
-            console.error('Failed to destroy session:', err);
+
             return res.status(500).json({ error: 'Failed to logout' });
         }
         // Clear the session cookie and destroy the session
@@ -756,7 +734,7 @@ const fetchAdminData = async (req, res) => {
             disks
         });
     } catch (error) {
-        console.error('Error in fetchAdminData:', error);
+
         res.status(500).json({
             error: 'Failed to fetch admin data',
             details: error.message
@@ -769,7 +747,7 @@ const fetchAdminData = async (req, res) => {
             } 
             
             catch (err) {
-                console.error('Error releasing connection:', err);
+
             }
         }
     }
@@ -814,7 +792,7 @@ const createUser = async (req, res) => {
 
 
         //backend validation before inserting in the database
-        console.log(`The encrypted data is: ${encryptedData}`);
+
         //validation function for backend
 
         // Check for validation errors
@@ -823,7 +801,7 @@ const createUser = async (req, res) => {
         // Check for validation errors
         if (validationResult.error) {
 
-            console.log('Validation error:', validationResult.error);
+
             return res.status(400).json({ validationError: validationResult.error });
 
         }
@@ -920,7 +898,7 @@ const createUser = async (req, res) => {
 
     }
     catch (error) {
-        console.error('Error creating user:', error);
+
         res.status(500).json({ error: 'Failed to create user' });
     }
     finally {
@@ -997,7 +975,7 @@ const updateUser = async (req, res) => {
     }
     
     catch (error) {
-        console.error('Error updating user:', error);
+
         res.status(500).json({ error: 'Failed to update user' });
     }
     
@@ -1032,7 +1010,7 @@ const deleteUser = async (req, res) => {
 
         res.json({ message: 'User deleted successfully' });
     } catch (error) {
-        console.error('Error deleting user:', error);
+
         res.status(500).json({ error: 'Failed to delete user' });
     } finally {
         if (conn) conn.release();
@@ -1108,7 +1086,8 @@ const updateVm = async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Error updating VM:', error);
+
+        
         res.status(500).json({ error: 'Failed to update VM' });
 
     } finally {
@@ -1116,7 +1095,6 @@ const updateVm = async (req, res) => {
             try {
                 await conn.release();
             } catch (err) {
-                console.error('Error releasing connection:', err);
             }
         }
     }

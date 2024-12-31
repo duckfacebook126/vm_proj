@@ -51,18 +51,18 @@ const posts=[
 
 const syncSessionWithUserData = async (sessionData) => {
     try {
-        console.log('Attempting to sync session with UserData service:', sessionData);
+
         const response = await axios.post('http://localhost:8083/api/get_auth', sessionData, {
             headers: {
                 'Content-Type': 'application/json'
             }
         });
-        console.log('Session sync successful:', response.data);
+
         return response.data;
     } 
 
     catch (error) {
-        console.error('Failed to sync session with UserData service:', error.message);
+
         throw error;
     }
 };
@@ -73,18 +73,18 @@ const syncSessionWithUserData = async (sessionData) => {
 
 const syncSessionWithAdminData = async (sessionData) => {
     try {
-        console.log('Attempting to sync session with AdminData service:', sessionData);
+
         const response = await axios.post('http://localhost:8084/api/get_auth', sessionData, {
             headers: {
                 'Content-Type': 'application/json'
             }
         });
-        console.log('Session sync successful:', response.data);
+
         return response.data;
     } 
 
     catch (error) {
-        console.error('Failed to sync session with AdminData service:', error.message);
+
         throw error;
     }
 };
@@ -136,12 +136,12 @@ const syncSessionMiddlewareUserData = async (req, res, next) => {
 
                     //send the session data to the userData service for sync    
                     await syncSessionWithUserData(sessionData);
-                    console.log('Session sync completed');
 
+                    
                     //throwing errors from the userDataservice service
                 } 
                 catch (error) {
-                    console.error('Session sync failed:', error.message);
+
                 }
             }
         }
@@ -149,7 +149,7 @@ const syncSessionMiddlewareUserData = async (req, res, next) => {
          (error) {
 
             //error  if the login backend function response fails
-            console.error('Error processing response:', error);
+
         }
 
         //calls the original send function that will send the data back to original /login route feom where it  from
@@ -212,12 +212,12 @@ const syncSessionMiddlewareAdminData = async (req, res, next) => {
 
                     //send the session data to the userData service for sync    
                     await syncSessionWithAdminData(sessionData);
-                    console.log('Session sync completed');
 
+                    
                     //throwing errors from the userDataservice service
                 } 
                 catch (error) {
-                    console.error('Session sync failed:', error.message);
+
                 }
             }
         }
@@ -225,7 +225,7 @@ const syncSessionMiddlewareAdminData = async (req, res, next) => {
          (error) {
 
             //error  if the login backend function response fails
-            console.error('Error processing response:', error);
+
         }
 
         //calls the original send function that will send the data back to original /login route feom where it  from
@@ -257,17 +257,17 @@ router.post('/admin_login',syncSessionMiddlewareAdminData,adminLogin);
 router.post('/admin_logout', adminLogout);
 //checking authentication from the auth for the ogin 
 router.get('/check_auth', (req, res) => {
-    console.log('Session data:', req.session);
+
     //if session is not found throw an error
 
     if (!req.session) {
-        console.log('No session object found');
+
         return res.status(401).json({ login: false, error: 'No session found' });
     }
 
     // if req.session has username and uId and userType
     if (req.session.username && req.session.uId && req.session.userType) {
-        console.log('Session validated. User:', req.session.username, 'Type:', req.session.userType);
+
         return res.json({
             login: true,
             username: req.session.username,
@@ -277,15 +277,11 @@ router.get('/check_auth', (req, res) => {
     }
 
      else {
-        //throw th incomplete session data
-        console.log('Session data incomplete:', {
-            username: req.session.username,
-            uId: req.session.uId,
-            userType: req.session.userType
-        });
+
+        
 
         //return the error response
-        return res.status(401).json({ login: false, error: 'Session data incomplete' });
+        return res.status(307).json({ login: false, error: 'Session data incomplete' });
     }
 });
 
@@ -376,7 +372,7 @@ router.post('/sync-session', async (req, res) => {
         await syncSessionWithUserData(sessionData);
         res.json({ message: 'Session synced successfully' });
     } catch (error) {
-        console.error('Manual session sync failed:', error);
+
         res.status(500).json({ error: 'Failed to sync session' });
     }
 });

@@ -31,7 +31,6 @@ export const AdminDataProvider = ({ children }) => {
             setAdminDashboardData(response.data);
         } catch (error) {
             // Log the error to the console
-            console.error('Error fetching admin data:', error.message);
            
 
            

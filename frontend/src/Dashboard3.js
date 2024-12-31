@@ -169,7 +169,6 @@ function Dashboard3() {
                     navigate('/login');
                   }
                 } catch (error) {
-                  console.error('Error:', error);
                   navigate('/admin_login');
                 }
               };

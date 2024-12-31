@@ -58,18 +58,15 @@ const[userToDelete,setUserToDelete]=useState()
 
 
       });
-      console.log('API Response:', response.data);
       if (response.status === 200) {
         // Ensure we always set an array
         const userData = Array.isArray(response.data) ? response.data : 
                         response.data.users ? response.data.users : [];
-        console.log('Processed user data:', userData);
         setUsers(userData);
       }
 
       //erro handing for fetching the users
     } catch (error) {
-      console.error('Error fetching users:', error);
       if (error.response?.status === 401) {
         navigate('/admin_login');
       }
@@ -103,7 +100,6 @@ const[userToDelete,setUserToDelete]=useState()
   };
 
 //eror handling for the user data in hthe user auth
-// console.log(`the userId in the user tabel from the auth is: ${user.userId}`)
 
 
   //function to jandle thethe user ti=o be updated
@@ -126,7 +122,6 @@ const[userToDelete,setUserToDelete]=useState()
         refreshData();
       }
     } catch (error) {
-      console.error('Error updating user:', error);
 
       //fires error if the user is not updated
       Swal.fire({
@@ -163,7 +158,6 @@ const[userToDelete,setUserToDelete]=useState()
       
       
     } catch (error) {
-      console.error('Error deleting user:', error);
     }
   };
 
@@ -187,7 +181,6 @@ const[userToDelete,setUserToDelete]=useState()
       });
     } catch (error) {
       //error handling
-      console.error('Error creating user:', error);
     }
   };
 
@@ -212,7 +205,6 @@ const[userToDelete,setUserToDelete]=useState()
       try {
         //encrypt data using the function from  utils that uses Aes
         const encryptedData = encryptData(values);
-        console.log('Submitting form with values:', values);
         //axios post req with encrypted data
         const response = await axios.post(
           `${REACT_APP_CREATE_USER_CALL}`, 
@@ -232,7 +224,6 @@ const[userToDelete,setUserToDelete]=useState()
           resetForm();
         }
       } catch (error) {
-        console.error('Error creating user:', error);
         setOpenCreateDialog(false);
         fetchUsers();
         refreshData();
@@ -321,20 +312,20 @@ const[userToDelete,setUserToDelete]=useState()
       </TableContainer>
 
       {/* Edit Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}
-        
-          
+      <Dialog 
+        open={openDialog} 
+        onClose={() => setOpenDialog(false)}
         PaperProps={{
-
           style:{
-
             width:'400px',
-
             height:'600px'
           }
         }}
-        >
-        <DialogTitle>Edit User</DialogTitle>
+        aria-labelledby="edit-dialog-title"
+        disableEnforceFocus
+        disableRestoreFocus
+      >
+        <DialogTitle id="edit-dialog-title">Edit User</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 2 }}>
             <TextField
@@ -342,6 +333,7 @@ const[userToDelete,setUserToDelete]=useState()
               value={editUser.firstName}
               onChange={(e) => setEditUser({ ...editUser, firstName: e.target.value })}
               fullWidth
+              autoFocus
             />
             <TextField
               label="Last Name"
@@ -387,7 +379,14 @@ const[userToDelete,setUserToDelete]=useState()
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdate} variant="contained" color="primary">
+          <Button 
+            onClick={() => {
+              handleUpdate();
+              setOpenDialog(false);
+            }} 
+            variant="contained" 
+            color="primary"
+          >
             Update
           </Button>
         </DialogActions>
@@ -531,11 +530,18 @@ const[userToDelete,setUserToDelete]=useState()
 
       {/*//delete user dialog*/}
 
-      <Dialog open={openDeleteDialog} onClose={() => setOpenDelteDialog(false)}>
+      <Dialog 
+        open={openDeleteDialog} 
+        onClose={() => setOpenDelteDialog(false)}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+        disableEnforceFocus
+        disableRestoreFocus
+      >
               
-              <DialogTitle>Delete User</DialogTitle>
+              <DialogTitle id="delete-dialog-title">Delete User</DialogTitle>
                     <DialogContent>
-                        <DialogContentText>
+                        <DialogContentText id="delete-dialog-description">
                           Are you sure you want to delete this user?
                         </DialogContentText>
                     </DialogContent>
@@ -543,7 +549,17 @@ const[userToDelete,setUserToDelete]=useState()
 
                       <DialogActions>
                             <Button onClick={() => setOpenDelteDialog(false)}>Cancel</Button>
-                            <Button onClick={() => {handleDelete(userToDelete).then(() => setOpenDelteDialog(false))}} variant="contained">Delete</Button>                      </DialogActions>
+                            <Button 
+                              onClick={() => {
+                                handleDelete(userToDelete);
+                                setOpenDelteDialog(false);
+                              }} 
+                              variant="contained"
+                              color="error"
+                            >
+                              Delete
+                            </Button>
+                      </DialogActions>
       </Dialog>
 
 

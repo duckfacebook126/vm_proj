@@ -111,7 +111,6 @@ function AdminLogin() {
   }
 
  //formikmerror displaying troubleshooter
-  console.log('formik errors:', formik.errors);
 
   return (
 

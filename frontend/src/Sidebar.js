@@ -165,7 +165,6 @@ export default function Sidebar() {
       await checkAuthStatus(); // Verify auth state is cleared
       navigate(wasAdmin ? '/admin_login' : '/login');  // Redirect based on previous user type
     } catch (err) {
-      console.error('Logout failed:', err);
       navigate('/admin_login');  // Default to admin login on error
     }
   };
@@ -204,7 +203,6 @@ export default function Sidebar() {
           navigate('/admin_login');
         }
       } catch (error) {
-        console.error('Error:', error);
         navigate('/admin_login');
       }
     };

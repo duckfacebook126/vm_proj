@@ -33,7 +33,6 @@ const vms=adminDashboardData?.vms||[];
     }
      
     catch (error) {
-      console.error('Error fetching admin data:', error);
       if (error.response?.status === 401) {
         navigate('/admin_login');
       } else {
@@ -52,7 +51,6 @@ const vms=adminDashboardData?.vms||[];
     fetchAdminData();
   }, []);
 
-  console.log(`The VM data is: ${JSON.stringify(vms)}`);
 
   const chartData=vms.map((vm)=>({
     name: vm.NAME,
@@ -111,8 +109,6 @@ const vms=adminDashboardData?.vms||[];
 
 
 
-  console.log(`The VM data stringify is: ${JSON.stringify(formattedData)}`);
-  console.log(`The VM name data stringify is: ${JSON.stringify(formattedData.name)}`);
   
   
   // Transform VM data for the chart

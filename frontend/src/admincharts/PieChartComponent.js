@@ -39,7 +39,6 @@ function AdminPieChartComponent() {
       
       setAdminDashboardData(response.data);
     } catch (error) {
-      console.error('Error fetching admin data:', error);
       if (error.response?.status === 401) {
         navigate('/admin_login');
       } else {

@@ -68,7 +68,6 @@ function AdminSignup() {
   });
 
   //eror handling for formik errors
-  console.log('formik errors for user signup are',formik.errors)
 
 
   //return form the loading is true

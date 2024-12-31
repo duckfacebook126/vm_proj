@@ -23,7 +23,6 @@ export default function DiskTable() {
   const{dashboardData,fetchDashboardData,refreshData} = useContext(DataContext);
 
   const disks = dashboardData?.disks || [];
-  console.log(disks);
   // States for handling pagination
   const [page, setPage] = useState(0); // Current page index
   const [rowsPerPage, setRowsPerPage] = useState(5); // Number of rows per page
@@ -52,7 +51,6 @@ export default function DiskTable() {
   const handleDeleteDisk = async (Diskid) => {
     axios.delete(`${REACT_APP_DELETE_DISK_CALL}${Diskid}`, { withCredentials: true })
         .then(res => {
-            console.log(res.data);
             Swal.fire({
 
               icon: 'success',
@@ -66,7 +64,6 @@ export default function DiskTable() {
             refreshData();  // Use refreshData instead of fetchDashboardData
         })
         .catch(err => {
-            console.error('Failed to delete Disk:', err);
         });
 };
 

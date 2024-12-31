@@ -31,14 +31,11 @@ export const AuthProvider = ({ children }) => {
                 };
                 //set the user data
                 setUser(userData);
-                console.log('Authentication successful:', userData);
                 setError(null);
             } else {
                 setUser(null);
-                console.log('Not authenticated');
             }
         } catch (err) {
-            console.error('Auth check failed:', err);
             
             setUser(null);
             setError(err.response?.data?.error || 'Authentication failed');
@@ -60,7 +57,6 @@ export const AuthProvider = ({ children }) => {
             });
             setUser(null);
         } catch (err) {
-            console.error('Logout failed:', err);
             setError(err.message);
         }
     };

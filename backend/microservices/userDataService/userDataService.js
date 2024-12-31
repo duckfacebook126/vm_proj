@@ -35,9 +35,7 @@ app.use(session({
 
 // Log all incoming requests and their session data
 app.use((req, res, next) => {
-    console.log('Incoming request to:', req.path);
-    console.log('Session data:', req.session);
-    console.log('Cookies:', req.cookies);
+
     next();
 });
 
@@ -46,7 +44,6 @@ app.use(bodyParser.json());
 app.use('/api', taskRouter);
 
 app.get('/', (req, res) => {
-    console.log(`Session username: ${req.session.username}`);
     if (req.session.username) {
         res.status(200).json({ 
             login: true, 

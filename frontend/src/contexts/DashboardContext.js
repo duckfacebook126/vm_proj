@@ -8,7 +8,6 @@ export const DataContext = createContext(null);
 export const DataProvider = ({ children }) => {
     const [dashboardData, setDashboardData] = useState({ vms: [], disks: [], users: [],vmTableData: [] });
 
-    console.log('this is the dashboard data on the context', dashboardData);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -19,7 +18,6 @@ export const DataProvider = ({ children }) => {
             const res = await axios.get(`${REACT_APP_DASHBOARD_DATA_CALL}`, { withCredentials: true });
             setDashboardData(res.data);
         } catch (err) {
-            console.error('Failed to fetch dashboard data:', err);
             setError(err);
         } finally {
             setLoading(false);

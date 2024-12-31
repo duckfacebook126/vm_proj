@@ -1,14 +1,14 @@
 const mysql = require('mysql2/promise');
-
+require('dotenv').config({path: '../.env'});
 class Database {
     constructor() {
         if (!Database.instance) {
             this.pool = mysql.createPool({
-                host: 'localhost',  
-                port: 3307, // Ensure host, user, password, and database are correct
-                user: 'root',
-                password: 'Quartz_marine_00',         // Your MySQL password here
-                database: 'vm_proj'
+                host: process.env.HOST,  
+                port: process.env.PORT, // Ensure host, user, password, and database are correct
+                user: process.env.USER,
+                password: process.env.PASSWORD,         // Your MySQL password here
+                database: process.env.DATABASE
             });
             Database.instance = this;
         }

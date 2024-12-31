@@ -19,11 +19,8 @@ function Login() {
 
 const REACT_APP_USER_LOGIN_CALL=process.env.REACT_APP_USER_LOGIN_CALL;
 const testVar = process.env.REACT_APP_TEST_VAR;
-console.log('Test variable:', testVar);
-console.log('All environment variables:', process.env);
 
 
-console.log('the imported environment variable is:',REACT_APP_USER_LOGIN_CALL);
     useEffect(() => {
 
         // Function to check if user is logged in and redirect accordingly
@@ -61,7 +58,6 @@ console.log('the imported environment variable is:',REACT_APP_USER_LOGIN_CALL);
         onSubmit: async (values, { setErrors, setSubmitting }) => {
             setSubmitting(true);
             const encryptedData = encryptData(values);
-            console.log('Submitting login with values:', values);
 
             try {
                 const res = await axios.post(`${REACT_APP_USER_LOGIN_CALL}`,
@@ -69,7 +65,6 @@ console.log('the imported environment variable is:',REACT_APP_USER_LOGIN_CALL);
                     { withCredentials: true }
                 );
 
-                console.log('Login response:', res.data);
                 if (res.data.login) {
                     await checkAuthStatus();
                     // Wait for a moment to ensure session is properly set
@@ -81,7 +76,6 @@ console.log('the imported environment variable is:',REACT_APP_USER_LOGIN_CALL);
                     }
                 }
             } catch (error) {
-                console.error('Login error:', error.response?.data || error);
                 if (error.response) {
                     const backendError = error.response.data.error;
                     Swal.fire({
@@ -101,8 +95,6 @@ console.log('the imported environment variable is:',REACT_APP_USER_LOGIN_CALL);
 
     //error handling for not diplaying formik errors handle the form errors
 
-    console.log('Form values:', formik.values);
-    console.log('Form touched:', formik.touched);
 
     if (!IsLoading) {
         return (

@@ -107,7 +107,6 @@ export default function VMTable({ onEdit, onDelete }) {
   const handleDeletevm = async (vmToDelete) => {
     axios.delete(`${REACT_APP_DELETE_VM_CALL}${vmToDelete}`, { withCredentials: true })
       .then(res => {
-        console.log(res.data);
           //if the request is successfull then show a deleteion succes
         if(res.status===200){
           Swal.fire({
@@ -123,7 +122,6 @@ export default function VMTable({ onEdit, onDelete }) {
 
       //handdle the errors
       .catch(err => {
-      console.error('Failed to delete VM:', err);
 
       //throw the alert message so that there is  an error
        Swal.fire({
@@ -160,8 +158,8 @@ export default function VMTable({ onEdit, onDelete }) {
 
         //catches the errors
         .catch(err => {
-            console.log(err);
 
+          
             //fires the error message in alert box
           Swal.fire(
             {

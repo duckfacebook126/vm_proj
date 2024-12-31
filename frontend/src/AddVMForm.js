@@ -98,7 +98,6 @@ function AddVMForm({ onClose, onSuccess }) {
             }
             onClose();
         } catch (err) {
-            console.error('Error creating VM:', err);
             setErrors({ submit: err.response?.data?.error || "Failed to create VM. Please try again." });
         }
         finally{

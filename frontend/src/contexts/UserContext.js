@@ -18,7 +18,6 @@ export const UserProvider = ({ children }) => {
             setUserType(response.data.userType);
 
         } catch (error) {
-            console.error('Error checking user type:', error);
             setError(error);
             setUserType(null);
         }

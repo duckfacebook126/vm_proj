@@ -34,11 +34,7 @@ app.use(session({
 const syncWithUserData = async (req, res, next) => {
     if (req.session && req.session.username) {
         try {
-            console.log('Syncing session to UserData service:', {
-                username: req.session.username,
-                uId: req.session.uId,
-                userType: req.session.userType
-            });
+
             
             const response = await axios.post('http://localhost:8083/api/get_auth', {
                 username: req.session.username,
@@ -52,9 +48,10 @@ const syncWithUserData = async (req, res, next) => {
                 }
             });
             
-            console.log('Session sync response:', response.data);
+    
+            
         } catch (error) {
-            console.error('Failed to sync with UserData service:', error.message);
+
         }
     }
     next();
@@ -67,7 +64,8 @@ app.use(syncWithUserData);
 app.use('/api', taskRouter);
 
 app.get('/', (req, res) => {
-    console.log(`Session username: ${req.session.username}`);
+
+    
     if (req.session.username) {
         res.status(200).json({ 
             login: true, 

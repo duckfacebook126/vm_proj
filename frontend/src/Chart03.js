@@ -29,7 +29,6 @@ function Chart03() {
         FLAVOR: vm.FLAVOR || 'N/A'
     }));
 
-    console.log('Formatted VM Data:', formattedVMData);
 
     return (
         <div style={{ width: '100%', height: '100%' }}>

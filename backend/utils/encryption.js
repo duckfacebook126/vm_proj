@@ -9,7 +9,7 @@ const encryptData = (data) => { try { const iv = CryptoJS.enc.Utf8.parse(FIXED_I
      return encryptedData; }
 
     catch (error) 
-    { console.error('Encryption error:', error); throw error; } };
+    {  throw error; } };
 
 
 module.exports = { encryptData, SECRET_KEY };
