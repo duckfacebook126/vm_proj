@@ -6,7 +6,7 @@ import axios from 'axios';
 import LoadingSpinner from './components/Loading';
 import { encryptData } from './utils/encryption';
 import { LoginValidaitonSchema } from './LoginValidation';
-
+import './adminLogin.css';
 
 import { Link } from 'react-router-dom'
 import {
@@ -172,7 +172,7 @@ function AdminLogin() {
             }}
           />
           
-          <button onSubmit={formik.handleSubmit} className="btn btn-danger btn-block w-100" disabled={formik.isSubmitting}>
+          <button onSubmit={formik.handleSubmit} className="btn btn-danger btn-block w-100 login-button" disabled={formik.isSubmitting} type="submit">
                         {formik.isSubmitting ? 'Logging in...' : 'Login'}
                     </button>
 

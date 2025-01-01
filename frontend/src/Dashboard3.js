@@ -222,7 +222,6 @@ function Dashboard3() {
         //axios delte request
         axios.delete(`${REACT_APP_DELETE_VM_CALL}${VMid}`, { withCredentials: true })
             .then(res => {
-                console.log(res.data);
                     //succesfull alert fire so that thereis succesful deeletion
                     Swal.fire({
 
@@ -235,7 +234,6 @@ function Dashboard3() {
                 refreshData();  // Use refreshData instead of fetchDashboardData
             })
             .catch(err => {
-                console.error('Failed to delete VM:', err);
             });
     };
 
@@ -263,7 +261,6 @@ const setVmToEdit = (vm) =>{
     const handleEditvm = async (editVm) => {
         axios.put(`${REACT_APP_UPDATE_VM_CALL}${editVm.id}`, editVm,{ withCredentials: true })
             .then(res => {
-                console.log(res.data);
 
                     Swal.fire({
                         icon: 'success',
@@ -290,9 +287,7 @@ const setVmToEdit = (vm) =>{
 
                     if(result.isConfirmed)
                     {
-                        console.error('Failed to update VM:', err);
 
-                        console.log(err);
                         refreshData();
 
                     }
@@ -319,7 +314,6 @@ const setVmToEdit = (vm) =>{
                 refreshData();  // Use refreshData instead of fetchDashboardData
             })
             .catch(err => {
-                console.error('Failed to delete Disk:', err);
             });
     };
     
@@ -334,7 +328,6 @@ const setVmToEdit = (vm) =>{
             await checkAuthStatus(); // Verify the auth state is cleared
             navigate('/login');//logout back to the login page
         } catch (err) {
-            console.error('Logout failed:', err);
         }
     };
 

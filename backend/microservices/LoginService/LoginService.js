@@ -6,9 +6,9 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const axios = require('axios');
 const taskRouter = require('./LoginTaskRouter');
-
+require('dotenv').config({ path: __dirname + '../../.env' });
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.ORIGIN,
     credentials: true
 }));
 
@@ -36,7 +36,7 @@ const syncWithUserData = async (req, res, next) => {
         try {
 
             
-            const response = await axios.post('http://localhost:8083/api/get_auth', {
+            const response = await axios.post(process.env.GET_AUTH, {
                 username: req.session.username,
                 uId: req.session.uId,
                 userType: req.session.userType

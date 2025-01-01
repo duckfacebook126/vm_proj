@@ -41,7 +41,6 @@ export default function VMTable({ onEdit, onDelete }) {
   const vms = dashboardData?.vms || [];
   const vmTableData =dashboardData?.vmTableData || [];
 
-  console.log('this is the vm table data on the frontend',vmTableData);
   // States for handling pagination
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);

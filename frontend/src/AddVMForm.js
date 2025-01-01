@@ -280,7 +280,7 @@ function AddVMForm({ onClose, onSuccess }) {
 
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onClose} color="primary">
+                    <Button onClick={onClose} color="primary" type="button">
                         Cancel
                     </Button>
                     <Button type="submit" color="primary" variant="contained" disabled={isSubmitting}>
@@ -328,4 +328,3 @@ export default AddVMForm;
  * 8. The addVM function returns a success message.
  * 9. The component displays the success message.
  */
-

@@ -109,9 +109,7 @@ function Signup() {
 
     }
     )
-    //console.log(formik);
 
-    console.log(formik.errors);
     
    if(!IsLoading){
 

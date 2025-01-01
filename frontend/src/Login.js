@@ -126,7 +126,7 @@ const testVar = process.env.REACT_APP_TEST_VAR;
                                 sx={{
                                     '& .MuiFormHelperText-root': {
                                         color: 'red',
-                                        fontSize: '1.0rem', // Increase the size as needed
+                                        fontSize: '0.8rem', // Increase the size as needed
                                     },
                                 }}
                             />
@@ -151,7 +151,7 @@ const testVar = process.env.REACT_APP_TEST_VAR;
                                 sx={{
                                     '& .MuiFormHelperText-root': {
                                         color: 'red',
-                                        fontSize: '1.0rem', // Increase the size as needed
+                                        fontSize: '0.8rem', // Increase the size as needed
                                     },
                                 }}
                             />
@@ -160,7 +160,21 @@ const testVar = process.env.REACT_APP_TEST_VAR;
                         </div>
 
                         {/* submitt button that handles the login */}
-                        <button onSubmit={formik.handleSubmit} className="btn btn-danger btn-block w-100" disabled={formik.isSubmitting}>
+                        <button 
+                            onSubmit={formik.handleSubmit} 
+                            className="w-100 login-button"
+                            // style={{
+                            //     backgroundColor: '#8B0000',
+                            //     color: 'white',
+                            //     padding: '8px 16px',
+                            //     borderRadius: '6px',
+                            //     transition: 'background-color 0.3s ease',
+                            //     border: 'none',
+                            //     cursor: formik.isSubmitting ? 'not-allowed' : 'pointer'
+                            // }}
+                            disabled={formik.isSubmitting}
+                            type="submit"
+                        >
                             {formik.isSubmitting ? 'Logging in...' : 'Login'}
                         </button>
 

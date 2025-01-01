@@ -1,5 +1,5 @@
 const mysql = require('mysql2/promise');
-require('dotenv').config({path: '../.env'});
+require('dotenv').config({ path: __dirname + '/.env' });
 class Database {
     constructor() {
         if (!Database.instance) {

@@ -4,13 +4,14 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+require('dotenv').config({ path: __dirname + '../../.env' });
 
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
 const taskRouter = require('./adminDataTaskRouter');
 
 app.use(cors({
-    origin: 'http://localhost:3000',  // Correct base URL
+    origin: process.env.ORIGIN, // Correct base URL
     credentials: true
 }));
 
