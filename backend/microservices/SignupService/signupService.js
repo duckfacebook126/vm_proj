@@ -5,9 +5,10 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const taskRouter = require('./signupServiceRouter');
+require('dotenv').config({ path: __dirname + '../../.env' });
 
 app.use(cors({
-    origin: 'http://localhost:3000',  // Correct base URL
+    origin: process.env.ORIGIN,  // Correct base URL
     credentials: true
 }));
 app.use(express.json());

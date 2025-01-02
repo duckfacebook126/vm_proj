@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './process.env' });
+require('dotenv').config({ path: __dirname + '../../.env' });
 
 const express = require('express');
 
@@ -34,25 +34,16 @@ createUser,
 updateVm
 } = require('../../controller/taskController');
 
-const posts=[
- {
- username:'nigga1',
- title:'hello nigga'
- },
- {
- username:'nigga2',
- title:'hello nigga2'
- } 
-]
+
 
 // Function to send axios request to sync session with UserData service to be used inside
-//the syncSessionMiddlewareUserData function ,exracts the req data from the login route and sens it
+// syncSessionMiddlewareUserData function ,exracts the req data from the login route and sens it
 //to the userData service and sends the original data  back ot the login frontend
 
 const syncSessionWithUserData = async (sessionData) => {
     try {
 
-        const response = await axios.post('http://localhost:8083/api/get_auth', sessionData, {
+        const response = await axios.post(process.env.GET_AUTH_2, sessionData, {
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -74,7 +65,7 @@ const syncSessionWithUserData = async (sessionData) => {
 const syncSessionWithAdminData = async (sessionData) => {
     try {
 
-        const response = await axios.post('http://localhost:8084/api/get_auth', sessionData, {
+        const response = await axios.post(process.env.GET_AUTH_1, sessionData, {
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -285,96 +276,13 @@ router.get('/check_auth', (req, res) => {
     }
 });
 
-//Syncing the data to the userData service funcition
-const  syncWithAdminData = async(req,res,next)=>
-{
-
-        try{
-
-            const sessionData={
-                username:req.session.username,
-                uId:req.session.uId,
-                userType:req.session.userType
-            }
-
-           const response= await axios.post('http://localhost:8084/api/get_auth',sessionData,{withCredentials:true}) ;
-
-           if(response.data)
-           {
-                res.sendStatus(200).json({
-
-                    message: response.data.message
-                });
-
-           }
-        }
-        catch(error)
-        {
-
-             res.sendStatus(500).json({error:'Failed to sync with UserData service'});
-
-        }
-
-
-    } 
-
-
-
-   //Syncing the data to the userData service funcition
-const  syncWithUserData = async(req,res,next)=>
-{
-
-        try{
-
-            const sessionData={
-                username:req.session.username,
-                uId:req.session.uId,
-                userType:req.session.userType
-            }
-
-           const response= await axios.post('http://localhost:8083/api/get_auth',sessionData,{withCredentials:true}) ;
-
-           if(response.data)
-           {
-                res.sendStatus(200).json({
-
-                    message: response.data.message
-                });
-
-           }
-        }
-        catch(error)
-        {
-
-             res.sendStatus(500).json({error:'Failed to sync with UserData service'});
-
-        }
-
-
-    } 
 
 
 
 
-// Route to manually sync session (if needed)
-router.post('/sync-session', async (req, res) => {
-    try {
-        if (!req.session || !req.session.username) {
-            return res.status(401).json({ error: 'No active session' });
-        }
 
-        const sessionData = {
-            username: req.session.username,
-            uId: req.session.uId,
-            userType: req.session.userType
-        };
 
-        await syncSessionWithUserData(sessionData);
-        res.json({ message: 'Session synced successfully' });
-    } catch (error) {
 
-        res.status(500).json({ error: 'Failed to sync session' });
-    }
-});
+
 
 module.exports = router;

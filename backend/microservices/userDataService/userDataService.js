@@ -1,3 +1,6 @@
+
+require('dotenv').config({ path: __dirname + '../../.env' });
+
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
@@ -10,7 +13,7 @@ const MemoryStore = require('memorystore')(session);
 const taskRouter = require('./userDataTaskRouter');
 
 app.use(cors({
-    origin: 'http://localhost:3000',  // Correct base URL
+    origin: process.env.ORIGIN,  // Correct base URL
     credentials: true
 }));
 

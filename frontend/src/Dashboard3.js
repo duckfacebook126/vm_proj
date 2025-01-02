@@ -162,7 +162,12 @@ function Dashboard3() {
             
             const checkAuth = async () => {
                 try {
-                  await checkAuthStatus();  // First check auth status
+                  const authRes =await checkAuthStatus();
+                  
+                  // First check auth status
+
+
+                  
                   await refreshData();      // Then refresh data
                   
                   if (user===null ) {

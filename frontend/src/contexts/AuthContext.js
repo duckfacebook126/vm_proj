@@ -8,8 +8,11 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const REACT_APP_CHECK_AUTH_CALL=process.env.REACT_APP_CHECK_AUTH_CALL;
+    const REACT_APP_BASE_CALL=process.env.REACT_APP_BASE_CALL;
     // Configure axios defaults
     axios.defaults.withCredentials = true;
+
+     
 ///check the status of the authentication  from the backend
     const checkAuthStatus = async () => {
         try {
@@ -21,7 +24,7 @@ export const AuthProvider = ({ children }) => {
             const response = await axios.get(`${REACT_APP_CHECK_AUTH_CALL}`, {
                 withCredentials: true
             });
-              ///if scucccess ful login then throw th alert on success
+              ///if scucccess ful login then set userdata
             if (response.data.login) {
                 const userData = {
                     username: response.data.username,
@@ -29,6 +32,7 @@ export const AuthProvider = ({ children }) => {
                     userId: response.data.userId,
                     login: response.data.login
                 };
+  
                 //set the user data
                 setUser(userData);
                 setError(null);
@@ -52,7 +56,7 @@ export const AuthProvider = ({ children }) => {
                 ? '/api/admin_logout' 
                 : '/api/logout';
             
-            await axios.post(`http://localhost:8081${logoutEndpoint}`, {}, { 
+            await axios.post(`${REACT_APP_BASE_CALL}${logoutEndpoint}`, {}, { 
                 withCredentials: true 
             });
             setUser(null);
@@ -61,10 +65,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Check auth status on mount
-    useEffect(() => {
-        checkAuthStatus();
-    }, [])//
+
 
     //provide the values to the chidren context
     return (

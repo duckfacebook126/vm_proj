@@ -19,7 +19,7 @@ useEffect(()=>{
     return acc;
   }, {});
 
-
+console.log('this is the usee data from the usercharts in usertablemin the admin table: ',users);
 
   const chartData = Object.entries(userTypes).map(([type, count], index) => ({
     name: type,
