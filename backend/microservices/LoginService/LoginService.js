@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const MemoryStore = require('memorystore')(session);
 const axios = require('axios');
 const taskRouter = require('./LoginTaskRouter');
 require('dotenv').config({ path: __dirname + '../../.env' });
@@ -18,6 +19,9 @@ app.use(cookieParser());
 
 // Use the same session configuration across services
 app.use(session({
+    store: new MemoryStore({
+        checkPeriod: 86400000 // prune expired entries every 24h
+    }),
     secret: 'your_session_secret',
     resave: true,
     saveUninitialized: false,
@@ -32,26 +36,34 @@ app.use(session({
 
 // Middleware to sync session with UserData service
 const syncWithUserData = async (req, res, next) => {
+    console.log('Sync attempt - Session data:', {
+        hasSession: !!req.session,
+        username: req.session?.username,
+        uId: req.session?.uId,
+        userType: req.session?.userType,
+        sessionID: req.sessionID
+    });
+
     if (req.session && req.session.username) {
         try {
-
-            
-            const response = await axios.post(process.env.GET_AUTH, {
+            console.log('Sending session data to UserData service');
+            const response = await axios.post(process.env.GET_AUTH_1, {
                 username: req.session.username,
                 uId: req.session.uId,
-                userType: req.session.userType
+                userType: req.session.userType,
+                sessionID: req.sessionID
             }, {
                 withCredentials: true,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Cookie': req.headers.cookie
+                    'Cookie': `sessionId=${req.sessionID}; ${req.headers.cookie || ''}`
                 }
             });
             
-    
-            
+            console.log('UserData service response:', response.data);
         } catch (error) {
-
+            console.error('Sync error:', error.message);
+            console.error('GET_AUTH URL:', process.env.GET_AUTH_1);
         }
     }
     next();
