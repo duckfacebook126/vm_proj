@@ -19,7 +19,7 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
       dominantBaseline="central"
       style={{ fontSize: '14px' }}
     >
-      {`${name}: ${(percent * 100).toFixed(0)}%`}
+      {`${name}: ${value}`}
     </text>
   );
 };
@@ -51,6 +51,7 @@ function Chart02() {
                         {pieData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
+
                     </Pie>
                     <Tooltip />
                     <Legend />

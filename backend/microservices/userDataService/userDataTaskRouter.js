@@ -68,18 +68,10 @@ router.put('/update_vm/:vmId', updateVm);
 // Route for dashboard data with session handling
 router.get('/dashboard_data', async (req, res) => {
     try {
-        console.log('Dashboard request - Session state:', {
-            hasSession: !!req.session,
-            sessionData: req.session,
-            syncedSessionData: syncedSessionData
-        });
+
         
         if (!req.session || !req.session.uId) {
-            console.log('No session found', {
-                hasSession: !!req.session,
-                uId: req.session?.uId,
-                cookies: req.headers.cookie
-            });
+           
             return res.status(401).json({
                 error: 'Authentication required',
                 authenticated: false
@@ -87,34 +79,22 @@ router.get('/dashboard_data', async (req, res) => {
         }
         await dashboard_data(req, res);
     } catch (error) {
-        console.error('Dashboard error:', error);
-        res.status(500).json({
-            error: 'Failed to fetch dashboard data',
-            details: error.message
-        });
+
     }
 });
 
 // Route to receive and set session data from Login service
 router.post('/get_auth', async (req, res) => {
     try {
-        console.log('Received auth sync request. Body:', req.body);
-        console.log('Current session before sync:', {
-            hasSession: !!req.session,
-            sessionData: req.session,
-            receivedSessionID: req.body.sessionID,
-            currentSessionID: req.sessionID
-        });
+
+        
 
         const sessionData = req.body;
         
         // Validate session data
         if (!sessionData || !sessionData.username || !sessionData.uId) {
-            console.error('Invalid session data received:', sessionData);
-            return res.status(400).json({ 
-                message: 'Invalid session data',
-                synced: false
-            });
+
+            
         }
 
         // Store the session data globally
@@ -134,21 +114,15 @@ router.post('/get_auth', async (req, res) => {
             await new Promise((resolve, reject) => {
                 req.session.save(err => {
                     if (err) {
-                        console.error('Session save error:', err);
                         reject(err);
                     } else {
-                        console.log('Session saved successfully');
                         resolve();
                     }
                 });
             });
         }
 
-        console.log('Session after sync:', {
-            hasSession: !!req.session,
-            sessionData: req.session,
-            sessionID: req.sessionID
-        });
+ 
 
         res.json({ 
             message: 'Session data synced successfully',
@@ -156,12 +130,7 @@ router.post('/get_auth', async (req, res) => {
             sessionID: req.sessionID
         });
     } catch (error) {
-        console.error('Auth sync error:', error);
-        res.status(500).json({ 
-            message: 'Failed to sync session data',
-            synced: false,
-            error: error.message
-        });
+        throw error;
     }
 });
 

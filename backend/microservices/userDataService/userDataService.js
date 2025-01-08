@@ -41,7 +41,6 @@ app.use((req, res, next) => {
 
     next();
 });
-
 app.use(express.json());
 app.use(bodyParser.json());
 app.use('/api', taskRouter);
